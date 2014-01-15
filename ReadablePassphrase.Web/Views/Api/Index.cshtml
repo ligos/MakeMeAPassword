@@ -1,0 +1,647 @@
+﻿@{
+    ViewBag.Title = "API";
+}
+
+<h2>API</h2>
+
+<p>This site uses a basic API to generate passwords via AJAX callbacks. You can access the same API to automatically generate passwords.</p>
+
+<ul>
+    <li>Results are available as plain text, JSON and XML (all UTF8 encoded)</li>
+    <li>Public access; no authentication required (although IP based throttling applies)</li>
+    <li>Maximum flexibility of parameters available</li>
+    <li>No strings attached to the use of generated passwords (no license restrictions)</li>
+    <li>Source code available for the underlying algorithms</li>
+    <li>This API is how the main website generates passwords</li>
+    <li>SSL enabled</li>
+</ul>
+
+<h3>Requirements</h3>
+<ul>
+    <li>Network access to <code>@Context.Request.Url.ToString().Replace(Context.Request.Url.PathAndQuery, "")</code></li>
+    <li>Any programming environment which can make HTTPS requests (unencrypted HTTP requests will be redirected to HTTPS equivelents)</li>
+    <li>All requests should be <code>GET</code>. <code>POST</code> will also work, but no data is ever saved on the server anyway.</li>
+    <li>HTTP headers are set to prevent caching on all API calls. After all, every request should produce new passwords.</li>
+</ul>
+
+<h3>General Form</h3>
+<p>
+    All API requests come in the following form:
+    <code>/api/v1/&lt;style&gt;/&lt;format&gt;?p=x&amp;c=1</code>
+</p>
+<ul>
+    <li><code>/api/v1/</code> - API area and version information</li>
+    <li><code>&lt;style&gt;</code> - the style of password or passphrase to generate. Each is detailed below. </li>
+    <li><code>&lt;format&gt;</code> - the format to return passwords in. Again, these are listed below.</li>
+    <li><code>?p=x&amp;c=1</code> - optional parameters to control how passwords are generated. Details are listed according to <em>style</em> below.</li>
+</ul>
+
+<h3>Example</h3>
+<code>/api/v1/passphrase/plain?pc=10&amp;wc=8&amp;sp=y&amp;maxCh=64</code>
+<ul>
+    <li>Style = <code>passphrase</code></li>
+    <li>Format = <code>plain</code></li>
+    <li>Parameters:
+        <ul>
+            <li><code>pc</code> (phrase count) = <code>10</code></li>
+            <li><code>wc</code> (word count per phrase) = <code>8</code></li>
+            <li><code>sp</code> (include spaces between words) = <code>y</code></li>
+            <li><code>maxCh</code> (maximum characters in phrase) = <code>64</code></li>
+        </ul>
+    </li>
+</ul>
+
+<h3>Conventions</h3>
+<ul>
+    <li>All API requests are case insensitive (although the resulting passwords may have upper and lower case letters).</li>
+    <li>Each style and format will work with reasonable defaults without any parameters. That is, <code>/api/v1/passphrase/plain</code> will return a single passphrase rather than an error.</li>
+    <li>Each style has a <code>combinations</code> "format". This returns JSON information about how many possible combinations are availble </li>
+    <li>There are parameters for the number of passwords to return (count) and length of passwords. Although these vary slightly in naming between styles.</li>
+    <li>All parameters have a minimum and maxium. Values outside will be clamped to the nearest value (ie: if the maximum number of passwords is <span class="label label-default">50</span> and you ask for <span class="label label-default">100</span>, you'll only get <span class="label label-default">50</span>).</li>
+    <li>Any parameter which is not understood is ignored. There are no error messages if your parameters are wrong.</li>
+</ul>
+
+
+<h3>Formats</h3>
+<ul>
+    <li><code>plain</code></li>
+    <li><code>json</code></li>
+    <li><code>xml</code></li>
+</ul>
+
+<h4>Plain</h4>
+<p>
+    Passwords are returned one per line as plain text. <br />
+    New line characters follow the Windows conventions: <code>CR LF</code> or <code>0x0a0d</code>. <br />
+    Text is encoded as UTF8. <br />
+</p>
+
+<h4>JSON</h4>
+<p>
+    Passwords are returned in a JSON object. <br />
+    Text is encoded as UTF8. <br />
+    Example JSON:
+</p>
+<pre>{
+    "pws" : [
+        "jeanne stars corollary resented",
+        "orderly churchill assays atlas",
+        "mingled physical ranged founded",
+        "loving 257 conceal lowell"
+    ]
+}</pre>
+
+<h4>XML</h4>
+<p>
+    Passwords are returned as an XML document, as serialised by <a href="http://msdn.microsoft.com/en-us/library/system.xml.serialization.xmlserializer%28v=vs.110%29.aspx">XmlSerializer</a> to an array of strings. <br />
+    Text is encoded as UTF8. <br />
+    Example XML:
+</p>
+<pre>&lt;?xml version="1.0" encoding="utf-8" ?&gt;
+&lt;arrayofstring xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+    &lt;string>paralleled amen tensions 442&lt;/string&gt;
+    &lt;string>submit contented compassion metabolism&lt;/string&gt;
+    &lt;string>ally chi halted fury&lt;/string&gt;
+    &lt;string>naturally spatial retrieved indirect&lt;/string&gt;
+&lt;/arrayofstring>
+</pre>
+
+
+<h3>Combinations</h3>
+<p>
+    Every style returns information about the number of possible combinations based on particular parameters.
+    This gives consumers of passwords the best possible information about how good their generated passwords actually are.
+</p>
+<p>
+    Unlike the URLs which generate passwords, combinations can be cached for a short time as they do not change frequently (appropriate HTTP headers are set).
+</p>
+<p>Combinations URL: <code>/api/v1/&lt;style&gt;/combinations</code></p>
+<p>
+    The combinations URL accepts the same parameters, defaults and limits as a normal API call, except the count of passwords to generate is ignored (as it is not relevent).
+</p>
+<p>
+    Combinations are always returned as JSON.
+</p>
+<h4>Combinations JSON</h4>
+<p>
+    There are two forms of combinations returned. One is a single, exact number of combinations. The other represents a range with minimum, maximum and an average. 
+    Examples of both are shown below:
+</p>
+
+<pre>{
+    // Number of combinations as a double precision float
+    "combinations": 8.1534557478023493E+45,        
+    // Password rating from 0 to 7, where 0 is worst and 7 is best.
+    "rating": 7,            
+    // 'combinations' field written out in full.
+    "formatted": "8,153,455,747,802,350,000,000,000,000,000,000,000,000,000,000",
+    // 'combinations' field in scientific notation.
+    "base10": "8.15E+045",
+    // 'combinations' field as bits of entropy (2 log n)
+    "base2": "152.51"
+}
+</pre>
+
+<pre>{
+    // The range version of combinations uses the same fields as the normal one.
+    // But there are three copies of them.
+
+    // Represents the best case or maximum possible number of combinations.
+    "upper" : {
+        "combinations": 2.4799773965933433E+37,
+        "rating": 6,
+        "formatted": "24,799,773,965,933,400,000,000,000,000,000,000,000",
+        "base10": "2.48E+037",
+        "base2":"124.22"
+    },
+
+    // Represents the worst case or minimum possible number of combinations.
+    "lower" : {
+        "combinations": 23758059300.0,
+        "rating": 1,
+        "formatted": "23,758,059,300",
+        "base10": "2.38E+010",
+        "base2": "34.47"
+    },
+
+    // Represents the average or normal number of combinations.
+    "middle": {
+        "combinations": 1.4828073978368688E+23,
+        "rating": 4,
+        "formatted": "148,280,739,783,687,000,000,000",
+        "base10": "1.48E+023",
+        "base2": "76.97"
+    }
+}
+
+</pre>
+
+<h4>Password Ratings</h4>
+<p>
+    The following table lists the meaning of each password rating in combinations results.
+    These are loosly based on time to crack given 1 billion attempts per second in an offline attack.
+</p>
+<table class="table table-condensed">
+    <thead><tr>
+        <th>Number</th>
+        <th>Name</th>
+        <th>Range of Combinations (base 2)</th>
+        <th>Range of Combinations (base 10)</th>
+    </tr></thead>
+    <tbody>
+        <tr>
+            <td><code>0</code></td>
+            <td><strong>Unusable</strong></td>
+            <td>up to 2<sup>32</sup></td>
+            <td>up to 4.29E+09</td>
+        </tr>
+        <tr>
+            <td><code>1</code></td>
+            <td><strong>Inadequate</strong></td>
+            <td>2<sup>32</sup> plus 1 ... 2<sup>42</sup></td>
+            <td>4.29E+09 plus 1 ... 4.40E+12</td>
+        </tr>
+        <tr>
+            <td><code>2</code></td>
+            <td><strong>Passable</strong></td>
+            <td>2<sup>42</sup> plus 1 ... 2<sup>52</sup></td>
+            <td>4.40E+12 plus 1 ... 4.50E+15</td>
+        </tr>
+        <tr>
+            <td><code>3</code></td>
+            <td><strong>Adequate</strong></td>
+            <td>2<sup>52</sup> plus 1 ... 2<sup>66</sup></td>
+            <td>4.50E+15 plus 1 ... 7.38E+19</td>
+        </tr>
+        <tr>
+            <td><code>4</code></td>
+            <td><strong>Strong</strong></td>
+            <td>2<sup>66</sup> plus 1 ... 2<sup>80</sup></td>
+            <td>7.38E+19 plus 1 ... 1.21E+24</td>
+        </tr>
+        <tr>
+            <td><code>5</code></td>
+            <td><strong>Fantastic</strong></td>
+            <td>2<sup>80</sup> plus 1 ... 2<sup>112</sup></td>
+            <td>1.21E+24 plus 1 ... 5.19E+33</td>
+        </tr>
+        <tr>
+            <td><code>6</code></td>
+            <td><strong>Unbreakable</strong></td>
+            <td>2<sup>112</sup> plus 1 ... 2<sup>146</sup></td>
+            <td>5.19E+33 plus 1 ... 8.92E+43</td>
+        </tr>
+        <tr>
+            <td><code>7</code></td>
+            <td><strong>Overkill</strong></td>
+            <td>2<sup>146</sup> plus 1 ... &infin;</td>
+            <td>8.92E+43 plus 1 ... &infin;</td>
+        </tr>
+    </tbody>
+</table>
+
+
+
+<h3>Style Reference</h3>
+<p>
+    Lists all parameters for each style.
+</p>
+
+
+<h4>Readable Passphrase</h4>
+<p>Base URL: <code>/api/v1/readablepassphrase/</code></p>
+<p>Example URL: <code>/api/v1/readablepassphrase/json?pc=10&amp;s=RandomLong</code></p>
+<p>Example result (using default settings): <span class="label label-default example-password">the statesman will burgle amidst lucid sunlamps</span></p>
+<p>
+    Returns one or more passphrases. Each is based on a gramatical template.
+</p>
+
+<table class="table table-condensed">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>Description</th>
+            <th>Data Type</th>
+            <th>Default</th>
+            <th>Range</th>
+            <th>Comments</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>s</code></td>
+            <td>Phrase Strength</td>
+            <td>String</td>
+            <td>Random</td>
+            <td><code>Random</code> | <code>RandomShort</code> | <code>RandomLong</code> | <code>RandomForever</code> | <code>Normal</code> | <code>Strong</code> | <code>Insane</code> | ...</td>
+            <td>
+                There are more <a href="http://readablepassphrase.codeplex.com/wikipage?title=Combination Counting">phrase strengths</a> available under <em>Base Strengths</em>. 
+                One of the first 4 are recommended unless you have very specific purposes in mind.
+            </td>
+        </tr>
+        <tr>
+            <td><code>pc</code></td>
+            <td>Count of passphrases to generate (phrase count)</td>
+            <td>Integer</td>
+            <td>1</td>
+            <td>1-50</td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td><code>sp</code></td>
+            <td>Include spaces between words</td>
+            <td>Boolean</td>
+            <td>True</td>
+            <td><code>Y</code> | <code>N</code> | <code>T</code> | <code>F</code> | <code>1</code> | <code>0</code></td>
+            <td>By default, phrases have spaces between words, but WiFi passwords cannot have spaces so this removes them.</td>
+        </tr>
+        <tr>
+            <td><code>minCh</code></td>
+            <td>Minimum characters (length) of passphrase to generate</td>
+            <td>Integer</td>
+            <td>1</td>
+            <td>1-9999</td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td><code>maxCh</code></td>
+            <td>Minimum characters (length) of passphrase to generate</td>
+            <td>Integer</td>
+            <td>9999</td>
+            <td>1-9999</td>
+            <td>
+                Using <code>minCh</code> and <code>maxCh</code> you can restrict the final length of passphrases.
+                WiFi has a maximum length of 63 characters, so you can use this to restrict the passphrase length.
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+
+<h4>Dictionary Passphrase</h4>
+<p>Base URL: <code>/api/v1/passphrase/</code></p>
+<p>Example URL: <code>/api/v1/passphrase/json?pc=10&amp;wc=6</code></p>
+<p>Example result (using default settings): <span class="label label-default example-password">correct horse battery staple</span></p>
+<p>
+    Returns one or more passphrases. Each is based on randomly chosen words from a dictionary of <code>@ViewBag.PassphraseDictionaryCount.ToString("N0")</code> words.
+</p>
+
+<table class="table table-condensed">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>Description</th>
+            <th>Data Type</th>
+            <th>Default</th>
+            <th>Range</th>
+            <th>Comments</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>wc</code></td>
+            <td>Word Count (length)</td>
+            <td>Integer</td>
+            <td>4</td>
+            <td>1-16</td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td><code>pc</code></td>
+            <td>Count of passphrases to generate (phrase count)</td>
+            <td>Integer</td>
+            <td>1</td>
+            <td>1-50</td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td><code>sp</code></td>
+            <td>Include spaces between words</td>
+            <td>Boolean</td>
+            <td>True</td>
+            <td><code>Y</code> | <code>N</code> | <code>T</code> | <code>F</code> | <code>1</code> | <code>0</code></td>
+            <td>By default, phrases have spaces between words, but WiFi passwords cannot have spaces so this removes them.</td>
+        </tr>
+        <tr>
+            <td><code>minCh</code></td>
+            <td>Minimum characters (length) of passphrase to generate</td>
+            <td>Integer</td>
+            <td>1</td>
+            <td>1-9999</td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td><code>maxCh</code></td>
+            <td>Minimum characters (length) of passphrase to generate</td>
+            <td>Integer</td>
+            <td>9999</td>
+            <td>1-9999</td>
+            <td>
+                Using <code>minCh</code> and <code>maxCh</code> you can restrict the final length of passphrases.
+                WiFi has a maximum length of 63 characters, so you can use this to restrict the passphrase length.
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+<h4>Pronouncable Password</h4>
+<p>Base URL: <code>/api/v1/pronouncable/</code></p>
+<p>Example URL: <code>/api/v1/pronouncable/json?c=10&amp;sc=5</code></p>
+<p>Example result (using default settings): <span class="label label-default example-password">psu-zigh-soorh-alung</span></p>
+<p>
+    Returns one or more pronouncable passwords. Each is based on alternating vowel and consonent sounds.
+</p>
+
+<table class="table table-condensed">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>Description</th>
+            <th>Data Type</th>
+            <th>Default</th>
+            <th>Range</th>
+            <th>Comments</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>sc</code></td>
+            <td>Syllable Count (length)</td>
+            <td>Integer</td>
+            <td>4</td>
+            <td>1-32</td>
+            <td>A syllable is a consonant and vowel pair.</td>
+        </tr>
+        <tr>
+            <td><code>c</code></td>
+            <td>Count of passwords to generate</td>
+            <td>Integer</td>
+            <td>1</td>
+            <td>1-50</td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td><code>dsh</code></td>
+            <td>Include hyphans (dashes) between words</td>
+            <td>Boolean</td>
+            <td>True</td>
+            <td><code>Y</code> | <code>N</code> | <code>T</code> | <code>F</code> | <code>1</code> | <code>0</code></td>
+            <td>By default, dashes are inserted between syllables to make them easier to read / memorise.</td>
+        </tr>
+    </tbody>
+</table>
+
+
+
+<h4>PIN</h4>
+<p>Base URL: <code>/api/v1/pin/</code></p>
+<p>Example URL: <code>/api/v1/pin/json?c=10&amp;l=6</code></p>
+<p>Example result (using default settings): <span class="label label-default example-password">9237</span></p>
+<p>
+    Returns one or more PINs. Each contains digits from <code>0-9</code>.
+</p>
+
+<table class="table table-condensed">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>Description</th>
+            <th>Data Type</th>
+            <th>Default</th>
+            <th>Range</th>
+            <th>Comments</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>l</code></td>
+            <td>Digit count (length)</td>
+            <td>Integer</td>
+            <td>4</td>
+            <td>1-128</td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td><code>c</code></td>
+            <td>Count of PINs to generate</td>
+            <td>Integer</td>
+            <td>1</td>
+            <td>1-50</td>
+            <td>&nbsp;</td>
+        </tr>
+    </tbody>
+</table>
+
+
+<h4>Alpha-Numeric</h4>
+<p>Base URL: <code>/api/v1/alphanumeric/</code></p>
+<p>Example URL: <code>/api/v1/alphanumeric/json?c=10&amp;l=12</code></p>
+<p>Example result (using default settings): <span class="label label-default example-password">RcJd04QI</span></p>
+<p>
+    Returns one or more passwords. Each contains one or more characters from the range <code>[a-zA-z0-9]</code>.
+</p>
+
+<table class="table table-condensed">
+    <thead><tr>
+        <th>Parameter</th>
+        <th>Description</th>
+        <th>Data Type</th>
+        <th>Default</th>
+        <th>Range</th>
+        <th>Comments</th>
+    </tr></thead>
+    <tbody>
+        <tr>
+            <td><code>l</code></td>
+            <td>Length of each password (in characters)</td>
+            <td>Integer</td>
+            <td>8</td>
+            <td>1-128</td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td><code>c</code></td>
+            <td>Count of passwords to generate</td>
+            <td>Integer</td>
+            <td>1</td>
+            <td>1-50</td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td><code>sym</code></td>
+            <td>Include special symbols</td>
+            <td>Boolean</td>
+            <td>False</td>
+            <td><code>Y</code> | <code>N</code> | <code>T</code> | <code>F</code> | <code>1</code> | <code>0</code></td>
+            <td>By default, passwords are made from <code>[a-zA-z0-9]</code>. Setting this to true adds the following: <code>@("!@#$%^&*()`-=~_+[]\\;',./{}|:\"<>?")</code>. Note that <em>space</em> (U+0020) is not included.</td>
+        </tr>
+    </tbody>
+</table>
+
+
+
+<h4>Unicode</h4>
+<p>Base URL: <code>/api/v1/unicode/</code></p>
+<p>Example URL: <code>/api/v1/unicode/json?c=10&amp;l=16&amp;bmp=T</code></p>
+<p>Example result (using default settings): <span class="label label-default example-password">㈒୫❫✤ʁⲮ₪Ǧ</span></p>
+<p>
+    Returns one or more Unicode passwords. Each contains Unicode code points from <code>U+0001</code> - <code>U+FFFF</code> (or <code>U+10FFFF</code> if including characters outside the base multilingual plane).
+    Only code points from the following <a href="http://msdn.microsoft.com/en-us/library/system.globalization.unicodecategory%28v=vs.110%29.aspx">Unicode categories</a> are included:
+</p>
+<ul>
+    <li><em>ClosePunctuation</em></li>
+    <li><em>ConnectorPunctuation</em></li>
+    <li><em>CurrencySymbol</em></li>
+    <li><em>DashPunctuation</em></li>
+    <li><em>DecimalDigitNumber</em></li>
+    <li><em>EnclosingMark</em></li>
+    <li><em>FinalQuotePunctuation</em></li>
+    <li><em>InitialQuotePunctuation</em></li>
+    <li><em>LetterNumber</em></li>
+    <li><em>LowercaseLetter</em></li>
+    <li><em>MathSymbol</em></li>
+    <li><em>OpenPunctuation</em></li>
+    <li><em>OtherLetter</em> - only if East Asian characters are included</li>
+    <li><em>OtherNumber</em></li>
+    <li><em>OtherPunctuation</em></li>
+    <li><em>OtherSymbol</em></li>
+    <li><em>SpaceSeparator</em></li>
+    <li><em>TitlecaseLetter</em></li>
+    <li><em>UppercaseLetter</em></li>
+</ul>
+<p>
+    Also, code points in the range <code>U+D800</code> - <code>U+DFFF</code> are excluded as they are invalid surrogate pairs.
+</p>
+
+<table class="table table-condensed">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>Description</th>
+            <th>Data Type</th>
+            <th>Default</th>
+            <th>Range</th>
+            <th>Comments</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>l</code></td>
+            <td>Code point count (length)</td>
+            <td>Integer</td>
+            <td>8</td>
+            <td>1-64</td>
+            <td>Be aware that total combinations for lengths greater than 32 can return inifinity because they exceed the maximum combinations which can be represented by a double precision float.</td>
+        </tr>
+        <tr>
+            <td><code>c</code></td>
+            <td>Count of passwords to generate</td>
+            <td>Integer</td>
+            <td>1</td>
+            <td>1-50</td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td><code>bmp</code></td>
+            <td>Only include code points from the basic multilingual plane</td>
+            <td>Boolean</td>
+            <td>True</td>
+            <td><code>Y</code> | <code>N</code> | <code>T</code> | <code>F</code> | <code>1</code> | <code>0</code></td>
+            <td>True will restrict to maximum code point <code>U+FFFF</code>. False restricts to <code>U+10FFFF</code>.</td>
+        </tr>
+        <tr>
+            <td><code>asian</code></td>
+            <td>Include East Asian characters</td>
+            <td>Boolean</td>
+            <td>False</td>
+            <td><code>Y</code> | <code>N</code> | <code>T</code> | <code>F</code> | <code>1</code> | <code>0</code></td>
+            <td>True allows characters of category <em>OtherLetter</em>. This increases the number of code points dramatically, but tends to swamp the password with East Asian characters.</td>
+        </tr>
+    </tbody>
+</table>
+
+
+
+<h4>Hex</h4>
+<p>Base URL: <code>/api/v1/hex/</code></p>
+<p>Example URL: <code>/api/v1/hex/json?c=10&amp;l=16</code></p>
+<p>Example result (using default settings): <span class="label label-default example-password">3629c4f4a7c1e32f</span></p>
+<p>
+    Returns one or more hex strings. Each contains the digits <code>0-9</code> and <code>a-f</code>.
+</p>
+
+<table class="table table-condensed">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>Description</th>
+            <th>Data Type</th>
+            <th>Default</th>
+            <th>Range</th>
+            <th>Comments</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>l</code></td>
+            <td>Digit count (length)</td>
+            <td>Integer</td>
+            <td>8</td>
+            <td>1-128</td>
+            <td>Be aware that total combinations for lengths greater than 96 return inifinity because they exceed the maximum combinations which can be represented by a double precision float.</td>
+        </tr>
+        <tr>
+            <td><code>c</code></td>
+            <td>Count of hex strings to generate</td>
+            <td>Integer</td>
+            <td>1</td>
+            <td>1-50</td>
+            <td>&nbsp;</td>
+        </tr>
+    </tbody>
+</table>
+
+
+

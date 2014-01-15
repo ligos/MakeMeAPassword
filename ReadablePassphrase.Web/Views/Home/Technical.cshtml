@@ -1,0 +1,194 @@
+﻿@{
+    ViewBag.Title = "Technical";
+}
+
+<h2>Technical Details</h2>
+
+<p>
+    This page lists more technical details of the implementation of the site and exactly how it generates passwords.
+</p>
+
+
+<a name="platform"></a>
+<a href="/technical#platform"><h3>What Platform and Environment is the Site Based On?</h3></a>
+<p>
+    I'm a Windows .NET developer, so my platform choice reflects that:
+</p>
+<ul>
+    <li>Windows Server 2012</li>
+    <li>Microsoft .NET 4.5</li>
+    <li>IIS 8.0</li>
+    <li>ASP.NET</li>
+    <li>ASP.NET MVC 3</li>
+</ul>
+<p>
+    Most of the site could be quite easily run on the <a href="http://www.mono-project.com/">Mono</a> platform.
+    However there are some quite windows centric calls when deriving entropy for the random number generator.
+    Appropriate alternatives should be available on other platforms.
+</p>
+
+
+<a name="build"></a>
+<a href="/technical#build"><h3>What Developers Tools do I need to Build the Site?</h3></a>
+<p>
+    I'm developing using <a href="http://www.visualstudio.com/downloads/download-visual-studio-vs#d-express-web">Visual Studio Express 2013 for Web</a>. 
+    Dependencies are referenced by nuget or included as binary assets.
+    There is no database behind the scenes.
+</p>
+
+
+
+<a name="random"></a>
+<a href="/technical#randomgenerator"><h3>What Random Number Generator are you Using?</h3></a>
+<p>
+    The fundemental building block of any password generator is a <a href="http://en.wikipedia.org/wiki/Cryptographically_secure_pseudorandom_number_generator">cryptographic random number generator</a>. 
+    The key requirements of which are:
+</p>
+<ol>
+    <li>You can't determine the next result based on the current one (or after observing many results).</li>
+    <li>You can't determine previous results based on the current one (or after observing many results).</li>
+</ol>
+<p>
+    The standard option on Windows .NET is to use <code>RNGCryptoServiceProvider</code>. 
+    But I don't want to put all my eggs in one basket, so I designed my own random number generator (which <code>RNGCryptoServiceProvider</code> is just one of many sources of entropy).
+    Incidently, I realised after designing my RNG that I'd made a more primitive version of <a href="http://en.wikipedia.org/wiki/Yarrow_algorithm">Yarrow</a> or <a href="http://en.wikipedia.org/wiki/Fortuna_%28PRNG%29">Fortuna</a>. I'd certainly have used one of them if I was starting from scratch, but it was a good learning exercise.
+</p>
+<p>
+    The implementation is in the <code>RandomService</code> class.
+    An English description of the algorithm follows.
+</p>
+<p class="text-indent1">
+    A random number generator is created per thread (IIS serves each request on a thread). 
+    The generator instance is never destroyed over the life time of the site. 
+    Although it is re-seeded periodically.
+</p>
+<p class="text-indent1">
+    The RNG is seeded with entropy from two sources, one expensive but high quality, the other cheaper but lower quality.
+    You can see the details of those two <a href="/technical#entropy">categories of entropy</a>.
+    Initialisation occurs in the <code>RandomService</code> constructor.
+    The expensive entropy is passed in as an argument, while the cheap entropy is derived in the constructor.
+    Both are combined using SHA256 to create the initial seed for the RNG.
+</p>
+<p class="text-indent1">
+    The actual random data is based on the HMAC-SHA256 hash function.
+    The secret key is derived from <code>RNGCryptoServiceProvider</code> in the RNG constructor.
+    Each 32 byte block is produced from one iteration of HMAC-SHA256.
+    If more than one block of 32 bytes is required to produce a password, HMAC-SHA256 is called several times to derive several blocks.
+</p>
+<p class="text-indent1">
+    The input to each block is the previous block (or the initial seed), plus some timers and counters.
+    At regular intervals, a new Guid is created an included as part of the input.
+    At less regular intervals an entirely new expensive seed is obtained and incorporated into the hash function.
+    The private method <code>GenerateNextBlock()</code> contains the implementation which produces each block.
+</p>
+<p class="text-indent1">
+    At its core, the <code>RandomService</code> class produces 32 byte blocks.
+    However, consuming code needs Int32s, Singles and Booleans.
+    So there are some helper methods to convert raw bytes into integers and floats.
+</p>
+
+
+<a name="randomtests"></a>
+<a href="/technical#randomtests"><h3>What Random Tests Have you Subjected Your RNG to?</h3></a>
+<p>
+    Nothing other than informal testing and observation of generated passwords (the <a href="/generate/hex">hex</a> generation returns the raw RNG results).
+</p>
+<p>
+    I am aware of the <a href="http://www.stat.fsu.edu/pub/diehard/">diehard</a> and <a href="http://www.phy.duke.edu/~rgb/General/dieharder.php">dieharder</a> tests used on rngs, but have not had the time to use them.
+</p>
+
+
+<a name="entropy"></a>
+<a href="/technical#entropy"><h3>What Sources of Entropy do you use?</h3></a>
+<p>
+    No matter what randomisation algorithms are used, without a good source of entropy you'll get the same numbers out the other end.
+</p>
+
+<h4>Major / Expensive Entropy</h4>
+<ul>
+    <li><a href="http://www.random.org/">Random.org</a> - a provider of entropy based on atmospheric noise</li>
+    <li>SHA512 hashes of a variety of news websites across the world - based on the assumption their content will change regularly and unpredictably (the list of sites is hard coded in <code>RandomSeedService</code>)</li>
+    <li><code>RNGCryptoServiceProvider</code> - as fallback entropy if the remote sources are unavailable</li>
+</ul>
+<p>
+    The results from random.org and news sites are combined into a single seed. 
+    That is, a 32 byte seed is derived from 16 bytes from random.org and 16 bytes from a news website.
+    The final result is hashed using SHA256.
+</p>
+<p>
+    As most expensive entropy is the result of network requests, a pool is initialised at startup.
+    This pool is refreshed with new data when it gets low.
+    As such, expensive entropy is always available to the main RNG quickly (and if network derived data is not available <code>RNGCryptoServiceProvider</code> is used instead).
+</p>
+
+<h4>Minor / Cheap Entropy</h4>
+<ul>
+    <li>System and runtime timers</li>
+    <li>Prime number based counters</li>
+    <li>Guids</li>
+    <li>Environmental information (network and disk)</li>
+    <li>Current process information (memory usage, CPU time, etc)</li>
+</ul>
+
+<p>
+    The <code>RandomSeedService</code> class generates seeds based on the major / expensive entropy. 
+    The <code>RandomService</code> uses the cheap / minor sources.
+</p>
+
+
+<a name="algorithms"></a>
+<a href="/technical#algorithms"><h3>What Algorithms do you use to Generate Passwords?</h3></a>
+<p>
+    Each algorithm is implemented in MVC controller classes named (for example) <code>ApiPassphraseV1Controller</code>. 
+    Generally, they are table lookups. Where the table varies from style to style.
+    By convention, a method <code>SelectPhrases()</code> / <code>SelectPasswords()</code> / <code>SelectPINs()</code> returns one or more passwords based on the parameters supplied.
+</p>
+<p>
+    More details can be found in the <a href="/api">API documentation</a>.
+</p>
+
+<h4>Hex Style</h4>
+<p>
+    The hex passwords are taken directly from the random number generator without any modification.
+    No lookups, tables or hash functions here. 
+    Just raw, unadulterated bytes.
+</p>
+
+<h4>Passphrase Style</h4>
+<p>
+    Each word is chosen from the dictionary as a giant lookup. 
+    After the phrase is constructed, it may be rejected if it does not meet the length requirements.
+    After 100 attempts without meeting length requirements, a null passphrase will be returned.
+</p>
+
+<h4>Pronouncable Style</h4>
+<p>
+    Uses a lookup into vowel and consonent sounds.
+    Some very basic logic is used to alternate between vowels and consonents, but I could do much better cleaning up double letters and so on.
+</p>
+
+<h4>Readable Passphrase Style</h4>
+<p>
+    This calls out to a 3rd party library to generate passwords.
+    <a href="http://readablepassphrase.codeplex.com/SourceControl/latest">Source code</a> is available.
+    After the phrase is constructed, it may be rejected if it does not meet the length requirements.
+    After 100 attempts without meeting length requirements, a null passphrase will be returned.
+</p>
+
+<h4>PIN Style</h4>
+<p>
+    PINs are constructed as a lookup into the digits <code>0..9</code>.
+    After a PIN is constructed, it may be rejected if it is on the blacklist.
+</p>
+
+<h4>Unicode Style</h4>
+<p>
+    There are too many code points to do lookups into a full table of known characters.
+    So generating Unicode passwords uses a different algorithm.
+</p>
+<ol>
+    <li>A random Int32 is generated to select a candidate code point.</li>
+    <li>High bits from the int is masked depending on if only code points from the basic multilingual plane are selected (or not)</li>
+    <li>The candidate code point may be rejected if it lies in certain ranges (surrogate points, control codes, etc)</li>
+    <li>The candidate code point must be classed as a particular <a href="http://msdn.microsoft.com/en-us/library/system.globalization.unicodecategory%28v=vs.110%29.aspx">Unicode category</a> (this is how East Asian characters are excluded)</li>
+</ol>

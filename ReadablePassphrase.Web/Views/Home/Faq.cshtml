@@ -1,0 +1,350 @@
+﻿@{
+    ViewBag.Title = "Frequently Asked Questions";
+}
+
+<h2>Frequently Asked Questions</h2>
+
+<p>OK, this is really a big list of statements and assumptions. Read here to find out more of the details behind how passwords are generated.</p>
+
+
+
+<a name="styles"></a>
+<a href="/faq#styles"><h3>What Password and Passphrase Styles are Supported?</h3></a>
+<p>
+    <a href="/generate">See here for details</a>. 
+    Or click across the different options across the top of the page to try different styles out.
+</p>
+
+
+<a name="usagelimit"></a>
+<a href="/faq#usagelimit"><h3>What Usage Limits Apply?</h3></a>
+<p>
+    To make sure this site is available to as many people as possible, usage limits are applied based on your IP address. 
+    Because you don't need large numbers of passwords in bulk, the limits are designed such that they should never be accidently reached, while still allowing plenty of scope for experimentation and testing.
+</p>
+<p>
+    The limit is: <code>150</code> passwords generated <strong>or</strong> quality ratings per <code>each</code> IP address per <code>2</code> hour time period.
+</p>
+<p>
+    Once the limit is exceeded, any requests from your IP address will be denied. Every 2 hours the limits are reset, so you will need up wait, at most, hours before you can generate more passwords.
+</p>
+
+
+<a name="security"></a>
+<a href="/faq#security"><h3>What Security Precautions Does This Site Take</h3></a>
+<p>
+    Before I list the precautions and ways you can double check everything is above board, let me be very honest: no matter what I say here, you will need to trust me (and my hosting provider).
+</p>
+<p>
+    That is, despite every box I tick, and every precaution I take, there's no way you can be 100% sure either I, my hosting provider or the NSA aren't secretly recording each password you generate.
+    To be 100% sure, grab a copy of the <a href="/faq#sourcecode">source code</a> and generate passwords in your own controlled environment.
+</p>
+<p>
+    OK, with that out of the way, here's the list: 
+</p>
+<ul>
+    <li>Generated passwords are not recorded, logged, analysed or otherwise noted. Passwords are supposed to be secret, so I don't look at them.</li>
+    <li>Passwords are generated using a strong random number generator. That is, they are as random as computers can get. There are more technical details about how <a href="/technical#random">random numbers are generated</a>.</li>
+    <li>The source code for all the algorithms are available for appropriately skilled people to examine. I'm happy for <a href="/contact">feedback</a> if I've gotten anything wrong.</li>
+    <li>Generated passwords are transmitted securely via SSL so third parties can't (easily) see your generated passwords.</li>
+</ul>
+
+
+<a name="guessable"></a>
+<a href="/faq#guessable"><h3>How Easy are the Passwords to Guess?</h3></a>
+<p>
+    The generated passwords and passphrase are entirely random. 
+    So, without any pattern to work with, any attacker would need to try every combination in turn.
+    Which means the longer password you can memorise, the harder it is for the bad guys to guess.
+</p>
+<p>
+    To give some concrete numbers to work with, here's a worked example:
+</p>
+<p class="text-indent1">
+    A <a href="/Generate/Passphrase">5 word passphrase</a> has <code>1,463,822,570,892,920,000,000</code> total combinations (and is rated as <span class="label label-default">Strong</span>).
+</p>
+<p class="text-indent1">
+    An attacker could invest about $10k (in Australia) to attempt up to <code>81 million</code> unique passwords per second using <a href="http://hashcat.net/oclhashcat/">Hashcat</a> (based on figures from early 2014).
+</p>
+<p class="text-indent1">
+    At that rate, it would take about <span class="label label-success">550 years</span> to try every combination.
+</p>
+<p class="text-indent1">
+    Add one more word to make a 6 word passphrase (rated as <span class="label label-default">Fantastic</span>) and it would take over <span class="label label-success">9 million years</span>! <br />
+    With a 4 word passphrase (rated as <span class="label label-default">Adequate</span>) it would take just <span class="label label-success">13 days</span>.
+</p>
+<p class="text-indent1">
+    Most attackers will give up after a week or two of trying. So even the 4 word passphrase isn't bad (although I wouldn't be comfortable with it).
+</p>
+<p>
+    This is all based on the assumption you don't <a href="/faq#changepassword">change the generated password</a>.
+</p>
+
+
+<a name="sourcecode"></a>
+<a href="/faq#sourcecode"><h3>Is Source Code Available?</h3></a>
+<p>
+    Yes. You can see all the internals of the site at ... <span class="label label-danger">TODO</span>
+</p>
+
+
+<a name="dictionaries"></a>
+<a href="/faq#dictionaries"><h3>Are the Dictionaries Used Available?</h3></a>
+<p>
+    Yes. 
+</p>
+<p>
+    The <a href="/content/data/DictionaryEnglish.txt">passphrase dictionary</a> is a plain text file with one word per line.
+</p>
+<p>
+    The <a href="/content/data/dictionary.xml">readable passphrase dictionary</a> is an XML file which marks words according to their English parts of speach.
+</p>
+<p>
+    The <a href="/content/data/PinBlacklist.txt">PIN blacklist</a> is a plain text file with one PIN per line. It was derived from <a href="http://www.datagenetics.com/blog/september32012/">work by Data Genetics</a>.
+</p>
+
+
+<a name="nonenglishdict"></a>
+<a href="/faq#nonenglishdict"><h3>Are there Non-English Dictionaries Available?</h3></a>
+<p>
+    No. Sorry, I don't speak any other languages.
+</p>
+
+
+<a name="changepassword"></a>
+<a href="/faq#changepassword"><h3>Can I Change the Generated Password?</h3></a>
+<p>
+    Maybe. For best results, please don't.
+</p>
+<p>
+    OK, you can pretty safely <strong>add</strong> to the password without any problem. 
+    Adding does not decrease the number of combinations (and may even increase them, although password crackers are very good at guessing common additions).
+</p>
+<p>
+    I commonly add a number and a symbol to a passphrase to meet my employer's password quality requirements, but leave the rest of the passphrase exactly as is.
+</p>
+<p>
+    On the other hand, all bets are off if you change a word or character within a password to, say, something you like better. 
+    Or changing the letter <code>o</code> to a number <code>0</code>.
+    Or capitalising a letter.
+</p>
+<p>
+    Quite simply, I don't know how your change will affect the total combinations. 
+    Some change you think looks totally random may actually be a common modification known by crackers and add very little to the password.
+    It's always best to rely on randomness and length rather than funky modifications.
+</p>
+
+
+<a name="readablerange"></a>
+<a href="/faq#readablerange"><h3>Why is the Readable Passphrase Quality a Range?</h3></a>
+<p>
+    The readable passphrases have considerably more complex structure than any other style. 
+    As any student of languages knows all too well, natural language is, well, complicated.
+    Even slight differences in phrase structure, for example an imperative verb rather than present tense, can dramatically change the number of combinations.
+    And the different <a href="/faq#readablelength">phrase length options</a> each imply different phrase templates.
+</p>
+<p>
+    As with other styles, I want to capture the quality of generated phrases, but a single number simply doesn't work with the complexity of the templates used.
+    So, rather than showing the maxium or minimum combinations, the range represents both.
+</p>
+<p>
+    The minimum represents the smallest number of combinations possible (assuming the worst case for everything). 
+    Maximum is the largest number of combinations (assume best case).
+    And the average, which is used as the headline, is a middle ground of the two. 
+    The average is a good "working estimate" for comparing with other styles, but be aware you can occassionally get much easier or harder to guess phrases.
+</p>
+<p>
+    There are some <a href="http://readablepassphrase.codeplex.com/wikipage?title=Combination Counting">graphs of different phrase strengths</a> to give you an idea of different complexities and strengths.
+    And the same page lists all the phrase templates which correspond to each length.
+</p>
+
+
+<a name="readablelength"></a>
+<a href="/faq#readablelength"><h3>What do the Readable Passphrase Length Options Mean?</h3></a>
+<p>
+    The readable passphrases have considerably more complex structure than any other style. 
+    Rather than a simple number of words to control the phrase length, the readable passphrase is based on templates (eg: <span class="label label-default">noun</span> <span class="label label-default">verb</span> <span class="label label-default">adjective</span> <span class="label label-default">noun</span>).
+    Longer phrases use more complex templates. And most templates contain at least one optional word (eg: the adjective in the previous example is optional in most templates).
+</p>
+<p>
+    There are some <a href="http://readablepassphrase.codeplex.com/wikipage?title=Combination Counting">graphs of different phrase strengths</a> to give you an idea of different complexities and strengths.
+    And the same page lists all the phrase templates which correspond to each length.
+</p>
+
+
+<a name="pinrating"></a>
+<a href="/faq#pinrating"><h3>Why are PIN Quality Ratings Different?</h3></a>
+<p>
+    PINs are fundementally insecure to be used as normal passwords. 
+    There are simply too few combinations in a 4 number PIN to stop someone trying every combination.
+    They rely on the fact that you can only enter them a few times before your phone is locked or your ATM card is shredded.
+</p>
+<p>
+    To take into account the limited number of times you can enter a PIN before something horrible happens, the quality ratings are lowered.
+</p>
+<p>
+    <span class="label label-danger">Important</span> PINs are not usable as normal passwords. Never use a PIN as a computer login or website password.
+</p>
+
+
+<a name="pinblacklist"></a>
+<a href="/faq#pinblacklist"><h3>Why are Some PINs Excluded?</h3></a>
+<p>
+    There are some very commonly used PINs, such as <span class="label label-default">1234</span> or <span class="label label-default">1111</span>.
+    Because such PINs could quite easily be guessed, the most common are blacklisted and will never be generated.
+</p>
+<p>
+    You can download the list of <a href="/content/data/PinBlacklist.txt">blacklisted PINs</a>. It was derived from <a href="http://www.datagenetics.com/blog/september32012/">work by Data Genetics</a>.
+</p>
+<p>
+    The blacklist applies to PINs from 4 to 10 digits long.
+</p>
+
+<a name="useexamples"></a>
+<a href="/faq#useexamples"><h3>Should I Use the Example Passwords?</h3></a>
+<p>
+    No. Never use the passwords or passphrases used as examples.
+</p>
+<p>
+    Passwords are supposed to be kept secret. And the example passwords are anything but secret.
+</p>
+
+
+<a name="technical"></a>
+<a href="/faq#technical"><h3>Are there More Technical Questions?</h3></a>
+<p>
+    For security professionals, programmers and other people interested in the technical implementation of the site, there are more details available on the <a href="/technical">technical FAQ</a>.
+</p>
+
+
+<a name="passwordmanager"></a>
+<a href="/faq#passwordmanager"><h3>What are Password Managers?</h3></a>
+<p>
+    <a href="http://en.wikipedia.org/wiki/Password_manager">Password managers</a> are computer programs which securely store your passwords.
+    They make it easy to generate and remember a unique password for every website you visit.
+</p>
+<p>
+    They are the electronic equivelent of a notepad to write all your passwords down on.
+    Along with a combination safe to store them in.
+    And a set of dice to make new passwords.
+    And a link to your browsers and other programs to type them easily.
+</p>
+<p>
+    A password manager means you'll only need to remember a handful of passwords, but every website you use can have a strong and unique password.
+    Essential for best security on the Internet.
+</p>
+
+
+<a name="pwmgrrecommend"></a>
+<a href="/faq#pwmgrrecommend"><h3>What Password Managers do you Recommend?</h3></a>
+<p>
+    There are several different password managers available.
+    As always, there are pluses and minuses for each of them and you should do your research before choosing one.
+    But using any of them is a million times better than simply using the same password on every website.
+</p>
+<ul>
+    <li><a href="http://keepass.info/">KeePass Password Safe</a></li>
+    <li><a href="https://agilebits.com/onepassword">1Password</a></li>
+    <li><a href="https://lastpass.com/">LastPass</a></li>
+</ul>
+<p>
+    If you're really looking for a recommendation, I use <a href="http://keepass.info/">KeePass</a>. Although I'd recommend <a href="https://agilebits.com/onepassword">1Password</a> for anyone non-technical.
+</p>
+
+
+<a name="uniquepassword"></a>
+<a href="/faq#uniquepassword"><h3>Why Have a Unique Password for Every Website?</h3></a>
+<p>
+    So your banking account can't be accessed because some website random you registered on 5 years ago got hacked.
+</p>
+<p>
+    Websites get hacked on a daily basis from small mum-and-pop stores to high profile sites like LinkedIn or Adobe.
+    If you use the same password for your internet banking as LinkedIn,
+    there's a very high chance the bad hackers know your password and could easily access your bank accounts.
+</p>
+<p>
+    There are websites which <a href="http://dazzlepod.com/disclosure/">list</a> comprimised or hacked sites.
+    Others let you check if your <a href="https://haveibeenpwned.com/">email</a> or password has been disclosed.
+    And still others are dedicated to analysing, <a href="http://www.hashes.org/">cracking</a> and publishing the leaked passwords.
+    The most highly prized lists are leaked passwords traded privately between hackers; you'll never know if your password are on those lists.
+</p>
+<p>
+    The take home message is: using the same password on multiple sites is risky.
+    Like unsafe sex risky: if you use the same password on enough site, eventually you'll get bitten.
+</p>
+
+
+
+<a name="unicodeasian"></a>
+<a href="/faq#unicodeasian"><h3>Why Include (or Exclude) Asian Characters?</h3></a>
+<p>
+    Unicode passwords are generated based on code points (each being a single character or letter).
+    Code points each are <a href="http://msdn.microsoft.com/en-us/library/system.globalization.unicodecategory(v=vs.110).aspx">categorised</a>.
+    Only code points from a limited number of categories (listed in the <a href="/technical">technical details</a>) are used.
+</p>
+<p>
+    Most East Asian characters are categorised as <em>OtherLetter</em>.
+    Checking the <em>Include Asian Characters</em> option adds that one category to the allowed list.
+</p>
+<p>
+    Unfortunately, there are alot of East Asian Characters.
+    Around 49 thousand of them (they are the red and light red in <a href="http://en.wikipedia.org/wiki/File:Roadmap_to_Unicode_BMP.svg">this picture</a>).
+    And they tend to swamp all other characters out.
+</p>
+<p>
+    So including them means at least three quarters of your password will appear as East Asian characters.
+    Although it will significantly increase the number of combinations for your passwords.
+</p>
+<p>
+    In the end, it's a personal choice to make. 
+    But, because I can't read East Asian characters and they have no meaning to me, I prefer to exclude them.
+</p>
+
+
+<a name="unicodebmp"></a>
+<a href="/faq#unicodebmp"><h3>What's a Basic Multilingual Plane and Why Should I Exclude it?</h3></a>
+<p>
+    <strong>Summary</strong>: only use the Basic Multilingual Plane, as you get little benefit when using all of Unicode but my server has to work 1000 times harder.
+</p>
+<p>
+    To understand why that is the case, there's some history and technical details about Unicode. And then some maths.
+</p>
+<p>
+    The <a href="http://en.wikipedia.org/wiki/Unicode_plane">Basic Multilingual Plane</a> (or BMP) is a part of the <a href="http://en.wikipedia.org/wiki/Unicode">Unicode</a> standard which allows a little under 65 thousand different code points or characters.
+    It was all that was considered when Unicode was originally designed.
+    Unfortunately, people realised there are more than 65k different characters in all the different languages in the world.
+    So, as is the usual case with computers and technology, some smart people designed a clever (but ugly) way to allow more characters.
+    The original 65k (which was originally everything) was renamed to the Basic Multilingual Plane (plane zero), as it contained letters and characters for most major languages.
+    And an additional 16 new "planes" were added (numbered 1 through to 16), each with 65k characters, to allow for a grand total of 1,114,112 (65k times 17 planes).
+    Of that, Unicode in early 2014 (version 6.3) has allocated 110,187 different code points or characters - a little under 10%.
+</p>
+<p>
+    But, in terms of generating passwords, including the entire Unicode code point space is not very useful.
+    Most of Unicode outside the BMP is actually unallocated (only about 10% of the total space, the BMP is 85% allocated for public use).
+    So, my algorithm to generate passwords has to do more work to locate useful code points (ie: my server has to look much harder).
+    But, because there's only an extra 60% or so extra characters to choose from, all that work does not translate into better passwords.
+    A doubling of characters would be nice, but we barely get half way there.
+</p>
+<p>
+    If the entire Unicode code point space was allocated, then this problem would largely go away.
+    My server wouldn't need to look so hard, and we'd have 10 times the number of characters which would make for even more insanely hard to guess passwords!
+</p>
+<p>
+    So, to repeat the summary: it's not really worth allowing more than the BMP when generating Unicode passwords. 
+    Just leave that check box unticked.
+</p>
+
+
+<a name="remembersettings"></a>
+<a href="/faq#remembersettings"><h3>Does This Site Remember My Settings?</h3></a>
+<p>
+    Yes. The site uses a web browser feature called <a href="http://diveintohtml5.info/storage.html">Local Storage</a> to store settings for each style of password, and the home page.
+</p>
+<p>
+    As long as you visit the site in the same web browser, your settings will be remembered.
+    Different web browsers like Chrome or Firefox or Internet Explorer on the same computer won't remember your settings.
+</p>
+<p>
+    There is no <em>Save</em> button, however.
+    Any time you change your a setting, your web browser just remembers.
+</p>

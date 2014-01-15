@@ -1,0 +1,47 @@
+﻿
+<div class="navbar navbar-default navbar-static-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand @( ViewBag.CurrentNav == "Home" ? "active" : "" )" href="/">Home</a>
+        </div>
+
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="@( ViewBag.CurrentNav == "ReadablePassphrase" ? "active" : "" )">@Html.ActionLink("Readable", "ReadablePassphrase", "Generate")</li>
+                <li class="@( ViewBag.CurrentNav == "DictionaryPassphrase" ? "active" : "" )">@Html.ActionLink("Dictionary", "Passphrase", "Generate")</li>
+                <li class="@( ViewBag.CurrentNav == "Pronouncable" ? "active" : "" )">@Html.ActionLink("Pronouncable", "Pronouncable", "Generate")</li>
+                <li class="@( ViewBag.CurrentNav == "PIN" ? "active" : "" )">@Html.ActionLink("PIN", "Pin", "Generate")</li>
+                <li class="dropdown @( ViewBag.CurrentNav == "AlphaNumeric" || ViewBag.CurrentNav == "Hex" || ViewBag.CurrentNav == "Unicode" || ViewBag.CurrentNav == "GenerateIndex" ? "active" : "")">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Other Styles<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li class="@( ViewBag.CurrentNav == "AlphaNumeric" ? "active" : "" )">@Html.ActionLink("Alpha Numeric", "AlphaNumeric", "Generate")</li>
+                        <li class="@( ViewBag.CurrentNav == "Hex" ? "active" : "" )">@Html.ActionLink("Hex", "Hex", "Generate")</li>
+                        <li class="@( ViewBag.CurrentNav == "Unicode" ? "active" : "" )">@Html.ActionLink("Unicode", "Unicode", "Generate")</li>
+                        <li class="divider"></li>
+                        <li class="@( ViewBag.CurrentNav == "GenerateIndex" ? "active" : "" )">@Html.ActionLink("List All Styles", "Index", "Generate")</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li>@Html.ActionLink("About", "About", "Home")</li>
+                        <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+                        @*<li>@Html.ActionLink("Donate", "Donate", "Home")</li>*@
+                        <li>@Html.ActionLink("FAQ", "FAQ", "Home")</li>
+                        <li>@Html.ActionLink("Technical", "Technical", "Home")</li>
+                        <li>@Html.ActionLink("API", "Index", "Api")</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
