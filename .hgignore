@@ -1,6 +1,6 @@
 syntax: glob
 *.suo
-packages/**
+packages/*
 bin/*
 obj/*
 *.csproj.user
