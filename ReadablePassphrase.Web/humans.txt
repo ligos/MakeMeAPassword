@@ -3,13 +3,17 @@
 
 # TEAM
 
-    <name> -- <role> -- <twitter>
+	Murray Grant -- Everything -- makemeapassword@ligos.net                            
 
 # THANKS
 
-    <name>
+	Random.org for providing randomness
 
 # TECHNOLOGY COLOPHON
 
     HTML5, CSS3
+	Twitter Bootstap, FontAwesome
     jQuery, Modernizr
+	C#, ASP.NET MVC 3
+	JSON.NET
+
