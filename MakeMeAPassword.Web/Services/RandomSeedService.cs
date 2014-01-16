@@ -55,7 +55,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             new Uri("http://www.reuters.com/"),            
             new Uri("http://www.washingtonpost.com/"),            
             new Uri("http://issuu.com/"),            
-            new Uri("https://archive.org/"),            
+            new Uri("http://superuser.com"),            
             new Uri("http://www.dailymotion.com/au"),            
             new Uri("http://www.telegraph.co.uk/"),            
             new Uri("http://www.yelp.com/sydney"),            
