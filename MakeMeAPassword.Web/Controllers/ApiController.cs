@@ -12,7 +12,7 @@ using System.Dynamic;
 using MurrayGrant.PasswordGenerator.Web.Services;
 using MurrayGrant.PasswordGenerator.Web.Helpers;
 using System.Text;
-
+using System.Management;
 
 namespace MurrayGrant.PasswordGenerator.Web.Controllers
 {
@@ -61,6 +61,30 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers
             result.RootDriveCapacity = rootDrive.TotalSize;
             result.RootDriveFreeSpace = rootDrive.TotalFreeSpace;
 
+            // Some WMI goodness!
+            try { result.SystemInfo = GetWmiObject("Win32_ComputerSystem"); } 
+            catch (ManagementException ex) { result.SystemInfo = ex.GetType().FullName + ": " + ex.Message; }
+            try { result.OsInfo = GetWmiObject("Win32_OperatingSystem"); }
+            catch (ManagementException ex) { result.OsInfo = ex.GetType().FullName + ": " + ex.Message; }
+            try { result.CpuInfo = GetWmiObject("Win32_Processor"); }
+            catch (ManagementException ex) { result.CpuInfo = ex.GetType().FullName + ": " + ex.Message; }
+            try { result.RamInfo = GetWmiObject("Win32_PhysicalMemory"); }
+            catch (ManagementException ex) { result.RamInfo = ex.GetType().FullName + ": " + ex.Message; }
+            try { result.NumaInfo = GetWmiObject("Win32_MemoryArray"); }
+            catch (ManagementException ex) { result.NumaInfo = ex.GetType().FullName + ": " + ex.Message; }
+            try { result.DiskInfo = GetWmiObject("Win32_DiskDrive"); }
+            catch (ManagementException ex) { result.DiskInfo = ex.GetType().FullName + ": " + ex.Message; }
+            try { result.DiskVolumeInfo = GetWmiObject("Win32_Volume"); }
+            catch (ManagementException ex) { result.DiskVolumeInfo = ex.GetType().FullName + ": " + ex.Message; }
+            try { result.LogicalDiskInfo = GetWmiObject("Win32_LogicalDisk"); }
+            catch (ManagementException ex) { result.LogicalDiskInfo = ex.GetType().FullName + ": " + ex.Message; }
+            try { result.NetworkAdapterInfo = GetWmiObject("Win32_NetworkAdapter", "PhysicalAdapter=True"); }
+            catch (ManagementException ex) { result.NetworkAdapterInfo = ex.GetType().FullName + ": " + ex.Message; }
+            try { result.NetworkInfo = GetWmiObject("Win32_NetworkAdapterConfiguration", "IPEnabled=True OR IPXEnabled=True OR MACAddress IS NOT NULL"); }
+            catch (ManagementException ex) { result.NetworkInfo = ex.GetType().FullName + ": " + ex.Message; }
+
+            result.CurrentProcess = Process.GetCurrentProcess();
+
             // A bunch of random bytes.
             var random = RandomService.GetForCurrentThread();
             var bytes = random.GetNextBytes(128);
@@ -103,6 +127,32 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers
 
             return new JsonNetResult(result);
         }
+
+        private IEnumerable<IDictionary<string, object>> GetWmiObject(string wmiClass)
+        {
+            return GetWmiObject(wmiClass, Enumerable.Empty<string>(), "");
+        }
+        private IEnumerable<IDictionary<string, object>> GetWmiObject(string wmiClass, IEnumerable<string> properties)
+        {
+            return GetWmiObject(wmiClass, properties, "");
+        }
+        private IEnumerable<IDictionary<string, object>> GetWmiObject(string wmiClass, string whereClause)
+        {
+            return GetWmiObject(wmiClass, Enumerable.Empty<string>(), whereClause);
+        }
+        private IEnumerable<IDictionary<string, object>> GetWmiObject(string wmiClass, IEnumerable<string> properties, string whereClause)
+        {
+            var selectFields = properties == null || !properties.Any() || properties.Contains("*") ? "*" : String.Join(",", properties.ToArray());
+            var query = "SELECT " + selectFields + " FROM " + wmiClass;
+            if (!String.IsNullOrWhiteSpace(whereClause))
+                query += " WHERE " + whereClause;
+
+            using (var result = new ManagementObjectSearcher(query))
+            {
+                return result.GetNameAndValue(properties).ToList();
+            }
+        }
+
 
         [OutputCache(Duration = 0, NoStore = true)]
         public ActionResult Stats(string s)
