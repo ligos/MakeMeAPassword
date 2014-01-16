@@ -83,8 +83,6 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers
             try { result.NetworkInfo = GetWmiObject("Win32_NetworkAdapterConfiguration", "IPEnabled=True OR IPXEnabled=True OR MACAddress IS NOT NULL"); }
             catch (ManagementException ex) { result.NetworkInfo = ex.GetType().FullName + ": " + ex.Message; }
 
-            result.CurrentProcess = Process.GetCurrentProcess();
-
             // A bunch of random bytes.
             var random = RandomService.GetForCurrentThread();
             var bytes = random.GetNextBytes(128);
