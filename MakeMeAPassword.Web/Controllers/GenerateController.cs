@@ -6,7 +6,9 @@ using System.Web.Mvc;
 
 namespace MurrayGrant.PasswordGenerator.Web.Controllers
 {
-//    [OutputCache(Duration=10, Location = System.Web.UI.OutputCacheLocation.Any, CacheProfile="")]
+#if !DEBUG
+    [OutputCache(Duration = 60 * 60 * 24, Location = System.Web.UI.OutputCacheLocation.Any)]
+#endif
     public class GenerateController : Controller
     {
         //

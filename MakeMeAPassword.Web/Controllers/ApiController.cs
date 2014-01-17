@@ -16,14 +16,13 @@ using System.Management;
 
 namespace MurrayGrant.PasswordGenerator.Web.Controllers
 {
-#if !DEBUG
-    [OutputCache(Duration = 60 * 60 * 24, Location = System.Web.UI.OutputCacheLocation.Any)]
-#endif
     public class ApiController : Controller
     {
         //
         // GET: /Api/
-
+#if !DEBUG
+        [OutputCache(Duration = 60 * 60 * 24, Location = System.Web.UI.OutputCacheLocation.Any)]
+#endif
         public ActionResult Index()
         {
             ViewBag.PassphraseDictionaryCount = MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1.ApiPassphraseV1Controller.Dictionary.Value.Count;

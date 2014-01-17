@@ -8,8 +8,8 @@ namespace MurrayGrant.PasswordGenerator.Web
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
             filters.Add(new HandleErrorAttribute());
-#if !DEBUG
-            //filters.Add(new RequireHttpsAttribute());
+#if !DEBUG && !NOHTTPS
+            filters.Add(new RequireHttpsAttribute());
 #endif
         }
     }
