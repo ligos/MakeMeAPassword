@@ -49,8 +49,6 @@ namespace MurrayGrant.PasswordGenerator.Web
                         "~/content/Scripts/jquery.js",
                         "~/content/Scripts/jquery.validate.js",
                         "~/content/Scripts/bootstrap.js",
-                        "~/content/Scripts/modernizr.js",
-                        "~/content/Scripts/respond.js",
                         "~/content/Scripts/site-*"
                         ));
         }
