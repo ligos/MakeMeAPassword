@@ -10,10 +10,10 @@ namespace MurrayGrant.PasswordGenerator.Web
         {
             bundles.UseCdn = true;
 
-            bundles.Add(new ScriptBundle("~/bundles/scripts/jquery", "http://code.jquery.com/jquery-1.10.2.min.js").Include(
+            bundles.Add(new ScriptBundle("~/bundles/scripts/jquery", "//code.jquery.com/jquery-1.10.2.min.js").Include(
                         "~/content/Scripts/jquery.js"));
 
-            bundles.Add(new ScriptBundle("~/bundles/scripts/bootstrap", "http://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js").Include(
+            bundles.Add(new ScriptBundle("~/bundles/scripts/bootstrap", "//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js").Include(
                         "~/content/Scripts/bootstrap.js"));
 
             // Use the development version of Modernizr to develop with and learn from. Then, when you're
@@ -22,12 +22,12 @@ namespace MurrayGrant.PasswordGenerator.Web
                         "~/content/Scripts/modernizr.js",
                         "~/content/Scripts/respond.js"));
 
-            bundles.Add(new StyleBundle("~/bundles/css/bootstrap", "http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css").Include(
+            bundles.Add(new StyleBundle("~/bundles/css/bootstrap", "//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css").Include(
                         "~/Content/css/bootstrap.css"));
-            bundles.Add(new StyleBundle("~/bundles/css/bootstrap-theme", "http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css").Include(
+            bundles.Add(new StyleBundle("~/bundles/css/bootstrap-theme", "//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css").Include(
                         "~/Content/css/bootstrap-theme.css"));
 
-            bundles.Add(new StyleBundle("~/bundles/css/fontawesome", "http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css").Include(
+            bundles.Add(new StyleBundle("~/bundles/css/fontawesome", "//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css").Include(
                         "~/Content/css/font-awesome.css"));
 
             
