@@ -267,6 +267,14 @@ $(document).ready(function () {
         window.pwg.getCombinations(combinationsUrl);
         window.pwg.getPassword(passwordUrl);
     }
+
+    // If the front page has a #getPassword, automatically get a password.
+    if (window.location.hash && window.location.hash.toLowerCase() === '#getpassword') {
+        getBtn = $('#passwordGetFront');
+        if (getBtn.length) {
+            $('#impatientPassword').trigger('click');
+        }
+    }
 });
 
 // The Generate Password Right Now Button (front page).
@@ -303,24 +311,24 @@ $(document).on('click', '#readableWhyRangeBtn', function (evt) {
     $('#readableWhyRangeText').show(400);
 });
 
-$(function () {
-    // http://stackoverflow.com/a/1186309/117070
-    $.fn.serializeObject = function () {
-        var o = {};
-        var a = this.serializeArray();
-        $.each(a, function () {
-            if (o[this.name] !== undefined) {
-                if (!o[this.name].push) {
-                    o[this.name] = [o[this.name]];
-                }
-                o[this.name].push(this.value || '');
-            } else {
-                o[this.name] = this.value || '';
+
+// http://stackoverflow.com/a/1186309/117070
+$.fn.serializeObject = function () {
+    var o = {};
+    var a = this.serializeArray();
+    $.each(a, function () {
+        if (o[this.name] !== undefined) {
+            if (!o[this.name].push) {
+                o[this.name] = [o[this.name]];
             }
-        });
-        return o;
-    };
-});
+            o[this.name].push(this.value || '');
+        } else {
+            o[this.name] = this.value || '';
+        }
+    });
+    return o;
+};
+
 
 // Alert dialog dismiss bvutton.
 $(".alert").alert();
