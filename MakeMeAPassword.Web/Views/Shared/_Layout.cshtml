@@ -21,7 +21,10 @@
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" href="/favicon.png" />
 
-        @Styles.Render("~/bundles/css/all")
+        @Styles.Render("~/bundles/css/bootstrap")
+        @Styles.Render("~/bundles/css/bootstrap-theme")
+        @Styles.Render("~/bundles/css/fontawesome")
+        @Styles.Render("~/bundles/css/site")
 <!--[if lte IE 8]>
         @Scripts.Render("~/bundles/scripts/modernizr")
 <![endif]-->
@@ -40,10 +43,10 @@
         @Html.Partial("_Footer")
 
 
-        @Scripts.Render("~/bundles/scripts/all")
-<!--[if gt IE 8]>
+        @Scripts.Render("~/bundles/scripts/jquery")
+        @Scripts.Render("~/bundles/scripts/bootstrap")
         @Scripts.Render("~/bundles/scripts/modernizr")
-<![endif]-->
+        @Scripts.Render("~/bundles/scripts/site")
 
         @RenderSection("scripts", required: false)
     </body>

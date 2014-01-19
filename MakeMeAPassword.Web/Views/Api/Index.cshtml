@@ -181,13 +181,15 @@
     The following table lists the meaning of each password rating in combinations results.
     These are loosly based on time to crack given 1 billion attempts per second in an offline attack.
 </p>
-<table class="table table-condensed">
-    <thead><tr>
-        <th>Number</th>
-        <th>Name</th>
-        <th>Range of Combinations (base 2)</th>
-        <th>Range of Combinations (base 10)</th>
-    </tr></thead>
+<table class="table table-condensed table-bordered">
+    <thead>
+        <tr>
+            <th>Number</th>
+            <th>Name</th>
+            <th>Range of Combinations (base 2)</th>
+            <th>Range of Combinations (base 10)</th>
+        </tr>
+    </thead>
     <tbody>
         <tr>
             <td><code>0</code></td>
@@ -256,7 +258,7 @@
     Returns one or more passphrases. Each is based on a gramatical template.
 </p>
 
-<table class="table table-condensed">
+<table class="table table-condensed table-bordered">
     <thead>
         <tr>
             <th>Parameter</th>
@@ -275,7 +277,7 @@
             <td>Random</td>
             <td><code>Random</code> | <code>RandomShort</code> | <code>RandomLong</code> | <code>RandomForever</code> | <code>Normal</code> | <code>Strong</code> | <code>Insane</code> | ...</td>
             <td>
-                There are more <a href="http://readablepassphrase.codeplex.com/wikipage?title=Combination Counting">phrase strengths</a> available under <em>Base Strengths</em>. 
+                There are more <a href="http://readablepassphrase.codeplex.com/wikipage?title=Combination Counting">phrase strengths</a> available under <em>Base Strengths</em>.
                 One of the first 4 are recommended unless you have very specific purposes in mind.
             </td>
         </tr>
@@ -327,7 +329,7 @@
     Returns one or more passphrases. Each is based on randomly chosen words from a dictionary of <code>@ViewBag.PassphraseDictionaryCount.ToString("N0")</code> words.
 </p>
 
-<table class="table table-condensed">
+<table class="table table-condensed table-bordered">
     <thead>
         <tr>
             <th>Parameter</th>
@@ -394,7 +396,7 @@
     Returns one or more pronouncable passwords. Each is based on alternating vowel and consonent sounds.
 </p>
 
-<table class="table table-condensed">
+<table class="table table-condensed table-bordered">
     <thead>
         <tr>
             <th>Parameter</th>
@@ -443,7 +445,7 @@
     Returns one or more PINs. Each contains digits from <code>0-9</code>.
 </p>
 
-<table class="table table-condensed">
+<table class="table table-condensed table-bordered">
     <thead>
         <tr>
             <th>Parameter</th>
@@ -483,15 +485,17 @@
     Returns one or more passwords. Each contains one or more characters from the range <code>[a-zA-z0-9]</code>.
 </p>
 
-<table class="table table-condensed">
-    <thead><tr>
-        <th>Parameter</th>
-        <th>Description</th>
-        <th>Data Type</th>
-        <th>Default</th>
-        <th>Range</th>
-        <th>Comments</th>
-    </tr></thead>
+<table class="table table-condensed table-bordered">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>Description</th>
+            <th>Data Type</th>
+            <th>Default</th>
+            <th>Range</th>
+            <th>Comments</th>
+        </tr>
+    </thead>
     <tbody>
         <tr>
             <td><code>l</code></td>
@@ -555,7 +559,7 @@
     Also, code points in the range <code>U+D800</code> - <code>U+DFFF</code> are excluded as they are invalid surrogate pairs.
 </p>
 
-<table class="table table-condensed">
+<table class="table table-condensed table-bordered">
     <thead>
         <tr>
             <th>Parameter</th>
@@ -612,7 +616,7 @@
     Returns one or more hex strings. Each contains the digits <code>0-9</code> and <code>a-f</code>.
 </p>
 
-<table class="table table-condensed">
+<table class="table table-condensed table-bordered">
     <thead>
         <tr>
             <th>Parameter</th>

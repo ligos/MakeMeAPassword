@@ -351,3 +351,19 @@ a > h3:focus {
     color: black;
     text-decoration: none;
 }
+
+
+/* table borders are a bit darker */
+.table > caption + thead > tr:first-child > th, 
+.table > colgroup + thead > tr:first-child > th, 
+.table > thead:first-child > tr:first-child > th, 
+.table > caption + thead > tr:first-child > td, 
+.table > colgroup + thead > tr:first-child > td, 
+.table > thead:first-child > tr:first-child > td {
+    border: 1px solid #c3c3c3;
+}
+table.table-bordered > thead > tr > td,
+table.table-bordered > tbody > tr > td,
+table.table-bordered > tfoot > tr > td {
+    border: 1px solid #c3c3c3;
+}

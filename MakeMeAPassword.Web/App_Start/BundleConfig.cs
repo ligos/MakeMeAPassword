@@ -8,11 +8,12 @@ namespace MurrayGrant.PasswordGenerator.Web
         // For more information on Bundling, visit http://go.microsoft.com/fwlink/?LinkId=254725
         public static void RegisterBundles(BundleCollection bundles)
         {
-            bundles.Add(new ScriptBundle("~/bundles/scripts/jquery").Include(
-                        "~/content/Scripts/jquery.js",
-                        "~/content/Scripts/jquery.validate.js"));
+            bundles.UseCdn = true;
 
-            bundles.Add(new ScriptBundle("~/bundles/scripts/bootstrap").Include(
+            bundles.Add(new ScriptBundle("~/bundles/scripts/jquery", "http://code.jquery.com/jquery-1.10.2.min.js").Include(
+                        "~/content/Scripts/jquery.js"));
+
+            bundles.Add(new ScriptBundle("~/bundles/scripts/bootstrap", "http://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js").Include(
                         "~/content/Scripts/bootstrap.js"));
 
             // Use the development version of Modernizr to develop with and learn from. Then, when you're
@@ -21,11 +22,12 @@ namespace MurrayGrant.PasswordGenerator.Web
                         "~/content/Scripts/modernizr.js",
                         "~/content/Scripts/respond.js"));
 
-            bundles.Add(new StyleBundle("~/bundles/css/bootstrap").Include(
-                        "~/Content/css/bootstrap.css",
+            bundles.Add(new StyleBundle("~/bundles/css/bootstrap", "http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css").Include(
+                        "~/Content/css/bootstrap.css"));
+            bundles.Add(new StyleBundle("~/bundles/css/bootstrap-theme", "http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css").Include(
                         "~/Content/css/bootstrap-theme.css"));
 
-            bundles.Add(new StyleBundle("~/bundles/css/fontawesome").Include(
+            bundles.Add(new StyleBundle("~/bundles/css/fontawesome", "http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css").Include(
                         "~/Content/css/font-awesome.css"));
 
             
@@ -33,24 +35,6 @@ namespace MurrayGrant.PasswordGenerator.Web
 
             bundles.Add(new ScriptBundle("~/bundles/scripts/site").Include(
                         "~/content/Scripts/site-*"));
-
-
-
-
-            
-            bundles.Add(new StyleBundle("~/bundles/css/all").Include(
-                        "~/Content/css/bootstrap.css",
-                        "~/Content/css/bootstrap-theme.css",
-                        "~/Content/css/font-awesome.css",
-                        "~/Content/css/site.css"
-                        ));
-            
-            bundles.Add(new ScriptBundle("~/bundles/scripts/all").Include(
-                        "~/content/Scripts/jquery.js",
-                        "~/content/Scripts/jquery.validate.js",
-                        "~/content/Scripts/bootstrap.js",
-                        "~/content/Scripts/site-*"
-                        ));
         }
     }
 }
