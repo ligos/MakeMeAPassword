@@ -101,6 +101,18 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers
             var bytes = random.GetNextBytes(128);
             result.RandomBytes = bytes.ToHexString();
 
+            // Checking compiler directives.
+#if DEBUG
+            result.build = "DEBUG";
+#else
+            result.build = "RELEASE";
+#endif
+#if NOHTTPS
+            result.nohttps = true;
+#else
+            result.nohttps = false;
+#endif
+
             if (bm.IsTruthy())
             {
                 // RandomService benchmark.
