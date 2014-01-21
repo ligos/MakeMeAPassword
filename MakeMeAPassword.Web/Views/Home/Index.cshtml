@@ -21,9 +21,11 @@
         <i class="fa fa-asterisk fa-4x"></i>
         <i class="fa fa-asterisk fa-4x"></i>
         <i class="fa fa-asterisk fa-4x"></i>
-        <i class="fa fa-asterisk fa-4x"></i>
-        <i class="fa fa-asterisk fa-4x"></i>
-        <i class="fa fa-asterisk fa-4x"></i>
+        <span class="hidden-xs inline">
+            <i class="fa fa-asterisk fa-4x"></i>
+            <i class="fa fa-asterisk fa-4x"></i>
+            <i class="fa fa-asterisk fa-4x"></i>
+        </span>
     </div>
 
     <h1>Make Me A Password</h1>
@@ -77,19 +79,19 @@
                 <input type="radio" name="pwType" id="pwTypeReadable" value="readable" class="example-password-radio"
                        data-urlpassword="/api/v1/readablepassphrase/json" data-urlcombinations="/api/v1/readablepassphrase/combinations"
                        title="Easiest to remember, but longest to type.">
-                    Readable passphrase - <span class="label label-default example-password ">The statesman will burgle amidst lucid sunlamps</span>
+                    Readable passphrase &nbsp; <span class="label label-default example-password ">The statesman will burgle amidst lucid sunlamps</span>
             </label>
             <label class="radio">
                 <input type="radio" name="pwType" id="pwTypeDict" value="dict" class="example-password-radio"
                        data-urlpassword="/api/v1/passphrase/json" data-urlcombinations="/api/v1/passphrase/combinations"
                        title="Pretty easy to remember, medium length.">
-                    Dictionary passphrase - <span class="label label-default example-password">correct horse battery staple</span>
+                    Dictionary passphrase &nbsp; <span class="label label-default example-password">correct horse battery staple</span>
             </label>
             <label class="radio">
                 <input type="radio" name="pwType" id="pwTypePronounce" value="pronounce" class="example-password-radio"
                        data-urlpassword="/api/v1/pronouncable/json" data-urlcombinations="/api/v1/pronouncable/combinations"
                        title="Hardest to remember, but shortest.">
-                    Pronouncable password - <span class="label label-default example-password">psu-zigh-soorh-alung</span>
+                    Pronouncable password &nbsp; <span class="label label-default example-password">psu-zigh-soorh-alung</span>
             </label>
             <small>Not what you're looking for? Try @Html.ActionLink("alternative styles", "Index", "Generate").</small>
         </div>

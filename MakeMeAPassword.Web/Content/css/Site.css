@@ -232,7 +232,17 @@ span.strike {
 .front-marketing > .col-xs-4:first-of-type {
     margin-left: 1%;
 }
-
+@media (max-width: 550px) {
+    .front-marketing > .col-xs-4 {
+        width: 100%; 
+        min-height: 0;
+        margin-right: 0;
+        margin-bottom: 4px;
+    }
+    .front-marketing > .col-xs-4:first-of-type {
+        margin-left: 0;
+    }
+}
 @media (min-width: 768px) {
     .front-marketing > div {
         min-height: 280px;
@@ -366,4 +376,24 @@ table.table-bordered > thead > tr > td,
 table.table-bordered > tbody > tr > td,
 table.table-bordered > tfoot > tr > td {
     border: 1px solid #c3c3c3;
+}
+
+
+
+/* Hide a few of the *'s on the front page in very tight displays */
+@media (min-width: 580px) {
+    .hidden-xs.inline {
+        display: inline !important;
+    }
+}
+
+
+/* Improve display of the example passwords on very narrow displays */
+@media (max-width: 550px) {
+    [data-pagekey="main"] .example-password {
+        display: block;
+        margin-left: -3em;
+        font-size: 15px;
+        white-space: normal;
+    }
 }
