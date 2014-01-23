@@ -52,6 +52,18 @@
         @Html.Partial("_TopNavbar")
 
         <div class="container container-body">
+            @{
+                var notHttps = !String.Equals(Context.Request.Url.Scheme, "https", StringComparison.OrdinalIgnoreCase);
+                var secureVersion = Context.Request.Url.ToString().Replace("http://", "https://");
+            }
+            @if (notHttps)
+            {
+                <div class="alert alert-danger">
+                    <h4>Danger! Insecure! Danger!</h4>
+                    <p>You are not accessing this site using a secure connection. Anyone can see snoop on the passwords you generate.</p>
+                    <p>You'll be redirected automatically to a <a href="@Html.Raw(secureVersion)">secure version</a>, or click <a href="@Html.Raw(secureVersion)">here</a>.</p>
+                </div>
+            }
             @RenderBody()
         </div>
 
