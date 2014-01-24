@@ -54,7 +54,7 @@
         <div class="container container-body">
             @{
                 var notHttps = !String.Equals(Context.Request.Url.Scheme, "https", StringComparison.OrdinalIgnoreCase);
-                var secureVersion = Context.Request.Url.ToString().Replace("http://", "https://");
+                var secureVersion = "https://" + Context.Request.Url.ToString().Remove(0, "http://".Length);
             }
             @if (notHttps)
             {

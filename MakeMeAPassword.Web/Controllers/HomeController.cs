@@ -26,9 +26,9 @@ using MurrayGrant.PasswordGenerator.Web.Services;
 
 namespace MurrayGrant.PasswordGenerator.Web.Controllers
 {
-    // Cache static pages for 1 day.
+    // Cache static pages for 1 hour.
 #if !DEBUG
-    [OutputCache(Duration = 60 * 60 * 24, Location = System.Web.UI.OutputCacheLocation.Any)]
+    [OutputCache(Duration = 60 * 60, Location = System.Web.UI.OutputCacheLocation.Any)]
 #endif
     public class HomeController : Controller
     {
