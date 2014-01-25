@@ -351,3 +351,9 @@ $.fn.serializeObject = function () {
 
 // Alert dialog dismiss bvutton.
 $(".alert").alert();
+
+
+// Hide the http warning if we're on https.
+// This can sometimes be displayed if the page is cached.
+if (window.location.protocol.toLowerCase() === 'https:')
+    $("#noHttpsWarning").hide();

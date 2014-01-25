@@ -58,9 +58,9 @@
             }
             @if (notHttps)
             {
-                <div class="alert alert-danger">
+                <div class="alert alert-danger" id="noHttpsWarning">
                     <h4>Danger! Insecure! Danger!</h4>
-                    <p>You are not accessing this site using a secure connection. Anyone can see snoop on the passwords you generate.</p>
+                    <p>You are not accessing this site using a secure connection. Anyone can snoop on the passwords you generate.</p>
                     <p>You'll be redirected automatically to a <a href="@Html.Raw(secureVersion)">secure version</a>, or click <a href="@Html.Raw(secureVersion)">here</a>.</p>
                 </div>
             }
