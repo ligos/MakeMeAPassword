@@ -41,7 +41,8 @@
         @Styles.Render("~/bundles/css/fontawesome")
         @Styles.Render("~/bundles/css/site")
 <!--[if lte IE 8]>
-        @Scripts.Render("~/bundles/scripts/modernizr")
+        @Scripts.Render("~/bundles/scripts/html5shiv")
+        @Scripts.Render("~/bundles/scripts/respond")
 <![endif]-->
     </head>
     <body>
@@ -72,7 +73,6 @@
 
         @Scripts.Render("~/bundles/scripts/jquery")
         @Scripts.Render("~/bundles/scripts/bootstrap")
-        @Scripts.Render("~/bundles/scripts/modernizr")
         @Scripts.Render("~/bundles/scripts/site")
 
         @RenderSection("scripts", required: false)

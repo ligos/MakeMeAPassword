@@ -30,10 +30,9 @@ namespace MurrayGrant.PasswordGenerator.Web
             bundles.Add(new ScriptBundle("~/bundles/scripts/bootstrap", "//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js").Include(
                         "~/content/Scripts/bootstrap.js"));
 
-            // Use the development version of Modernizr to develop with and learn from. Then, when you're
-            // ready for production, use the build tool at http://modernizr.com to pick only the tests you need.
-            bundles.Add(new ScriptBundle("~/bundles/scripts/modernizr").Include(
-                        "~/content/Scripts/modernizr.js",
+            bundles.Add(new ScriptBundle("~/bundles/scripts/html5shiv", "//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js").Include(
+                        "~/content/Scripts/html5shiv.js"));
+            bundles.Add(new ScriptBundle("~/bundles/scripts/respond", "//oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js").Include(
                         "~/content/Scripts/respond.js"));
 
             bundles.Add(new StyleBundle("~/bundles/css/bootstrap", "//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css").Include(
