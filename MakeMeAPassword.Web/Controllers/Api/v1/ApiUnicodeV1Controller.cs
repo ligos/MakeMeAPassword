@@ -30,6 +30,10 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
 {
     [OutputCache(NoStore = true, Duration = 0)]
     [IpThrottlingFilter]
+    [ApiCorsAnyFilter]
+#if !DEBUG && !NOHTTPS
+    [RequireHttps]
+#endif
     public class ApiUnicodeV1Controller : Controller
     {
         public readonly static int MaxLength = 64;
