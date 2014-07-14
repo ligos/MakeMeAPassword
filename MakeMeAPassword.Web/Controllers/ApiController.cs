@@ -27,6 +27,7 @@ using MurrayGrant.PasswordGenerator.Web.Services;
 using MurrayGrant.PasswordGenerator.Web.Helpers;
 using System.Text;
 using System.Management;
+using Exceptionless;
 
 namespace MurrayGrant.PasswordGenerator.Web.Controllers
 {
@@ -259,6 +260,25 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers
             ms.Position = 0L;
 
             return File(ms, "application/octet-stream", "random.bin");
+        }
+
+        public ActionResult TestException(string s)
+        {
+            var secretResult = this.AssertSecret(s);
+            if (secretResult != null)
+                return secretResult;
+
+            try
+            {
+                throw new Exception("Test exception");
+            }
+            catch (Exception ex)
+            {
+#if !DEBUG
+                ex.ToExceptionless().AddTags("Test").Submit();
+#endif
+                throw;
+            }
         }
 
         private ActionResult AssertSecret(string s)

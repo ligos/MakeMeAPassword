@@ -23,6 +23,7 @@ using MurrayGrant.PasswordGenerator.Web.Services;
 using MurrayGrant.PasswordGenerator.Web.Helpers;
 using System.Text;
 using MurrayGrant.PasswordGenerator.Web.Filters;
+using Exceptionless;
 
 namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
 {
@@ -135,7 +136,6 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
         {
             if (!filterContext.ExceptionHandled)
             {
-
             }
         }
     }

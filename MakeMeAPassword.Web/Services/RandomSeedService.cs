@@ -23,6 +23,7 @@ using System.Security.Cryptography;
 using System.Net;
 using System.IO;
 using MurrayGrant.PasswordGenerator.Web.Helpers;
+using Exceptionless;
 
 namespace MurrayGrant.PasswordGenerator.Web.Services
 {
@@ -108,6 +109,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             new Uri("http://www.thedailybeast.com/"),            
             new Uri("http://www.indiatimes.com/"),            
             new Uri("http://www.china.com.cn/"),            
+            new Uri("http://www.metafilter.com"),
         };
 
         public int SeedsInReserve { get { return this._Seeds.Count; } }
@@ -178,6 +180,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                                     } catch (Exception ex) {
                                         lock (_FailedUrls)
                                             _FailedUrls[url] = ex;
+                                        ex.ToExceptionless().AddObject(url).AddTags("RandomSeed").Submit();
                                         return this.GetFallbackRandomness(64);
                                     }
                                 });
@@ -199,15 +202,20 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                                 {
                                     lock (_FailedUrls)
                                         _FailedUrls[new Uri("http://www.random.org")] = rOrg.Exception.InnerException;
+#if !DEBUG
+                                    rOrg.Exception.ToExceptionless().MarkAsCritical().AddTags("RandomSeed", "random.org").Submit();
+#endif
                                 }
                                 randomOrgRandomness = rOrg.Result;
                             }
                             catch (Exception ex)
                             {
-                                // TODO: log somewhere.
                                 randomOrgRandomness = this.GetFallbackRandomness(bytesToGetFromRandomOrg);
                                 lock (_FailedUrls)
                                     _FailedUrls[new Uri("http://www.random.org")] = ex;
+#if !DEBUG
+                                rOrg.Exception.ToExceptionless().MarkAsCritical().AddTags("RandomSeed", "random.org").Submit();
+#endif
                             }
                             Thread.MemoryBarrier();     // Not really using correct synchronisation primitives here, so this is a bit of paranoia.
                         }
@@ -241,10 +249,12 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                 }
             }
         
-            catch (Exception)
+            catch (Exception ex)
             {
-                // TODO: log. And probably kill the AppDomain.
-
+                // Log. And bring down the app domain.
+#if !DEBUG
+                ex.ToExceptionless().MarkAsCritical().AddTags("RandomSeed", "LastChance").Submit();
+#endif
                 throw;
             }
         }
