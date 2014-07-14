@@ -13,19 +13,31 @@
     // limitations under the License.
 *@
 <footer>
-    <ul>
-        <li>@Html.ActionLink("About", "About", "Home")</li>
-        <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
-        @*<li>@Html.ActionLink("Donate", "Donate", "Home")</li>*@
-        <li>@Html.ActionLink("FAQ", "FAQ", "Home")</li>
-        <li>@Html.ActionLink("Technical", "Technical", "Home")</li>
-        <li>@Html.ActionLink("API", "Index", "Api")</li>
-        <li>&nbsp;</li>
-        <li>
-            Copyright © Murray Grant 2014 <br />
-            <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
-                <img alt="Creative Commons Licence" style="border-width:0" src="//i.creativecommons.org/l/by/4.0/88x31.png" />
-            </a>
-        </li>
-    </ul>
+    <div class="container">
+        <ul>
+            <li>@Html.ActionLink("About", "About", "Home")</li>
+            <li> ▪ </li>
+            <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+            <li> ▪ </li>
+            @*
+            <li>@Html.ActionLink("Donate", "Donate", "Home")</li>
+            <li> ▪ </li>
+            *@
+            <li>@Html.ActionLink("FAQ", "FAQ", "Home")</li>
+            <li> ▪ </li>
+            <li>@Html.ActionLink("Technical", "Technical", "Home")</li>
+            <li> ▪ </li>
+            <li>@Html.ActionLink("API", "Index", "Api")</li>
+            <li>&nbsp;</li>
+        </ul>
+
+        <ul>
+            <li>
+                Copyright © Murray Grant 2014 <br />
+                <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
+                    <img alt="Creative Commons Licence" style="border-width:0" src="//i.creativecommons.org/l/by/4.0/88x31.png" />
+                </a>
+            </li>
+        </ul>
+    </div>
 </footer>

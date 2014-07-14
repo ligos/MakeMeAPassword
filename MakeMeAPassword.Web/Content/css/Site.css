@@ -37,9 +37,13 @@ footer {
 }
 
 /* Remove the bullets in footer */
+footer {
+    text-align: center;
+}
 footer ul > li {
-   text-align: center;
-   list-style: none;
+    list-style: none;
+    display: inline;
+    padding: 0 0.2em;
 }
 
 hr {
@@ -331,6 +335,7 @@ input[type="text"].input-narrow, input[type="number"].input-narrow {
 /* Fix checkbox moved to the left when inline */
 .radio-inline.radio-right input[type="radio"], .checkbox-inline.checkbox-right input[type="checkbox"] {
     margin-left: 0;
+    position: relative;
 }
 .radio-inline input[type="radio"], .checkbox-inline input[type="checkbox"] {
     margin-bottom: 7px;

@@ -130,5 +130,13 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
             }
             IpThrottlerService.IncrementUsage(IPAddressHelpers.GetHostOrCacheIp(this.HttpContext.Request), count);
         }
+
+        protected override void OnException(ExceptionContext filterContext)
+        {
+            if (!filterContext.ExceptionHandled)
+            {
+
+            }
+        }
     }
 }

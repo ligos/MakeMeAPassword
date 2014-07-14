@@ -159,5 +159,13 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
             var result = new ReadablePassphraseGenerator(Dictionary.Value, wrapper);
             return result;
         }
+
+        protected override void OnException(ExceptionContext filterContext)
+        {
+            if (!filterContext.ExceptionHandled)
+            {
+
+            }
+        }
     }
 }

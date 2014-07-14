@@ -237,5 +237,13 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
         {
             return cp >= 0x10ffff;
         }
+
+        protected override void OnException(ExceptionContext filterContext)
+        {
+            if (!filterContext.ExceptionHandled)
+            {
+
+            }
+        }
     }
 }
