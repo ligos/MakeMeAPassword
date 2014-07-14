@@ -397,7 +397,6 @@ table.table-bordered > tfoot > tr > td {
 @media (max-width: 550px) {
     [data-pagekey="main"] .example-password {
         display: block;
-        margin-left: -3em;
         font-size: 15px;
         white-space: normal;
     }
