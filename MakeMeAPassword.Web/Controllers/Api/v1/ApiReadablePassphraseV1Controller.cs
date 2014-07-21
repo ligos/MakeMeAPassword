@@ -21,6 +21,7 @@ using MurrayGrant.ReadablePassphrase;
 using MurrayGrant.ReadablePassphrase.Dictionaries;
 using MurrayGrant.ReadablePassphrase.Words;
 using MurrayGrant.ReadablePassphrase.PhraseDescription;
+using MurrayGrant.ReadablePassphrase.Mutators;
 using MurrayGrant.PasswordGenerator.Web.ActionResults;
 using MurrayGrant.PasswordGenerator.Web.ViewModels.ApiV1;
 using MurrayGrant.PasswordGenerator.Web.Helpers;
@@ -43,6 +44,10 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
         public readonly static PhraseStrength DefaultPhraseStrength = PhraseStrength.Random;
         public readonly static int DefaultCount = 1;
         public readonly static int MaxAttemptsPerCount = 100;
+        public readonly static NumericStyles DefaultWhenNumeric = NumericStyles.Never;
+        public readonly static int DefaultNumbers = 2;
+        public readonly static UppercaseStyles DefaultWhenUppercase = UppercaseStyles.Never;
+        public readonly static int DefaultUppercase = 2;
 
         private readonly static Lazy<WordDictionary> Dictionary;
 
@@ -54,7 +59,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
         }
 
         // GET: /api/v1/readablepassphrase/plain
-        public string Plain(PhraseStrength? s, int? pc, string sp, int? minCh, int? maxCh)
+        public string Plain(PhraseStrength? s, int? pc, string sp, int? minCh, int? maxCh, NumericStyles? whenNum, int? nums, UppercaseStyles? whenUp, int? ups)
         {
             // Return as plain text string.
             var phrases = this.SelectPhrases(
@@ -62,13 +67,18 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
                             pc.HasValue ? pc.Value : DefaultCount,
                             sp.IsTruthy(true),
                             minCh.HasValue ? minCh.Value : DefaultMinChars,
-                            maxCh.HasValue ? maxCh.Value : DefaultMaxChars);
+                            maxCh.HasValue ? maxCh.Value : DefaultMaxChars,
+                            whenNum.HasValue ? whenNum.Value : DefaultWhenNumeric,
+                            nums.HasValue ? nums.Value : DefaultNumbers,
+                            whenUp.HasValue ? whenUp.Value : DefaultWhenUppercase,
+                            ups.HasValue ? ups.Value : DefaultUppercase
+                        );
             
             return String.Join(Environment.NewLine, phrases);
         }
 
         // GET: /api/v1/readablepassphrase/json
-        public ActionResult Json(PhraseStrength? s, int? pc, string sp, int? minCh, int? maxCh)
+        public ActionResult Json(PhraseStrength? s, int? pc, string sp, int? minCh, int? maxCh, NumericStyles? whenNum, int? nums, UppercaseStyles? whenUp, int? ups)
         {
             // Return as Json array.
             var phrases = this.SelectPhrases(
@@ -76,12 +86,17 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
                             pc.HasValue ? pc.Value : DefaultCount,
                             sp.IsTruthy(true),
                             minCh.HasValue ? minCh.Value : DefaultMinChars,
-                            maxCh.HasValue ? maxCh.Value : DefaultMaxChars);
+                            maxCh.HasValue ? maxCh.Value : DefaultMaxChars,
+                            whenNum.HasValue ? whenNum.Value : DefaultWhenNumeric,
+                            nums.HasValue ? nums.Value : DefaultNumbers,
+                            whenUp.HasValue ? whenUp.Value : DefaultWhenUppercase,
+                            ups.HasValue ? ups.Value : DefaultUppercase
+                        );
             return new JsonNetResult(new JsonPasswordContainer() { pws = phrases.ToList() });
         }
         
         // GET: /api/v1/readablepassphrase/xml
-        public ActionResult Xml(PhraseStrength? s, int? pc, string sp, int? minCh, int? maxCh)
+        public ActionResult Xml(PhraseStrength? s, int? pc, string sp, int? minCh, int? maxCh, NumericStyles? whenNum, int? nums, UppercaseStyles? whenUp, int? ups)
         {
             // Return as XML.
             var phrases = this.SelectPhrases(
@@ -89,7 +104,12 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
                             pc.HasValue ? pc.Value : DefaultCount,
                             sp.IsTruthy(true),
                             minCh.HasValue ? minCh.Value : DefaultMinChars,
-                            maxCh.HasValue ? maxCh.Value : DefaultMaxChars);
+                            maxCh.HasValue ? maxCh.Value : DefaultMaxChars,
+                            whenNum.HasValue ? whenNum.Value : DefaultWhenNumeric,
+                            nums.HasValue ? nums.Value : DefaultNumbers,
+                            whenUp.HasValue ? whenUp.Value : DefaultWhenUppercase,
+                            ups.HasValue ? ups.Value : DefaultUppercase
+                            );
             return new XmlResult(phrases.ToList());
         }
 
@@ -112,7 +132,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
             return new JsonNetResult(result);
         }
 
-        private IEnumerable<string> SelectPhrases(PhraseStrength strength, int phraseCount, bool includeSpaces, int minChars, int maxChars)
+        private IEnumerable<string> SelectPhrases(PhraseStrength strength, int phraseCount, bool includeSpaces, int minChars, int maxChars, NumericStyles whenNumeric, int numbersToAdd, UppercaseStyles whenUpper, int uppersToAdd)
         {
             if (minChars > maxChars)
                 yield break;
@@ -121,6 +141,13 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
             var random = RandomService.GetForCurrentThread();
             var generator = this.GetGenerator(random);
             int attempts = 0;
+            ICollection<IMutator> mutators = null;
+            if (whenNumeric != NumericStyles.Never || whenUpper != UppercaseStyles.Never)
+                mutators = new List<IMutator>();
+            if (whenNumeric != NumericStyles.Never)
+                mutators.Add(new NumericMutator() { When = whenNumeric, NumberOfNumbersToAdd = numbersToAdd });
+            if (whenUpper != UppercaseStyles.Never)
+                mutators.Add(new UppercaseMutator() { When = whenUpper, NumberOfCharactersToCapitalise = uppersToAdd });
 
             random.BeginStats(this.GetType());
             try
@@ -131,7 +158,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
                     do
                     {
                         // Generate a phrase.
-                        candidate = generator.Generate(strength, includeSpaces);
+                        candidate = generator.Generate(strength, includeSpaces, mutators);
                         attempts++;
 
                         // Ensure the final phrase is within the min / max chars.
