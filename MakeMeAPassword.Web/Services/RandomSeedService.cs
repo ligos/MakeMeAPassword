@@ -24,6 +24,7 @@ using System.Net;
 using System.IO;
 using MurrayGrant.PasswordGenerator.Web.Helpers;
 using Exceptionless;
+using Newtonsoft.Json;
 
 namespace MurrayGrant.PasswordGenerator.Web.Services
 {
@@ -39,6 +40,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
         private readonly int _MinSeedsInReserve = 32;
         private readonly int _SeedSize = 32;
         private object _LoadingExternalDataFlag = new object();
+        private FileInfo _RandomOrgApiKeyFile;
 
         private readonly int _BytesPerUrl = 64;     // Because using SHA512.
         private static readonly IEnumerable<Uri> _UrlEntropySources = new Uri[] {
@@ -134,6 +136,11 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             }
 
             return result;
+        }
+
+        public void InitRandomOrg(string randomOrgApiKeyKilePath)
+        {
+            _RandomOrgApiKeyFile = new FileInfo(randomOrgApiKeyKilePath);
         }
 
         /// <summary>
@@ -287,8 +294,37 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             Thread.Sleep(new Random().Next(2000));
             var randomOrgData = this.GetFallbackRandomness(numberOfBytes);
 #else
-            var randomOrgSite = new Uri("http://www.random.org/cgi-bin/randbyte?format=f&nbytes=" + numberOfBytes.ToString());
-            var randomOrgData = this.FetchWebsiteRawData(randomOrgSite, "Automatic: makemeapassword@ligos.net");
+            // https://api.random.org/json-rpc/1/introduction
+            // https://api.random.org/json-rpc/1/basic
+            // https://api.random.org/json-rpc/1/request-builder
+
+            if (_RandomOrgApiKeyFile == null)
+                return this.GetFallbackRandomness(numberOfBytes);
+
+            var apiKey = Guid.Parse(File.ReadAllText(_RandomOrgApiKeyFile.FullName));
+            var body = new {
+                jsonrpc = "2.0",
+                method = "generateBlobs",
+                @params = new {
+                    apiKey = apiKey.ToString("D"),
+                    n = 1,
+                    size = 8 * 8, // numberOfBytes * 8,
+                    format = "base64",
+                },
+                id = 1,
+            };
+            var randomOrgApi = new Uri("https://api.random.org/json-rpc/1/invoke");
+            var wc = new WebClient();
+            wc.Headers.Add("Automatic", "makemeapassword@ligos.net");
+            wc.Headers.Add("Content-Type", "application/json-rpc");
+            var bodyAsString = JsonConvert.SerializeObject(body, Formatting.None);
+            var rawResult = wc.UploadString(randomOrgApi, "POST", bodyAsString);
+
+            dynamic jsonResult = JsonConvert.DeserializeObject(rawResult);
+            if (jsonResult.error != null)
+                throw new Exception(String.Format("Random.org error: {0} - {1}", (string)jsonResult.error.code, (string)jsonResult.error.message));
+            var randomBase64 = (string)jsonResult.result.random.data[0];
+            var randomOrgData = Convert.FromBase64String(randomBase64);
 #endif
             return randomOrgData;
         }

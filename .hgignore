@@ -6,3 +6,4 @@ obj/**
 *.csproj.user
 Thumbs.db
 *.pubxml*
+MakeMeAPassword.Web/App_Data/random.org.key.txt

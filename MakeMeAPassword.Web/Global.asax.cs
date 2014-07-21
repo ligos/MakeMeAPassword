@@ -36,6 +36,7 @@ namespace MurrayGrant.PasswordGenerator.Web
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
+            Services.RandomSeedService.Singleton.InitRandomOrg(this.Server.MapPath("~/App_Data/random.org.key.txt"));
             Services.RandomSeedService.Singleton.BeginLoadingExternalData();
         }
     }
