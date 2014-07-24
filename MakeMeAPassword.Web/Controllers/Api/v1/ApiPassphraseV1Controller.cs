@@ -164,13 +164,29 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
                         for (int l = 0; l < wordCount; l++)
                         {
                             sb.Append(dict[random.Next(dict.Count)]);
-                            if (spaces)
-                                sb.Append(' ');
+                            sb.Append(' ');
                         }
-                        if (spaces)
-                            sb.Remove(sb.Length - 1, 1);
-                        attempts++;
+                        sb.Remove(sb.Length - 1, 1);
 
+                        // Apply mutators.
+                        if (mutators != null)
+                        {
+                            foreach (var m in mutators)
+                                m.Mutate(sb, randomWrapper);
+                        }
+
+                        // Finally, remove spaces if required (as the mutators depend on whitespace to do their work).
+                        if (!spaces)
+                        {
+                            for (int i = sb.Length - 1; i >= 0; i--)
+                            {
+                                if (sb[i] == ' ')
+                                    sb.Remove(i, 1);
+                            }
+                        }
+
+                        attempts++;
+                    
                     // Ensure the final phrase is within the min / max chars.
                     } while (attempts < MaxAttemptsPerCount && (sb.Length < minChars || sb.Length > maxChars));
                     if (attempts >= MaxAttemptsPerCount)
@@ -179,12 +195,6 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
                         sb.Append("A passphrase could not be found matching your minimum and maximum length requirements");
                     }
 
-                    // Apply mutators.
-                    if (mutators != null)
-                    {
-                        foreach (var m in mutators)
-                            m.Mutate(sb, randomWrapper);
-                    }
 
                     // Yield the phrase and reset state.
                     var result = sb.ToString();
