@@ -331,6 +331,44 @@
                 WiFi has a maximum length of 63 characters, so you can use this to restrict the passphrase length.
             </td>
         </tr>
+        <tr>
+            <td><code>whenNum</code></td>
+            <td>Where to add numbers to the passphrase</td>
+            <td>String</td>
+            <td>Never</td>
+            <td><code>Never</code> | <code>StartOfWord</code> | <code>EndOfWord</code> | <code>StartOrEndOfWord</code> | <code>Anywhere</code></td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td><code>nums</code></td>
+            <td>Number of numbers to add</td>
+            <td>Integer</td>
+            <td>0</td>
+            <td>0-9999</td>
+            <td>
+                The <code>whenNum</code> and <code>nums</code> parameters control the numeric mutator.
+                They allow you to add numbers to a passphrase to meet complexity requirements.
+            </td>
+        </tr>
+        <tr>
+            <td><code>whenUp</code></td>
+            <td>Where to add upper case letters to the passphrase</td>
+            <td>String</td>
+            <td>Never</td>
+            <td><code>Never</code> | <code>StartOfWord</code> | <code>Anywhere</code></td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td><code>ups</code></td>
+            <td>Number of upper case letters to add</td>
+            <td>Integer</td>
+            <td>0</td>
+            <td>0-9999</td>
+            <td>
+                The <code>whenUp</code> and <code>ups</code> parameters control the upper case mutator.
+                They allow you to change letters to upper case in a passphrase to meet complexity requirements.
+            </td>
+        </tr>
     </tbody>
 </table>
 
@@ -397,6 +435,44 @@
             <td>
                 Using <code>minCh</code> and <code>maxCh</code> you can restrict the final length of passphrases.
                 WiFi has a maximum length of 63 characters, so you can use this to restrict the passphrase length.
+            </td>
+        </tr>
+        <tr>
+            <td><code>whenNum</code></td>
+            <td>Where to add numbers to the passphrase</td>
+            <td>String</td>
+            <td>Never</td>
+            <td><code>Never</code> | <code>StartOfWord</code> | <code>EndOfWord</code> | <code>StartOrEndOfWord</code> | <code>Anywhere</code></td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td><code>nums</code></td>
+            <td>Number of numbers to add</td>
+            <td>Integer</td>
+            <td>0</td>
+            <td>0-9999</td>
+            <td>
+                The <code>whenNum</code> and <code>nums</code> parameters control the numeric mutator.
+                They allow you to add numbers to a passphrase to meet complexity requirements.
+            </td>
+        </tr>
+        <tr>
+            <td><code>whenUp</code></td>
+            <td>Where to add upper case letters to the passphrase</td>
+            <td>String</td>
+            <td>Never</td>
+            <td><code>Never</code> | <code>StartOfWord</code> | <code>Anywhere</code></td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td><code>ups</code></td>
+            <td>Number of upper case letters to add</td>
+            <td>Integer</td>
+            <td>0</td>
+            <td>0-9999</td>
+            <td>
+                The <code>whenUp</code> and <code>ups</code> parameters control the upper case mutator.
+                They allow you to change letters to upper case in a passphrase to meet complexity requirements.
             </td>
         </tr>
     </tbody>

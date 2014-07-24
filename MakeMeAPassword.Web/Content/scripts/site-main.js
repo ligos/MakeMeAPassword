@@ -55,27 +55,27 @@ window.pwg = window.pwg || {};
     var m_mutatorLookup = {
         None: {
             whenNum: 'Never',
-            nums: 0,
+            nums: '0',
             whenUp: 'Never',
-            ups: 0,
+            ups: '0',
         },
         Standard: {
             whenNum: 'EndOfWord',
-            nums: 2,
+            nums: '2',
             whenUp: 'StartOfWord',
-            ups: 2,
+            ups: '2',
         },
         Upper: {
             whenNum: 'Never',
-            nums: 0,
+            nums: '0',
             whenUp: 'StartOfWord',
-            ups: 9999,
+            ups: '999',
         },
         UpperAndNumber: {
             whenNum: 'EndOfWord',
-            nums: 2,
+            nums: '2',
             whenUp: 'StartOfWord',
-            ups: 999,
+            ups: '999',
         },
     };
 
@@ -366,12 +366,12 @@ $(document).on('click', '#readableWhyRangeBtn', function (evt) {
 });
 
 
-// The mutators are a special case.
+// The mutators are a special case, they map to some hidden inputs.
 $(document).on('change', '.parameters-panel .mutators input[type="radio"]', function (evt) {
     var val = $(this).val();
     var params = pwg.getMutatorParams(val);
     for (var key in params) {
-        $('.parameters-panel .mutators input[type="hidden"][name="' + key + '"]').val(params[key]);
+        $('.parameters-panel .mutators input[type="hidden"][name="' + key + '"]').val(params[key]).trigger('change');
     }
 });
 
