@@ -290,6 +290,13 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
         private byte[] FetchRandomOrgData(int numberOfBytes)
         {
             // This catches and logs exceptions and returns data from the fallback entropy source.
+
+            // Alternatives to random.org
+            // http://qrng.anu.edu.au/index.php
+            // http://www.randomnumbers.info/content/Download.htm
+            // http://www.randomserver.dyndns.org/client/random.php?type=INT&a=1&b=10&n=1
+            // http://qrng.physik.hu-berlin.de/download
+
 #if DEBUG
             Thread.Sleep(new Random().Next(2000));
             var randomOrgData = this.GetFallbackRandomness(numberOfBytes);
