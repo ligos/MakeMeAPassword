@@ -103,6 +103,35 @@
                 <label class="control-label form-control-static">Letters Long</label>
             </div>
         </div>
+
+        <div class="form-group mutators">
+            <a href="/faq#mutators" class="pull-right">What are 'Mutators'?</a>
+            <label class="control-label" title="Make changes to the passphrase such as adding uppercase letters or numbers.">Mutators</label>
+            <input type="hidden" name="whenNum" value="Never" />
+            <input type="hidden" name="nums" value="0" />
+            <input type="hidden" name="whenUp" value="Never" />
+            <input type="hidden" name="ups" value="0" />
+
+            <div>
+                <label class="radio-inline" for="mutatorNone" title="Make no changes to the passphrase.">
+                    <input type="radio" id="mutatorNone" value="None" checked="checked" name="m" />
+                    No Changes
+                </label>
+                <label class="radio-inline" for="mutatorStandard" title="Add two upper case letters and two numbers to the passphrase to meet password complexity requirements.">
+                    <input type="radio" id="mutatorStandard" value="Standard" name="m" />
+                    2 Uppers and 2 Numbers
+                </label>
+                <label class="radio-inline" for="mutatorUpper" title="Make all words start with an uppercase letter. This can make a passphrase without spaces easier to read.">
+                    <input type="radio" id="mutatorUpper" value="Upper" name="m" />
+                    All Words Start Upper
+                </label>
+                <label class="radio-inline" for="mutatorUpperAndNumber" title="Make all words start with an uppercase letter and add 2 numbers. This can make a passphrase without spaces easier to read and meet complexity requirements.">
+                    <input type="radio" id="mutatorUpperAndNumber" value="UpperAndNumber" name="m" />
+                    All Words Start Upper and 2 Numbers
+                </label>
+            </div>
+        </div>
+
     </div>
 </div>
 

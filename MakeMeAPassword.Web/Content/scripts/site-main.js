@@ -51,6 +51,34 @@ window.pwg = window.pwg || {};
         }
     };
 
+    // Mutators are a lookup from radio buttons to actual parameters.
+    var m_mutatorLookup = {
+        None: {
+            whenNum: 'Never',
+            nums: 0,
+            whenUp: 'Never',
+            ups: 0,
+        },
+        Standard: {
+            whenNum: 'EndOfWord',
+            nums: 2,
+            whenUp: 'StartOfWord',
+            ups: 2,
+        },
+        Upper: {
+            whenNum: 'Never',
+            nums: 0,
+            whenUp: 'StartOfWord',
+            ups: 9999,
+        },
+        UpperAndNumber: {
+            whenNum: 'EndOfWord',
+            nums: 2,
+            whenUp: 'StartOfWord',
+            ups: 999,
+        },
+    };
+
     // When this reaches zero, a warning is displayed about ip based limits.
     ns.ipLimitWarningCounter = 10;
 
@@ -217,6 +245,13 @@ window.pwg = window.pwg || {};
 
         }
     }
+
+    ns.getMutatorParams = function (key) {
+        if (key in m_mutatorLookup)
+            return m_mutatorLookup[key];
+        else
+            return {};
+    }
 }(window.pwg));
 
 
@@ -328,6 +363,16 @@ $(document).on('click', '#impatientPassword', function (evt) {
 $(document).on('click', '#readableWhyRangeBtn', function (evt) {
     $('#readableWhyRangeBtn').hide();
     $('#readableWhyRangeText').show(400);
+});
+
+
+// The mutators are a special case.
+$(document).on('change', '.parameters-panel .mutators input[type="radio"]', function (evt) {
+    var val = $(this).val();
+    var params = pwg.getMutatorParams(val);
+    for (var key in params) {
+        $('.parameters-panel .mutators input[type="hidden"][name="' + key + '"]').val(params[key]);
+    }
 });
 
 
