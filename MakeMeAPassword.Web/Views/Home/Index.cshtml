@@ -106,11 +106,23 @@
             </label>
             <small>Want more control? @Html.ActionLink("More options are available", "Index", "Generate").</small>
         </div>
+
+        <h4>3. Add Extras</h4>
+        <div class="text-margin-small">
+            <label class="checkbox" for="extraNumsAndCaps" title="Adds 2 numbers and 2 capitals to your passphrase.">
+                <input type="checkbox" id="extraNumsAndCaps" value="numsCaps" name="extras" />
+                Add Numbers and Capitals
+            </label>
+            <label class="checkbox" for="mutatorNone" title="Removes all spaces and capitalise the first letter of each word (so its easier to type).">
+                <input type="checkbox" id="extraWifi" value="wifi" name="extras" />
+                Make it Wifi Ready
+            </label>
+        </div>
     </div>
 
     <a name="getpassword"></a>
     <p class="text-margin-top">
-        <button class="btn btn-primary password-get" id="passwordGetFront">3. Get Password</button>
+        <button class="btn btn-primary password-get" id="passwordGetFront">Get Password</button>
     </p>
     <p id="passwordError" style="display:none;">
         <i class="icon-sadface"></i> 

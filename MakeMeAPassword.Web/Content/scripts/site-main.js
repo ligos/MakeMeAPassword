@@ -42,13 +42,23 @@ window.pwg = window.pwg || {};
             long: { wc: 5, pc: 1, sp: 'y', },
             forever: { wc: 7, pc: 1, sp: 'y', },
             inputSelector: '#pwTypeDict'
-        },
-        pronounce: {
-            short: { sc: 4, c: 1, dsh: 'y', },
-            long: { sc: 5, c: 1, dsh: 'y', },
-            forever: { sc: 7, c: 1, dsh: 'y', },
-            inputSelector: '#pwTypePronounce'
         }
+    };
+
+    // These are mapped onto the object after the main front parameters above.
+    var m_frontExtras = {
+        numsCaps: {
+            whenNum: 'EndOfWord',
+            nums: '2',
+            whenUp: 'StartOfWord',
+            ups: '2',
+        },
+        wifi: {
+            sp: 'n',
+            whenUp: 'StartOfWord',
+            ups: '999',
+            maxCh: 63,
+        },
     };
 
     // Mutators are a lookup from radio buttons to actual parameters.
@@ -90,7 +100,20 @@ window.pwg = window.pwg || {};
         // Lookup the parameters.
         var frontParms = $('#passwordParameters input').serializeObject();
         var strengthLookup = m_frontLookup[frontParms.pwType];
-        var parms = strengthLookup[frontParms.pwStrength];
+        var parms = {};     // Have to make a copy of this or we end up with nasty reference problems between calls.
+        var original = strengthLookup[frontParms.pwStrength];
+        for (var k in original) {
+            parms[k] = original[k];
+        }
+        // Map extras onto the parameters.
+        var extras = $('#passwordParameters input[name="extras"]:checked');
+        extras.each(function () {
+            var $extra = $(this);
+            var extra = m_frontExtras[$extra.val()];
+            for (var k in extra) {
+                parms[k] = extra[k];
+            }
+        });
 
         // Lookup the urls.
         var passwordUrl = $(strengthLookup.inputSelector).data('urlpassword')
