@@ -191,7 +191,6 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers
             result.WorkingRunningFor = utcnow.Subtract(result.WorkerStarted);
             result.SeedsInReserve = RandomSeedService.Singleton.SeedsInReserve;
             result.SeedsGenerated = RandomSeedService.Singleton.TotalSeedsGenerated;
-            result.FailedSeedUrls = RandomSeedService.Singleton.FailuedUrls;
             result.TotalUsageUnits = IpThrottlerService.TotalUsage;
 
 

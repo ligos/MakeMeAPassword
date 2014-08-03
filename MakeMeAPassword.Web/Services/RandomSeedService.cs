@@ -115,8 +115,6 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
 
         public int SeedsInReserve { get { return this._Seeds.Count; } }
         public int TotalSeedsGenerated { get; private set; }
-        private readonly Dictionary<Uri, Exception> _FailedUrls = new Dictionary<Uri, Exception>();
-        public IEnumerable<Tuple<Uri, Exception>> FailuedUrls { get { return this._FailedUrls.Select(x => Tuple.Create(x.Key, x.Value)).ToList(); } }
 
         /// <summary>
         /// Gets a 32 byte seed to use to initialise the a RandomService.
@@ -173,7 +171,6 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                     // Fire off requests to all the websites to get another 4k of data between them all.
                     var cancel = new CancellationTokenSource();
                     var parallelFetch = _UrlEntropySources
-                            .Where(u => !this._FailedUrls.ContainsKey(u))
                             .Randomise()
                             .AsParallel()
                             .AsUnordered()
@@ -184,8 +181,6 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                                     try {
                                         return FetchWebsiteData(url);
                                     } catch (Exception ex) {
-                                        lock (_FailedUrls)
-                                            _FailedUrls[url] = ex;
                                         ex.ToExceptionless().AddObject(url).AddTags("RandomSeed").Submit();
                                         return this.GetFallbackRandomness(64);
                                     }
@@ -206,10 +201,10 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                                 rOrg.Wait(TimeSpan.FromSeconds(30));
                                 if (rOrg.IsFaulted)
                                 {
-                                    lock (_FailedUrls)
-                                        _FailedUrls[new Uri("http://www.random.org")] = rOrg.Exception.InnerException;
 #if !DEBUG
                                     rOrg.Exception.ToExceptionless().MarkAsCritical().AddTags("RandomSeed", "random.org").Submit();
+#else
+                                    throw rOrg.Exception;
 #endif
                                 }
                                 randomOrgRandomness = rOrg.Result;
@@ -217,10 +212,10 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                             catch (Exception ex)
                             {
                                 randomOrgRandomness = this.GetFallbackRandomness(bytesToGetFromRandomOrg);
-                                lock (_FailedUrls)
-                                    _FailedUrls[new Uri("http://www.random.org")] = ex;
 #if !DEBUG
                                 rOrg.Exception.ToExceptionless().MarkAsCritical().AddTags("RandomSeed", "random.org").Submit();
+#else
+                                throw ex;
 #endif
                             }
                             Thread.MemoryBarrier();     // Not really using correct synchronisation primitives here, so this is a bit of paranoia.
