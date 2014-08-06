@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Security.Cryptography;
 using System.Net;
+using System.Net.Mail;
 using System.IO;
 using MurrayGrant.PasswordGenerator.Web.Helpers;
 using Exceptionless;
@@ -41,8 +42,10 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
         private readonly int _SeedSize = 32;
         private object _LoadingExternalDataFlag = new object();
         private FileInfo _RandomOrgApiKeyFile;
+        private readonly byte[] _EntropyPool = new byte[16384];
+        private int _EntropyIndex = 0;
+        private int _MinimumEntropySizeBytes = 128;         // This many external bytes must be added to entropy before we start producing seeds.
 
-        private readonly int _BytesPerUrl = 64;     // Because using SHA512.
         private static readonly IEnumerable<Uri> _UrlEntropySources = new Uri[] {
             // Use the front page of various websites as a source of entropy.
             // Yes, this does rather betray my Australian (and Sydney) heritage.
@@ -112,9 +115,24 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             new Uri("http://www.china.com.cn/"),            
             new Uri("http://www.metafilter.com"),
         };
+        private readonly IEnumerable<Func<byte[]>> _RandomGeneratorSources;
 
         public int SeedsInReserve { get { return this._Seeds.Count; } }
         public int TotalSeedsGenerated { get; private set; }
+
+        private RandomSeedService()
+        {
+#if !DEBUG
+            _FallBackEntropy.GetBytes(_EntropyPool);        // The pool starts random.
+#endif
+            _RandomGeneratorSources = new Func<byte[]> [] {
+                this.FetchRandomOrgData,
+                this.FetchAnuRandomData,
+                this.FetchNumbersInfoRandomData,
+                this.FetchRandomServerRandomData,
+                this.FetchPhysikRandomData,
+            };
+        }
 
         /// <summary>
         /// Gets a 32 byte seed to use to initialise the a RandomService.
@@ -161,95 +179,78 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
         {
             try
             {
+                var swFirst = new System.Diagnostics.Stopwatch();
+                var swLast = new System.Diagnostics.Stopwatch();
+                var seedsAtStart = _Seeds.Count;
+                var total = 0;
                 lock (this._LoadingExternalDataFlag)
                 {
-                    // Fire off a request to random.org and get 4k of data.
-                    var bytesToGetFromRandomOrg = _UrlEntropySources.Count() * _BytesPerUrl;
-                    var rOrg = Task.Run(() => FetchRandomOrgData(bytesToGetFromRandomOrg));
-                    Thread.Sleep(50);        // Yield for a moment to let the random.org request start first.
-
-                    // Fire off requests to all the websites to get another 4k of data between them all.
-                    var cancel = new CancellationTokenSource();
-                    var parallelFetch = _UrlEntropySources
+                    // Fire off requests to all the sources of random data.
+                    var sources = _UrlEntropySources.Select(url => 
+                                    {
+                                        try {
+                                            return FetchWebsiteData(url);
+                                        } catch (Exception ex) {
+#if !DEBUG
+                                            ex.ToExceptionless().AddObject(url).AddTags("RandomSeed").Submit();
+#endif
+                                            return null;
+                                        }
+                                    })
+                                .Concat(_RandomGeneratorSources.Select(fn => 
+                                {
+                                    try {
+                                        return fn();
+                                    } catch (Exception ex) {
+#if !DEBUG
+                                        ex.ToExceptionless().AddObject(fn.Method.Name + "()").AddTags("RandomSeed").Submit();
+#endif
+                                        return null;
+                                    }
+                                }));
+                    var parallelFetch = sources
                             .Randomise()
                             .AsParallel()
                             .AsUnordered()
                             .WithMergeOptions(ParallelMergeOptions.NotBuffered)
-                            .WithCancellation(cancel.Token)
-                            .Select(url => 
-                                {
-                                    try {
-                                        return FetchWebsiteData(url);
-                                    } catch (Exception ex) {
-                                        ex.ToExceptionless().AddObject(url).AddTags("RandomSeed").Submit();
-                                        return this.GetFallbackRandomness(64);
-                                    }
-                                });
+                            .Where(x => x != null);
 
-                    int halfBlockSize = _SeedSize / 2;
-                    int randomOrgIdx = 0;
-                    byte[] randomOrgRandomness = null;
-
-                    // The parallel query does not start running until you start pulling from it.
-                    foreach (var websiteRandomness in parallelFetch)
+                    // Timing how long it takes to get first and last seed..
+                    swFirst.Start();
+                    swLast.Start();
+                    foreach (var randomBytes in parallelFetch)      // The parallel query does not start running until you start pulling from it.
                     {
-                        // Now we need to synchronise with random.org data.
-                        if (randomOrgRandomness == null)
+                        // Add the random bytes to the pool in 64 byte blocks (which should be the minimum size of incoming byte arrays).
+                        // We use smaller blocks here so we produce as many seeds as we can from the larger randomness sources.
+                        const int blockSizeBytes = 64;
+                        for (int i = 0; i < randomBytes.Length; i += blockSizeBytes)
                         {
-                            try
+                            lock (_EntropyPool)
                             {
-                                rOrg.Wait(TimeSpan.FromSeconds(30));
-                                if (rOrg.IsFaulted)
+                                // Copy a block to the pool.
+                                if (_EntropyIndex + blockSizeBytes > _EntropyPool.Length)
+                                _EntropyIndex = 0;
+                                Array.Copy(randomBytes, i, _EntropyPool, _EntropyIndex, blockSizeBytes);
+                                _EntropyIndex += blockSizeBytes;
+
+                                // If we have accumulated a minimum amount of entropy, we start generating SHA256 hashes of the whole pool and add them as seeds.
+                                if (_EntropyIndex > _MinimumEntropySizeBytes)
                                 {
-#if !DEBUG
-                                    rOrg.Exception.ToExceptionless().MarkAsCritical().AddTags("RandomSeed", "random.org").Submit();
-#else
-                                    throw rOrg.Exception;
-#endif
+                                    var hasher = new SHA256Managed();
+                                    _Seeds.Enqueue(hasher.ComputeHash(_EntropyPool));
+                                    Interlocked.Increment(ref total);
+                                    swFirst.Stop();
                                 }
-                                randomOrgRandomness = rOrg.Result;
                             }
-                            catch (Exception ex)
-                            {
-                                randomOrgRandomness = this.GetFallbackRandomness(bytesToGetFromRandomOrg);
-#if !DEBUG
-                                rOrg.Exception.ToExceptionless().MarkAsCritical().AddTags("RandomSeed", "random.org").Submit();
-#else
-                                throw ex;
-#endif
-                            }
-                            Thread.MemoryBarrier();     // Not really using correct synchronisation primitives here, so this is a bit of paranoia.
-                        }
-
-                        // If we run out of random.org bytes first, we bail.
-                        if (randomOrgIdx + _SeedSize > randomOrgRandomness.Length)
-                        {
-                            cancel.Cancel();
-                            break;
-                        }
-
-                        // As requests return from the sites, we merge 16 bytes from random.org and each site.
-                        var hasher = new SHA256Managed();
-                        for (int siteIdx = 0; siteIdx < websiteRandomness.Length; siteIdx += halfBlockSize)
-                        {
-                            var block = new byte[halfBlockSize * 2];
-
-                            // Copy data into the block, random.org data in the low half, site in high.
-                            Array.Copy(randomOrgRandomness, randomOrgIdx, block, 0, halfBlockSize);
-                            randomOrgIdx += halfBlockSize;
-                            Array.Copy(websiteRandomness, siteIdx, block, halfBlockSize, halfBlockSize);
-                            
-                            // Then they are hashed, using SHA256 to produce the final 32 byte seed.
-                            var hashedBlock = hasher.ComputeHash(block);
-
-                            // And push each block into the concurrent queue, ready for requests.
-                            _Seeds.Enqueue(hashedBlock);
-                            this.TotalSeedsGenerated++;
                         }
                     }
                 }
+                swLast.Stop();
+                var seedsAtEnd = _Seeds.Count;
+
+                // At the end, send an email to the site owner so we know how often new seeds are being generated.
+                this.SendEmailToOwner(seedsAtStart, seedsAtEnd, total, swFirst.Elapsed, swLast.Elapsed);
             }
-        
             catch (Exception ex)
             {
                 // Log. And bring down the app domain.
@@ -265,33 +266,47 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             return Monitor.IsEntered(this._LoadingExternalDataFlag);
         }
 
+        private void SendEmailToOwner(int seedsAtStart, int seedsAtEnd, int totalGenerated, TimeSpan timeToFirstSeed, TimeSpan timeToLastSeed)
+        {
+            try
+            {
+                var body = String.Format("makemeapassword.org has generated new seeds at {4:u}.{0}Started with {1:N0} seeds, ended with {2:N0}, total of {3:N0} were generated.{0}First seed generated in {1:N1}ms, last seed generated after {2:N1}ms.", Environment.NewLine, seedsAtStart, seedsAtEnd, totalGenerated, DateTime.UtcNow, timeToFirstSeed, timeToLastSeed);
+                var msg = new MailMessage("makemeapassword@ligos.net", "makemeapassword@ligos.net", "makemeapassword.org - new seeds generated", body);
+                var sender = new SmtpClient("mail.makemeapassword.org");
+#if !DEBUG
+                sender.Send(msg);
+#endif
+            }
+            catch (Exception ex)
+            {
+                // Not failing the whole app just because we couldn't notfiy the owner.
+                ex.ToExceptionless().AddTags("RandomSeed", "NotifyEmail").Submit();
+            }
+        }
+
         private byte[] FetchWebsiteData(Uri uri)
         {
             var hasher = new SHA512Managed();
 
             // The front page data of each website is hashed with SHA512 to derive random bytes.
             // This catches and logs exceptions and returns data from the fallback entropy source.
-            // TODO: could use a stopwatch here to include network timings in the hash.
 #if DEBUG
-            Thread.Sleep(new Random().Next(2000));
-            var siteData = this.GetFallbackRandomness(64);
+            Thread.Sleep(new Random().Next(250));
+            var data = this.GetFallbackRandomness(64);
 #else
-            var siteData = this.FetchWebsiteRawData(uri, "");
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var siteData = RandomSeedService.FetchWebsiteRawData(uri, "");
+            sw.Stop();
+            var data = BitConverter.GetBytes(sw.ElapsedTicks).Concat(siteData).ToArray();
 #endif
-            var result = hasher.ComputeHash(siteData);
+            var result = hasher.ComputeHash(data);
             return result;
         }
 
-        private byte[] FetchRandomOrgData(int numberOfBytes)
+        private byte[] FetchRandomOrgData()
         {
-            // This catches and logs exceptions and returns data from the fallback entropy source.
-
-            // Alternatives to random.org
-            // http://qrng.anu.edu.au/index.php
-            // http://www.randomnumbers.info/content/Download.htm
-            // http://www.randomserver.dyndns.org/client/random.php?type=INT&a=1&b=10&n=1
-            // http://qrng.physik.hu-berlin.de/download
-
+            // http://www.random.org/
+            const int numberOfBytes = 2048;
 #if DEBUG
             Thread.Sleep(new Random().Next(2000));
             var randomOrgData = this.GetFallbackRandomness(numberOfBytes);
@@ -310,7 +325,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                 @params = new {
                     apiKey = apiKey.ToString("D"),
                     n = 1,
-                    size = 8 * 8, // numberOfBytes * 8,
+                    size = numberOfBytes * 8,
                     format = "base64",
                 },
                 id = 1,
@@ -319,6 +334,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             var wc = new WebClient();
             wc.Headers.Add("Automatic", "makemeapassword@ligos.net");
             wc.Headers.Add("Content-Type", "application/json-rpc");
+            wc.Headers.Add("User-Agent", "Microsoft.NET; makemeapassword.net; makemeapassword@ligos.net");
             var bodyAsString = JsonConvert.SerializeObject(body, Formatting.None);
             var rawResult = wc.UploadString(randomOrgApi, "POST", bodyAsString);
 
@@ -331,7 +347,106 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             return randomOrgData;
         }
 
-        private byte[] FetchWebsiteRawData(Uri uri, string userAgent)
+        private byte[] FetchAnuRandomData()
+        {
+            // http://qrng.anu.edu.au/index.php
+            const int arrays = 4;
+            const int arraySize = 1024;
+            const int numberOfBytes = arrays * arraySize;
+#if DEBUG
+            Thread.Sleep(new Random().Next(1500));
+            var result = this.GetFallbackRandomness(numberOfBytes);
+#else
+            var apiUri = new Uri("https://qrng.anu.edu.au/API/jsonI.php?length=" + arrays.ToString() + "&type=hex16&size=" + arraySize.ToString());
+            var wc = new WebClient();
+            wc.Headers.Add("User-Agent", "Microsoft.NET; makemeapassword.net; makemeapassword@ligos.net");
+            var rawResult = wc.DownloadString(apiUri);
+
+            var result = new byte[numberOfBytes];
+            dynamic jsonResult = JsonConvert.DeserializeObject(rawResult);
+            var byteCount = 0;
+            foreach (var hexBytes in (Newtonsoft.Json.Linq.JArray)jsonResult.data)
+            {
+                var bytes = hexBytes.ToString().ToByteArray();
+                Array.Copy(bytes, 0, result, byteCount, bytes.Length);
+                byteCount += bytes.Length;
+            }
+#endif
+            return result;
+        }
+        private byte[] FetchPhysikRandomData()
+        {
+            // https://qrng.physik.hu-berlin.de/download
+            const int numberOfBytes = 4096;
+#if DEBUG
+            Thread.Sleep(new Random().Next(1800));
+            var result = this.GetFallbackRandomness(numberOfBytes);
+#else
+            var result = this.GetFallbackRandomness(numberOfBytes);
+#endif
+            return result;
+        }
+        private byte[] FetchNumbersInfoRandomData()
+        {
+            // This supports SSL, but the cert isn't valid (it's for the uni, rather than the correct domain).
+            // http://www.randomnumbers.info/content/Download.htm
+            const int rangeOfNumbers = 4096-1;      // 12 bits per number (1.5 bytes).
+            const int numberOfNumbers = 512;
+            const int numberOfBytes = numberOfNumbers * 2;          // We waste 4 bits per number (for a total of 1024 bytes).
+#if DEBUG
+            Thread.Sleep(new Random().Next(1900));
+            var result = this.GetFallbackRandomness(numberOfBytes);
+#else
+            var apiUri = new Uri("http://www.randomnumbers.info/cgibin/wqrng.cgi?amount=" + numberOfNumbers.ToString() + "&limit=" + rangeOfNumbers.ToString());
+            var wc = new WebClient();
+            wc.Headers.Add("User-Agent", "Microsoft.NET; makemeapassword.net; makemeapassword@ligos.net");
+            var html = wc.DownloadString(apiUri);           // This returns HTML, which means I'm doing some hacky parsing here.
+            
+            // Locate some pretty clear boundaries around the random numbers returned.
+            var startIdx = html.IndexOf("Download random numbers from quantum origin", StringComparison.OrdinalIgnoreCase);
+            if (startIdx == -1)
+                throw new Exception("Cannot locate start string in html parsing of randomnumbers.info result.");
+            var endIdx = html.IndexOf("</td>", startIdx, StringComparison.OrdinalIgnoreCase);
+            if (endIdx == -1)
+                throw new Exception("Cannot locate end string in html parsing of randomnumbers.info result.");
+            var haystack = html.Substring(startIdx, endIdx - startIdx);
+            var numbersAndOtherJunk = haystack.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);      // Numbers are space sparated.
+            var numbers = numbersAndOtherJunk
+                            .Where(x => x.All(Char.IsDigit))        // Remove non-numberic junk.
+                            .Select(x => Int16.Parse(x))            // Parse to an int16.
+                            .ToList();
+            var result = new byte[numberOfBytes];
+            for (int i = 0; i < numbers.Count; i++)
+            {
+                // Take the Int16s in the range 0..4095 (4096 possibilities) and write them into the result array.
+                // The top 4 bits will always be empty, but that doesn't matter too much as we hash everything anyway.
+                var twoBytes = BitConverter.GetBytes(numbers[i]);
+                result[i*2] = twoBytes[0];
+                result[(i*2)+1] = twoBytes[1];
+            }
+#endif
+            return result;
+        }
+        private byte[] FetchRandomServerRandomData()
+        {
+            // Somewhat unfortunately, this doesn't support https.
+            // http://www.randomserver.dyndns.org/client/random.php
+            const int numberOfBytes = 1024;
+#if DEBUG
+            Thread.Sleep(new Random().Next(1700));
+            var result = this.GetFallbackRandomness(numberOfBytes);
+#else
+            var result = new byte[numberOfBytes];
+            var apiUri = new Uri("http://www.randomserver.dyndns.org/client/random.php?type=BIN&a=0&b=0&n=" + numberOfBytes.ToString() + "&file=0");
+            var wc = new WebClient();
+            wc.Headers.Add("User-Agent", "Microsoft.NET; makemeapassword.net; makemeapassword@ligos.net");
+            var bytes = wc.DownloadData(apiUri);
+            Array.Copy(bytes, result, result.Length);
+#endif
+            return result;
+
+        }
+        private static byte[] FetchWebsiteRawData(Uri uri, string userAgent)
         {
             var request = WebRequest.Create(uri);
             request.CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.Reload);

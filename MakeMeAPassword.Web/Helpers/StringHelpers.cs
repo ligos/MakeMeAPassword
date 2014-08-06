@@ -36,5 +36,23 @@ namespace MurrayGrant.PasswordGenerator.Web.Helpers
                 return true;
             return false;
         }
+
+        private static readonly string _HexCharacters = "0123456789abcdefABCDEF";
+        public static byte[] ToByteArray(this string s)
+        {
+            if (s == null)
+                throw new ArgumentNullException("s");
+            if (String.IsNullOrEmpty(s))
+                return new byte[0];
+            if (s.Length % 2 != 0)
+                throw new ArgumentOutOfRangeException("s", "Must be even number of hex digits.");
+            if (s.Any(c => !_HexCharacters.Contains(c)))
+                throw new ArgumentOutOfRangeException("s", String.Format("Invalid character in string '{0}'", s));
+
+            var result = new byte[s.Length/2];
+            for (int i = 0; i < result.Length-1; i++)
+                result[i] = Byte.Parse(s[i*2].ToString() + s[(i*2)+1].ToString(), System.Globalization.NumberStyles.HexNumber);
+            return result;
+        }
     }
 }
