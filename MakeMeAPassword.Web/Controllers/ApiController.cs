@@ -70,6 +70,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers
             result.ProcessPeakWorkingSet64 = p.PeakWorkingSet64;
             result.ProcessPrivateMemorySize64 = p.PrivateMemorySize64;
             result.ProcessWorkingSet64 = p.WorkingSet64;
+            result.Is64BitProcess = Environment.Is64BitProcess;
 
             var rootDrive = new DriveInfo(new DirectoryInfo(Environment.SystemDirectory).Root.Name);
             result.RootDriveCapacity = rootDrive.TotalSize;
