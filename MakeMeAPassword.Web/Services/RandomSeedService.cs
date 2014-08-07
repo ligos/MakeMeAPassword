@@ -198,34 +198,35 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                 lock (this._LoadingExternalDataFlag)
                 {
                     // Fire off requests to all the sources of random data.
-                    var sources = _UrlEntropySources.Select(url => 
+                    var sources = _UrlEntropySources.Select<Uri, Func<byte[]>>(url => 
                                     {
                                         try {
-                                            return FetchWebsiteData(url);
+                                            return () => FetchWebsiteData(url);
                                         } catch (Exception ex) {
 #if !DEBUG
                                             ex.ToExceptionless().AddObject(url).AddTags("RandomSeed").Submit();
 #endif
-                                            return null;
+                                            return () => (byte[])null;
                                         }
                                     })
                                 .Concat(_RandomGeneratorSources.Select(fn => 
                                 {
                                     try {
-                                        return fn();
+                                        return fn;
                                     } catch (Exception ex) {
 #if !DEBUG
                                         ex.ToExceptionless().AddObject(fn.Method.Name + "()").AddTags("RandomSeed").Submit();
 #endif
-                                        return null;
+                                        return () => (byte[])null;
                                     }
                                 }));
                     var parallelFetch = sources
                             .Randomise()
                             .AsParallel()
                             .AsUnordered()
-                            .WithDegreeOfParallelism(4)
+                            .WithDegreeOfParallelism(6)
                             .WithMergeOptions(ParallelMergeOptions.NotBuffered)
+                            .Select(fn => fn())
                             .Where(x => x != null);
 
                     // Timing how long it takes to get first and last seed..
@@ -242,7 +243,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                             {
                                 // Copy a block to the pool.
                                 if (_EntropyIndex + blockSizeBytes > _EntropyPool.Length)
-                                _EntropyIndex = 0;
+                                    _EntropyIndex = 0;
                                 Array.Copy(randomBytes, i, _EntropyPool, _EntropyIndex, blockSizeBytes);
                                 _EntropyIndex += blockSizeBytes;
 
@@ -252,7 +253,8 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                                     var hasher = new SHA256Managed();
                                     _Seeds.Enqueue(hasher.ComputeHash(_EntropyPool));
                                     Interlocked.Increment(ref total);
-                                    swFirst.Stop();
+                                    if (swFirst.IsRunning)
+                                        swFirst.Stop();
                                 }
                             }
                         }
@@ -292,7 +294,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             try
             {
                 var body = String.Format("makemeapassword.org has generated new seeds at {4:u}.{0}Started with {1:N0} seeds, ended with {2:N0}, total of {3:N0} were generated.{0}First seed generated in {1:N1}ms, last seed generated after {2:N1}ms.", Environment.NewLine, seedsAtStart, seedsAtEnd, totalGenerated, DateTime.UtcNow, timeToFirstSeed, timeToLastSeed);
-                var msg = new MailMessage("postmaster@makemeapassword.net", "makemeapassword@ligos.net", "makemeapassword.org - new seeds generated", body);
+                var msg = new MailMessage("postmaster@makemeapassword.org", "postmaster@makemeapassword.org", "makemeapassword.org - new seeds generated", body);
                 var sender = new SmtpClient("mail.makemeapassword.org");
 #if !DEBUG
                 sender.Send(msg);
@@ -408,6 +410,8 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             Thread.Sleep(new Random().Next(1800));
             var result = this.GetFallbackRandomness(numberOfBytes);
 #else
+            return null;        // Disabled in production as the dll isn't loading correctly.
+
             // This follows the sample provided.
             var dll = new QrngPhysik();
             if (!dll.CheckDLL())
@@ -423,9 +427,12 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             if (iRet != 0)
             {
                 var errorMsg = "";
-                try {
+                try
+                {
                     errorMsg = QrngPhysik.qrng_error_strings[iRet];
-                } catch (IndexOutOfRangeException) {
+                }
+                catch (IndexOutOfRangeException)
+                {
                     errorMsg = "";
                 }
                 throw new Exception("Error calling QrngPhysik: " + iRet.ToString() + (String.IsNullOrEmpty(errorMsg) ? "" : " - " + errorMsg));

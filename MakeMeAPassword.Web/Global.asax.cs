@@ -36,6 +36,10 @@ namespace MurrayGrant.PasswordGenerator.Web
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
+            // Path is required for native library to call one of the external random number generators.
+            // http://stackoverflow.com/a/4598747
+            Environment.SetEnvironmentVariable("PATH", Environment.GetEnvironmentVariable("PATH") + ";" + this.Server.MapPath("~/lib_native"), EnvironmentVariableTarget.Process);
+
             Services.RandomSeedService.Singleton.Init(this.Server.MapPath("~/App_Data/random.org.key.txt"), this.Server.MapPath("~/App_Data/qrng.physik.credentials.txt"));
             Services.RandomSeedService.Singleton.BeginLoadingExternalData();
         }
