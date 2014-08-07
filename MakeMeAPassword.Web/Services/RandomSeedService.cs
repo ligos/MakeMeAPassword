@@ -269,7 +269,9 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
 #if !DEBUG
                 ex.ToExceptionless().MarkAsCritical().AddTags("RandomSeed", "LastChance").Submit();
 #endif
+#if DEBUG
                 throw;
+#endif
             }
         }
 
