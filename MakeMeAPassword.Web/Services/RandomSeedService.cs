@@ -198,36 +198,25 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                 lock (this._LoadingExternalDataFlag)
                 {
                     // Fire off requests to all the sources of random data.
-                    var sources = _UrlEntropySources.Select<Uri, Func<byte[]>>(url => 
-                                    {
-                                        try {
-                                            return () => FetchWebsiteData(url);
-                                        } catch (Exception ex) {
-#if !DEBUG
-                                            ex.ToExceptionless().AddObject(url).AddTags("RandomSeed").Submit();
-#endif
-                                            return () => (byte[])null;
-                                        }
-                                    })
-                                .Concat(_RandomGeneratorSources.Select(fn => 
-                                {
-                                    try {
-                                        return fn;
-                                    } catch (Exception ex) {
-#if !DEBUG
-                                        ex.ToExceptionless().AddObject(fn.Method.Name + "()").AddTags("RandomSeed").Submit();
-#endif
-                                        return () => (byte[])null;
-                                    }
-                                }));
+                    var sources = _UrlEntropySources.Select<Uri, Func<byte[]>>(url => () => FetchWebsiteData(url)).Concat(_RandomGeneratorSources);
                     var parallelFetch = sources
                             .Randomise()
                             .AsParallel()
                             .AsUnordered()
                             .WithDegreeOfParallelism(6)
                             .WithMergeOptions(ParallelMergeOptions.NotBuffered)
-                            .Select(fn => fn())
-                            .Where(x => x != null);
+                            .Where(fn => fn != null)
+                            .Select(fn => {
+                                try {
+                                    return fn();
+                                } catch (Exception ex) {
+#if !DEBUG
+                                    ex.ToExceptionless().AddObject(fn.Method.Name + "()").AddTags("RandomSeed").Submit();
+#endif
+                                    return null;
+                                }
+                            })
+                            .Where(bs => bs != null);
 
                     // Timing how long it takes to get first and last seed..
                     swFirst.Start();
@@ -318,7 +307,13 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             var data = this.GetFallbackRandomness(64);
 #else
             var sw = System.Diagnostics.Stopwatch.StartNew();
-            var siteData = RandomSeedService.FetchWebsiteRawData(uri, "");
+            byte[] siteData;
+            try {
+                siteData = RandomSeedService.FetchWebsiteRawData(uri);
+            } catch (Exception ex) { 
+                ex.ToExceptionless().AddObject(uri.ToString()).AddTags("RandomSeed").Submit();
+                siteData = new byte[0];
+            }
             sw.Stop();
             var data = BitConverter.GetBytes(sw.ElapsedTicks).Concat(siteData).ToArray();
 #endif
@@ -339,7 +334,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             // https://api.random.org/json-rpc/1/request-builder
 
             if (_RandomOrgApiKeyFile == null)
-                throw new Exception("Random.ord Key File not available.");
+                throw new Exception("Random.org Key File not available.");
 
             var apiKey = Guid.Parse(File.ReadAllText(_RandomOrgApiKeyFile.FullName));
             var body = new {
@@ -357,7 +352,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             var wc = new WebClient();
             wc.Headers.Add("Automatic", "makemeapassword@ligos.net");
             wc.Headers.Add("Content-Type", "application/json-rpc");
-            wc.Headers.Add("User-Agent", "Microsoft.NET; makemeapassword.net; makemeapassword@ligos.net");
+            wc.Headers.Add("User-Agent", "Microsoft.NET; makemeapassword.org; makemeapassword@ligos.net");
             var bodyAsString = JsonConvert.SerializeObject(body, Formatting.None);
             var rawResult = wc.UploadString(randomOrgApi, "POST", bodyAsString);
 
@@ -382,7 +377,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
 #else
             var apiUri = new Uri("https://qrng.anu.edu.au/API/jsonI.php?length=" + arrays.ToString() + "&type=hex16&size=" + arraySize.ToString());
             var wc = new WebClient();
-            wc.Headers.Add("User-Agent", "Microsoft.NET; makemeapassword.net; makemeapassword@ligos.net");
+            wc.Headers.Add("User-Agent", "Microsoft.NET; makemeapassword.org; makemeapassword@ligos.net");
             var rawResult = wc.DownloadString(apiUri);
 
             var result = new byte[numberOfBytes];
@@ -453,7 +448,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
 #else
             var apiUri = new Uri("http://www.randomnumbers.info/cgibin/wqrng.cgi?amount=" + numberOfNumbers.ToString() + "&limit=" + rangeOfNumbers.ToString());
             var wc = new WebClient();
-            wc.Headers.Add("User-Agent", "Microsoft.NET; makemeapassword.net; makemeapassword@ligos.net");
+            wc.Headers.Add("User-Agent", "Microsoft.NET; makemeapassword.org; makemeapassword@ligos.net");
             var html = wc.DownloadString(apiUri);           // This returns HTML, which means I'm doing some hacky parsing here.
             
             // Locate some pretty clear boundaries around the random numbers returned.
@@ -493,20 +488,20 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             var result = new byte[numberOfBytes];
             var apiUri = new Uri("http://www.randomserver.dyndns.org/client/random.php?type=BIN&a=0&b=0&n=" + numberOfBytes.ToString() + "&file=0");
             var wc = new WebClient();
-            wc.Headers.Add("User-Agent", "Microsoft.NET; makemeapassword.net; makemeapassword@ligos.net");
+            wc.Headers.Add("User-Agent", "Microsoft.NET; makemeapassword.org; makemeapassword@ligos.net");
             var bytes = wc.DownloadData(apiUri);
             Array.Copy(bytes, result, result.Length);
 #endif
             return result;
 
         }
-        private static byte[] FetchWebsiteRawData(Uri uri, string userAgent)
+        private static byte[] FetchWebsiteRawData(Uri uri)
         {
             var request = WebRequest.Create(uri);
             request.CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.Reload);
             request.Method = "GET";
-            if (!String.IsNullOrEmpty(userAgent) && request is HttpWebRequest)
-                (request as HttpWebRequest).UserAgent = userAgent;
+            if (request is HttpWebRequest)
+                (request as HttpWebRequest).UserAgent = "Microsoft.NET; makemeapassword.org; makemeapassword@ligos.net";
             request.Timeout = (int)TimeSpan.FromSeconds(25).TotalMilliseconds;
             var response = request.GetResponse();
             var result = new MemoryStream();
