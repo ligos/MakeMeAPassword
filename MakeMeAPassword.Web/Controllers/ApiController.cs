@@ -193,7 +193,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers
             result.SeedsInReserve = RandomSeedService.Singleton.SeedsInReserve;
             result.SeedsGenerated = RandomSeedService.Singleton.TotalSeedsGenerated;
             result.TotalUsageUnits = IpThrottlerService.TotalUsage;
-
+            result.LastSeedGenerationStats = RandomSeedService.Singleton.LastSeedGenerationStats;
 
             var stats = RandomService.GetStats();
 

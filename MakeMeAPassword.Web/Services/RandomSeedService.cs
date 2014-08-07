@@ -26,6 +26,7 @@ using System.IO;
 using MurrayGrant.PasswordGenerator.Web.Helpers;
 using Exceptionless;
 using Newtonsoft.Json;
+using System.Text;
 
 namespace MurrayGrant.PasswordGenerator.Web.Services
 {
@@ -42,6 +43,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
         private readonly int _SeedSize = 32;
         private object _LoadingExternalDataFlag = new object();
         private FileInfo _RandomOrgApiKeyFile;
+        private FileInfo _QrngPhysikCredentialFile;
         private readonly byte[] _EntropyPool = new byte[16384];
         private int _EntropyIndex = 0;
         private int _MinimumEntropySizeBytes = 128;         // This many external bytes must be added to entropy before we start producing seeds.
@@ -119,6 +121,15 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
 
         public int SeedsInReserve { get { return this._Seeds.Count; } }
         public int TotalSeedsGenerated { get; private set; }
+        public SeedGenerationStats LastSeedGenerationStats { get; private set; }
+        public class SeedGenerationStats
+        {
+            public int SeedsAtStart { get; set; }
+            public int SeedsAtEnd { get; set; }
+            public int TotalGenerated { get; set ;}
+            public TimeSpan TimeToFirstSeed { get; set; }
+            public TimeSpan TimeToLastSeed { get; set; }
+        }
 
         private RandomSeedService()
         {
@@ -154,9 +165,10 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             return result;
         }
 
-        public void InitRandomOrg(string randomOrgApiKeyKilePath)
+        public void Init(string randomOrgApiKeyKilePath, string qrngPhysikCredentialPath)
         {
             _RandomOrgApiKeyFile = new FileInfo(randomOrgApiKeyKilePath);
+            _QrngPhysikCredentialFile = new FileInfo(qrngPhysikCredentialPath);
         }
 
         /// <summary>
@@ -250,6 +262,14 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                 var seedsAtEnd = _Seeds.Count;
 
                 // At the end, send an email to the site owner so we know how often new seeds are being generated.
+                this.LastSeedGenerationStats = new SeedGenerationStats()
+                {
+                    SeedsAtStart = seedsAtStart,
+                    SeedsAtEnd = seedsAtEnd,
+                    TotalGenerated = total,
+                    TimeToFirstSeed = swFirst.Elapsed,
+                    TimeToLastSeed = swLast.Elapsed,
+                };
                 this.SendEmailToOwner(seedsAtStart, seedsAtEnd, total, swFirst.Elapsed, swLast.Elapsed);
             }
             catch (Exception ex)
@@ -378,12 +398,38 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
         private byte[] FetchPhysikRandomData()
         {
             // https://qrng.physik.hu-berlin.de/download
+            // The SSL version of this requires unmanaged OpenSSL, which I'm not going to use just yet.
             const int numberOfBytes = 4096;
+
+            if (Environment.Is64BitProcess)
+                throw new Exception("Cannot call Qrng.Physik: running in 64 bit process, but 32 bit DLL.");
+
 #if DEBUG
             Thread.Sleep(new Random().Next(1800));
             var result = this.GetFallbackRandomness(numberOfBytes);
 #else
-            var result = this.GetFallbackRandomness(numberOfBytes);
+            // This follows the sample provided.
+            var dll = new QrngPhysik();
+            if (!dll.CheckDLL())
+                throw new Exception("Unable to load libqrng.dll");
+
+            var lines = File.ReadAllLines(_QrngPhysikCredentialFile.FullName);
+            var username = lines[0];
+            var password = lines[1];
+
+            int bytesReceived = 0, iRet = 0;
+            var result = new byte[numberOfBytes];
+            iRet = QrngPhysik.qrng_connect_and_get_byte_array(username, password, result, result.Length, out bytesReceived);
+            if (iRet != 0)
+            {
+                var errorMsg = "";
+                try {
+                    errorMsg = QrngPhysik.qrng_error_strings[iRet];
+                } catch (IndexOutOfRangeException) {
+                    errorMsg = "";
+                }
+                throw new Exception("Error calling QrngPhysik: " + iRet.ToString() + (String.IsNullOrEmpty(errorMsg) ? "" : " - " + errorMsg));
+            }
 #endif
             return result;
         }
