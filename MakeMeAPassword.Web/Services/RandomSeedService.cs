@@ -212,6 +212,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                             .Randomise()
                             .AsParallel()
                             .AsUnordered()
+                            .WithDegreeOfParallelism(4)
                             .WithMergeOptions(ParallelMergeOptions.NotBuffered)
                             .Where(x => x != null);
 
@@ -271,7 +272,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             try
             {
                 var body = String.Format("makemeapassword.org has generated new seeds at {4:u}.{0}Started with {1:N0} seeds, ended with {2:N0}, total of {3:N0} were generated.{0}First seed generated in {1:N1}ms, last seed generated after {2:N1}ms.", Environment.NewLine, seedsAtStart, seedsAtEnd, totalGenerated, DateTime.UtcNow, timeToFirstSeed, timeToLastSeed);
-                var msg = new MailMessage("makemeapassword@ligos.net", "makemeapassword@ligos.net", "makemeapassword.org - new seeds generated", body);
+                var msg = new MailMessage("postmaster@makemeapassword.net", "makemeapassword@ligos.net", "makemeapassword.org - new seeds generated", body);
                 var sender = new SmtpClient("mail.makemeapassword.org");
 #if !DEBUG
                 sender.Send(msg);
@@ -306,7 +307,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
         private byte[] FetchRandomOrgData()
         {
             // http://www.random.org/
-            const int numberOfBytes = 2048;
+            const int numberOfBytes = 1024;
 #if DEBUG
             Thread.Sleep(new Random().Next(2000));
             var randomOrgData = this.GetFallbackRandomness(numberOfBytes);
@@ -316,7 +317,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             // https://api.random.org/json-rpc/1/request-builder
 
             if (_RandomOrgApiKeyFile == null)
-                return this.GetFallbackRandomness(numberOfBytes);
+                throw new Exception("Random.ord Key File not available.");
 
             var apiKey = Guid.Parse(File.ReadAllText(_RandomOrgApiKeyFile.FullName));
             var body = new {
