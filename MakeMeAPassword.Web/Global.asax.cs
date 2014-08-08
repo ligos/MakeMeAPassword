@@ -20,6 +20,7 @@ using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using Exceptionless;
 
 namespace MurrayGrant.PasswordGenerator.Web
 {
@@ -42,6 +43,14 @@ namespace MurrayGrant.PasswordGenerator.Web
 
             Services.RandomSeedService.Singleton.Init(this.Server.MapPath("~/App_Data/random.org.key.txt"), this.Server.MapPath("~/App_Data/qrng.physik.credentials.txt"));
             Services.RandomSeedService.Singleton.BeginLoadingExternalData();
+        }
+
+        protected void Application_Error(object sender, EventArgs e)
+        {
+#if !DEBUG
+            Exception ex = Server.GetLastError();
+            ex.ToExceptionless().MarkAsCritical().AddTags("Global.asax", "LastChance").Submit();
+#endif
         }
     }
 }
