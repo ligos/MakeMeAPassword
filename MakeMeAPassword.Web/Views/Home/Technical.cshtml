@@ -74,7 +74,8 @@
 <p>
     The standard option on Windows .NET is to use <code>RNGCryptoServiceProvider</code>. 
     But I don't want to put all my eggs in one basket, so I designed my own random number generator (which <code>RNGCryptoServiceProvider</code> is just one of many sources of entropy).
-    Incidently, I realised after designing my RNG that I'd made a more primitive version of <a href="http://en.wikipedia.org/wiki/Yarrow_algorithm">Yarrow</a> or <a href="http://en.wikipedia.org/wiki/Fortuna_%28PRNG%29">Fortuna</a>. I'd certainly have used one of them if I was starting from scratch, but it was a good learning exercise.
+    Incidently, I realised after designing my RNG that I'd made a more primitive version of <a href="http://en.wikipedia.org/wiki/Yarrow_algorithm">Yarrow</a> or <a href="http://en.wikipedia.org/wiki/Fortuna_%28PRNG%29">Fortuna</a>. 
+    I'd certainly have used one of them if I was starting from scratch, but it was a good learning exercise.
 </p>
 <p>
     The implementation is in the <code>RandomService</code> class.
@@ -130,13 +131,18 @@
 <h4>Major / Expensive Entropy</h4>
 <ul>
     <li><a href="http://www.random.org/">Random.org</a> - a provider of entropy based on atmospheric noise</li>
+    <li><a href="https://qrng.anu.edu.au">ANU Quantum Random Numbers Server</a> - random numbers generated in real-time in their lab by measuring the quantum fluctuations of the vacuum</li>
+    <li><a href="http://www.randomnumbers.info/">RandomNumbers.info</a> - download random numbers from quantum origin</li>
+    <li><a href="http://www.randomserver.dyndns.org/client/random.php">RandomServer</a> - free random numbers</li>
     <li>SHA512 hashes of a variety of news websites across the world - based on the assumption their content will change regularly and unpredictably (the list of sites is hard coded in <code>RandomSeedService</code>)</li>
     <li><code>RNGCryptoServiceProvider</code> - as fallback entropy if the remote sources are unavailable</li>
 </ul>
 <p>
-    The results from random.org and news sites are combined into a single seed. 
-    That is, a 32 byte seed is derived from 16 bytes from random.org and 16 bytes from a news website.
-    The final result is hashed using SHA256.
+    A 16kB buffer is initialised using <code>RNGCryptoServiceProvider</code> when the website starts.
+    Each of the above sources are queried to retrieve some random numbers.
+    Those numbers are written to the buffer in 64 byte blocks.
+    Each time a block is written to the buffer, an SHA256 hash is taken of the whole buffer.
+    This final SHA256 digest is added to the pool of seeds.
 </p>
 <p>
     As most expensive entropy is the result of network requests, a pool is initialised at startup.

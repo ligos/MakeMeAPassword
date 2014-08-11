@@ -284,7 +284,8 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
         {
             try
             {
-                var body = String.Format("makemeapassword.org has generated new seeds at {4:u}.{0}Started with {1:N0} seeds, ended with {2:N0}, total of {3:N0} were generated.{0}First seed generated in {1:N1}ms, last seed generated after {2:N1}ms.", Environment.NewLine, seedsAtStart, seedsAtEnd, totalGenerated, DateTime.UtcNow, timeToFirstSeed, timeToLastSeed);
+                var p = System.Diagnostics.Process.GetCurrentProcess();
+                var body = String.Format("makemeapassword.org has generated new seeds at {4:u}.{0}Started with {1:N0} seeds, ended with {2:N0}, total of {3:N0} were generated.{0}First seed generated in {5:N1}ms, last seed generated after {6:N1}ms.{0}Pid = {7}, Process started at {8:u}", Environment.NewLine, seedsAtStart, seedsAtEnd, totalGenerated, DateTime.UtcNow, timeToFirstSeed.TotalMilliseconds, timeToLastSeed.TotalMilliseconds, p.Id, p.StartTime.ToUniversalTime());
                 var msg = new MailMessage("postmaster@makemeapassword.org", "postmaster@makemeapassword.org", "makemeapassword.org - new seeds generated", body);
                 var sender = new SmtpClient("mail.makemeapassword.org");
 #if !DEBUG
@@ -404,10 +405,8 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                 throw new Exception("Cannot call Qrng.Physik: running in 64 bit process, but 32 bit DLL.");
 
 #if DEBUG
-            Thread.Sleep(new Random().Next(1800));
-            var result = this.GetFallbackRandomness(numberOfBytes);
-#else
-            return null;        // Disabled in production as the dll isn't loading correctly.
+            //Thread.Sleep(new Random().Next(1800));
+            //var result = this.GetFallbackRandomness(numberOfBytes);
 
             // This follows the sample provided.
             var dll = new QrngPhysik();
@@ -434,8 +433,11 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                 }
                 throw new Exception("Error calling QrngPhysik: " + iRet.ToString() + (String.IsNullOrEmpty(errorMsg) ? "" : " - " + errorMsg));
             }
-#endif
             return result;
+#else
+            return null;        // Disabled in production as the dll isn't loading correctly.
+
+#endif
         }
         private byte[] FetchNumbersInfoRandomData()
         {
