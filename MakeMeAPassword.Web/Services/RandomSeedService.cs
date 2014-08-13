@@ -61,7 +61,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             new Uri("http://www.smh.com.au/"),
             new Uri("http://www.bbc.com/news/"),
             new Uri("http://edition.cnn.com/"),
-            new Uri("http://www.amazon.com/"),
+            new Uri("http://www.amazon.com.au/"),
             new Uri("http://digg.com/"),
             new Uri("http://www.reddit.com/"),
             new Uri("http://en.wikipedia.org/wiki/Main_Page"),
