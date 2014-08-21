@@ -116,6 +116,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             new Uri("http://www.indiatimes.com/"),            
             new Uri("http://www.china.com.cn/"),            
             new Uri("http://www.metafilter.com"),
+            new Uri("http://hckrnews.com/"),
         };
         private readonly IEnumerable<Func<byte[]>> _RandomGeneratorSources;
 
