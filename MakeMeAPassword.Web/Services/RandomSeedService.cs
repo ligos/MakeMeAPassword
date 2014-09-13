@@ -117,6 +117,17 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             new Uri("http://www.china.com.cn/"),            
             new Uri("http://www.metafilter.com"),
             new Uri("http://hckrnews.com/"),
+            new Uri("http://boards.4chan.org/v/"),
+            new Uri("http://boards.4chan.org/an/"),
+            new Uri("http://boards.4chan.org/sci/"),
+            new Uri("http://boards.4chan.org/mu/"),
+            new Uri("http://boards.4chan.org/diy/"),
+            new Uri("http://boards.4chan.org/biz/"),
+            new Uri("http://boards.4chan.org/trv/"),
+            new Uri("http://boards.4chan.org/lit/"),
+            new Uri("http://boards.4chan.org/b/"),
+            new Uri("http://boards.4chan.org/ck/"),
+            new Uri("http://boards.4chan.org/p/"),
         };
         private readonly IEnumerable<Func<byte[]>> _RandomGeneratorSources;
 
@@ -142,7 +153,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                 this.FetchAnuRandomData,
                 this.FetchNumbersInfoRandomData,
                 this.FetchRandomServerRandomData,
-                this.FetchPhysikRandomData,
+                //this.FetchPhysikRandomData,           // Requires unmanged code which isn't working in my hosting environment.
             };
         }
 
@@ -198,13 +209,17 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                 var total = 0;
                 lock (this._LoadingExternalDataFlag)
                 {
+                    // Don't load if we have enough seeds.
+                    if (_Seeds.Count > _MinSeedsInReserve)
+                        return;
+
                     // Fire off requests to all the sources of random data.
                     var sources = _UrlEntropySources.Select<Uri, Func<byte[]>>(url => () => FetchWebsiteData(url)).Concat(_RandomGeneratorSources);
                     var parallelFetch = sources
                             .Randomise()
                             .AsParallel()
                             .AsUnordered()
-                            .WithDegreeOfParallelism(6)
+                            .WithDegreeOfParallelism(8)
                             .WithMergeOptions(ParallelMergeOptions.NotBuffered)
                             .Where(fn => fn != null)
                             .Select(fn => {
