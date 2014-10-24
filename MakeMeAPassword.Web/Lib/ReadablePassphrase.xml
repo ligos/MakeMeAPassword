@@ -113,6 +113,26 @@
             A general instance designed to get a phrase to pass password requirements more than add serious entropy.
             </summary>
         </member>
+        <member name="T:MurrayGrant.ReadablePassphrase.Mutators.UppercaseRunMutator">
+            <summary>
+            Changes runs or sequences of letters to uppercase at random.
+            </summary>
+        </member>
+        <member name="F:MurrayGrant.ReadablePassphrase.Mutators.UppercaseRunMutator.Basic">
+            <summary>
+            A general instance designed to get a phrase to pass password requirements more than add serious entropy.
+            </summary>
+        </member>
+        <member name="T:MurrayGrant.ReadablePassphrase.Mutators.UppercaseWordMutator">
+            <summary>
+            Changes whole words to uppercase at random.
+            </summary>
+        </member>
+        <member name="F:MurrayGrant.ReadablePassphrase.Mutators.UppercaseWordMutator.Basic">
+            <summary>
+            A general instance designed to get a phrase to pass password requirements more than add serious entropy.
+            </summary>
+        </member>
         <member name="T:MurrayGrant.ReadablePassphrase.Mutators.UppercaseMutator">
             <summary>
             Changes letters to uppercase at random.
@@ -121,6 +141,16 @@
         <member name="F:MurrayGrant.ReadablePassphrase.Mutators.UppercaseMutator.Basic">
             <summary>
             A general instance designed to get a phrase to pass password requirements more than add serious entropy.
+            </summary>
+        </member>
+        <member name="F:MurrayGrant.ReadablePassphrase.Mutators.AllUppercaseStyles.RunOfLetters">
+            <summary>
+            The UppercaseRunMutator
+            </summary>
+        </member>
+        <member name="F:MurrayGrant.ReadablePassphrase.Mutators.AllUppercaseStyles.WholeWord">
+            <summary>
+            The UppercaseWordMutator
             </summary>
         </member>
         <member name="T:MurrayGrant.ReadablePassphrase.PhraseCombinations">

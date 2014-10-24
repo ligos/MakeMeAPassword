@@ -46,7 +46,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
         public readonly static int MaxAttemptsPerCount = 100;
         public readonly static NumericStyles DefaultWhenNumeric = NumericStyles.Never;
         public readonly static int DefaultNumbers = 2;
-        public readonly static UppercaseStyles DefaultWhenUppercase = UppercaseStyles.Never;
+        public readonly static AllUppercaseStyles DefaultWhenUppercase = AllUppercaseStyles.Never;
         public readonly static int DefaultUppercase = 2;
 
         private readonly static Lazy<WordDictionary> Dictionary;
@@ -59,7 +59,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
         }
 
         // GET: /api/v1/readablepassphrase/plain
-        public string Plain(PhraseStrength? s, int? pc, string sp, int? minCh, int? maxCh, NumericStyles? whenNum, int? nums, UppercaseStyles? whenUp, int? ups)
+        public string Plain(PhraseStrength? s, int? pc, string sp, int? minCh, int? maxCh, NumericStyles? whenNum, int? nums, AllUppercaseStyles? whenUp, int? ups)
         {
             // Return as plain text string.
             var phrases = this.SelectPhrases(
@@ -78,7 +78,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
         }
 
         // GET: /api/v1/readablepassphrase/json
-        public ActionResult Json(PhraseStrength? s, int? pc, string sp, int? minCh, int? maxCh, NumericStyles? whenNum, int? nums, UppercaseStyles? whenUp, int? ups)
+        public ActionResult Json(PhraseStrength? s, int? pc, string sp, int? minCh, int? maxCh, NumericStyles? whenNum, int? nums, AllUppercaseStyles? whenUp, int? ups)
         {
             // Return as Json array.
             var phrases = this.SelectPhrases(
@@ -96,7 +96,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
         }
         
         // GET: /api/v1/readablepassphrase/xml
-        public ActionResult Xml(PhraseStrength? s, int? pc, string sp, int? minCh, int? maxCh, NumericStyles? whenNum, int? nums, UppercaseStyles? whenUp, int? ups)
+        public ActionResult Xml(PhraseStrength? s, int? pc, string sp, int? minCh, int? maxCh, NumericStyles? whenNum, int? nums, AllUppercaseStyles? whenUp, int? ups)
         {
             // Return as XML.
             var phrases = this.SelectPhrases(
@@ -132,7 +132,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
             return new JsonNetResult(result);
         }
 
-        private IEnumerable<string> SelectPhrases(PhraseStrength strength, int phraseCount, bool includeSpaces, int minChars, int maxChars, NumericStyles whenNumeric, int numbersToAdd, UppercaseStyles whenUpper, int uppersToAdd)
+        private IEnumerable<string> SelectPhrases(PhraseStrength strength, int phraseCount, bool includeSpaces, int minChars, int maxChars, NumericStyles whenNumeric, int numbersToAdd, AllUppercaseStyles whenUpper, int uppersToAdd)
         {
             if (minChars > maxChars)
                 yield break;
@@ -142,12 +142,18 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
             var generator = this.GetGenerator(random);
             int attempts = 0;
             ICollection<IMutator> mutators = null;
-            if (whenNumeric != NumericStyles.Never || whenUpper != UppercaseStyles.Never)
+            if (whenNumeric != NumericStyles.Never || whenUpper != AllUppercaseStyles.Never)
                 mutators = new List<IMutator>();
             if (whenNumeric != NumericStyles.Never)
                 mutators.Add(new NumericMutator() { When = whenNumeric, NumberOfNumbersToAdd = numbersToAdd });
-            if (whenUpper != UppercaseStyles.Never)
-                mutators.Add(new UppercaseMutator() { When = whenUpper, NumberOfCharactersToCapitalise = uppersToAdd });
+            if (whenUpper == AllUppercaseStyles.Anywhere)
+                mutators.Add(new UppercaseMutator() { When = UppercaseStyles.Anywhere, NumberOfCharactersToCapitalise = uppersToAdd });
+            else if (whenUpper == AllUppercaseStyles.StartOfWord)
+                mutators.Add(new UppercaseMutator() { When = UppercaseStyles.StartOfWord, NumberOfCharactersToCapitalise = uppersToAdd });
+            else if (whenUpper == AllUppercaseStyles.WholeWord)
+                mutators.Add(new UppercaseWordMutator() { NumberOfWordsToCapitalise = uppersToAdd });
+            else if (whenUpper == AllUppercaseStyles.RunOfLetters)
+                mutators.Add(new UppercaseRunMutator() { NumberOfRuns = uppersToAdd });
 
             random.BeginStats(this.GetType());
             try

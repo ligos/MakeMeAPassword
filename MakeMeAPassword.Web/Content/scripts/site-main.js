@@ -47,11 +47,17 @@ window.pwg = window.pwg || {};
 
     // These are mapped onto the object after the main front parameters above.
     var m_frontExtras = {
-        numsCaps: {
+        nums: {
             whenNum: 'EndOfWord',
             nums: '2',
+        },
+        caps: {
             whenUp: 'StartOfWord',
             ups: '2',
+        },
+        capsWord: {
+            whenUp: 'WholeWord',
+            ups: '1',
         },
         wifi: {
             sp: 'n',
@@ -74,6 +80,12 @@ window.pwg = window.pwg || {};
             nums: '2',
             whenUp: 'StartOfWord',
             ups: '2',
+        },
+        Word: {
+            whenNum: 'EndOfWord',
+            nums: '2',
+            whenUp: 'WholeWord',
+            ups: '1',
         },
         Upper: {
             whenNum: 'Never',
