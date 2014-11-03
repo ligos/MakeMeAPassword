@@ -59,8 +59,11 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers
 
         public ActionResult Donate()
         {
-            // Paypal hasn't been setup yet: so return 404.
-            return new HttpStatusCodeResult(System.Net.HttpStatusCode.NotFound);
+            ViewBag.CurrentNav = "Donate";
+            return View();
+        }
+        public ActionResult DonateThanks()
+        {
             ViewBag.CurrentNav = "Donate";
             return View();
         }

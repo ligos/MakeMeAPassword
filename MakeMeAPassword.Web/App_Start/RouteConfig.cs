@@ -90,6 +90,11 @@ namespace MurrayGrant.PasswordGenerator.Web
                 defaults: new { controller = "Home", action = "Donate" }
             );
             routes.MapRoute(
+                 name: "Donate Thanks",
+                 url: "donatethanks",
+                 defaults: new { controller = "Home", action = "DonateThanks" }
+            );
+            routes.MapRoute(
                 name: "Limits",
                 url: "limits",
                 defaults: new { controller = "Home", action = "Limits" }
