@@ -343,7 +343,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
         private byte[] FetchRandomOrgData()
         {
             // http://www.random.org/
-            const int numberOfBytes = 1024;
+            const int numberOfBytes = 512;
 #if DEBUG
             Thread.Sleep(new Random().Next(2000));
             var randomOrgData = this.GetFallbackRandomness(numberOfBytes);
