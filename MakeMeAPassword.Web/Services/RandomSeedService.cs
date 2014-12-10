@@ -72,7 +72,6 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             new Uri("http://www.msn.com/?st=1"),
             new Uri("http://www.yandex.ru/"),
             new Uri("http://www.imdb.com/"),
-            new Uri("http://www.sina.com.cn/"),
             new Uri("http://www.cnet.com/"),
             new Uri("http://www.reuters.com/"),            
             new Uri("http://www.washingtonpost.com/"),            
