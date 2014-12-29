@@ -127,6 +127,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             new Uri("http://boards.4chan.org/b/"),
             new Uri("http://boards.4chan.org/ck/"),
             new Uri("http://boards.4chan.org/p/"),
+            new Uri("https://www.flickr.com/explore"),
         };
         private readonly IEnumerable<Func<byte[]>> _RandomGeneratorSources;
 

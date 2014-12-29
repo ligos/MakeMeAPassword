@@ -12,6 +12,7 @@
     // See the License for the specific language governing permissions and
     // limitations under the License.
 *@
+@using MurrayGrant.PasswordGenerator.Web.Helpers
 
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
@@ -36,14 +37,28 @@
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" href="/favicon.png" />
 
-        @Styles.Render("~/bundles/css/bootstrap")
-        @Styles.Render("~/bundles/css/bootstrap-theme")
-        @Styles.Render("~/bundles/css/fontawesome")
-        @Styles.Render("~/bundles/css/site")
-<!--[if lte IE 8]>
-        @Scripts.Render("~/bundles/scripts/html5shiv")
-        @Scripts.Render("~/bundles/scripts/respond")
-<![endif]-->
+@if (WebBundleHelper.EmitOptimised())
+{
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css" />
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" />
+        <link rel="stylesheet" href="~/Content/css/Site.min.css?v=@WebBundleHelper.CacheBreakerFor("~/Content/css/Site.min.css")" />
+    <!--[if lte IE 8]>
+        <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="//oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+}
+else
+{
+        <link rel="stylesheet" href="~/Content/css/bootstrap.css" />
+        <link rel="stylesheet" href="~/Content/css/bootstrap-theme.css" />
+        <link rel="stylesheet" href="~/Content/css/font-awesome.css" />
+        <link rel="stylesheet" href="~/Content/css/Site.css" />
+    <!--[if lte IE 8]>
+        <script src="~/Content/scripts/html5shiv.js"></script>
+        <script src="~/Content/scripts/respond.js"></script>
+    <![endif]-->
+}
     </head>
     <body>
         <!--[if lt IE 7]>
@@ -71,10 +86,18 @@
         @Html.Partial("_Footer")
 
 
-        @Scripts.Render("~/bundles/scripts/jquery")
-        @Scripts.Render("~/bundles/scripts/bootstrap")
-        @Scripts.Render("~/bundles/scripts/site")
-
+@if (WebBundleHelper.EmitOptimised())
+{
+        <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+        <script src="~/Content/scripts/site-main.min.js?v=@WebBundleHelper.CacheBreakerFor("~/Content/scripts/site-main.min.js")"></script>
+}
+else
+{
+        <script src="~/Content/scripts/jquery.js"></script>
+        <script src="~/Content/scripts/bootstrap.js"></script>
+        <script src="~/Content/scripts/site-main.js"></script>
+}
         @RenderSection("scripts", required: false)
     </body>
 </html>
