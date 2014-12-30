@@ -44,6 +44,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
         private object _LoadingExternalDataFlag = new object();
         private FileInfo _RandomOrgApiKeyFile;
         private FileInfo _QrngPhysikCredentialFile;
+        private MailSettings _MailSettings;
         private readonly byte[] _EntropyPool = new byte[16384];
         private int _EntropyIndex = 0;
         private int _MinimumEntropySizeBytes = 128;         // This many external bytes must be added to entropy before we start producing seeds.
@@ -177,10 +178,11 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             return result;
         }
 
-        public void Init(string randomOrgApiKeyKilePath, string qrngPhysikCredentialPath)
+        public void Init(string randomOrgApiKeyKilePath, string qrngPhysikCredentialPath, string mailSettingsPath)
         {
             _RandomOrgApiKeyFile = new FileInfo(randomOrgApiKeyKilePath);
             _QrngPhysikCredentialFile = new FileInfo(qrngPhysikCredentialPath);
+            _MailSettings = JsonConvert.DeserializeObject<MailSettings>(File.ReadAllText(mailSettingsPath, Encoding.UTF8));
         }
 
         /// <summary>
@@ -302,8 +304,8 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             {
                 var p = System.Diagnostics.Process.GetCurrentProcess();
                 var body = String.Format("makemeapassword.org has generated new seeds at {4:u}.{0}Started with {1:N0} seeds, ended with {2:N0}, total of {3:N0} were generated.{0}First seed generated in {5:N1}ms, last seed generated after {6:N1}ms.{0}Pid = {7}, Process started at {8:u}", Environment.NewLine, seedsAtStart, seedsAtEnd, totalGenerated, DateTime.UtcNow, timeToFirstSeed.TotalMilliseconds, timeToLastSeed.TotalMilliseconds, p.Id, p.StartTime.ToUniversalTime());
-                var msg = new MailMessage("postmaster@makemeapassword.org", "postmaster@makemeapassword.org", "makemeapassword.org - new seeds generated", body);
-                var sender = new SmtpClient("mail.makemeapassword.org");
+                var msg = new MailMessage(_MailSettings.from, _MailSettings.to, Environment.MachineName + " - makemeapassword.org - new seeds generated", body);
+                var sender = new SmtpClient(_MailSettings.server);
 #if !DEBUG
                 sender.Send(msg);
 #endif
@@ -537,6 +539,13 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                 _FallBackEntropy.GetBytes(result);
             }
             return result;
+        }
+
+        private class MailSettings
+        {
+            public string from { get; set; }
+            public string to { get; set; }
+            public string server { get; set; }
         }
     }
 }

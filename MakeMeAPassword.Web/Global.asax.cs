@@ -39,7 +39,11 @@ namespace MurrayGrant.PasswordGenerator.Web
             // http://stackoverflow.com/a/4598747
             Environment.SetEnvironmentVariable("PATH", Environment.GetEnvironmentVariable("PATH") + ";" + this.Server.MapPath("~/lib_native"), EnvironmentVariableTarget.Process);
 
-            Services.RandomSeedService.Singleton.Init(this.Server.MapPath("~/App_Data/random.org.key.txt"), this.Server.MapPath("~/App_Data/qrng.physik.credentials.txt"));
+            Services.RandomSeedService.Singleton.Init(
+                this.Server.MapPath("~/App_Data/random.org.key.txt"), 
+                this.Server.MapPath("~/App_Data/qrng.physik.credentials.txt"),
+                this.Server.MapPath("~/App_Data/email.json")
+            );
             Services.RandomSeedService.Singleton.BeginLoadingExternalData();
         }
 
