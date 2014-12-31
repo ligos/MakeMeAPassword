@@ -154,7 +154,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                 this.FetchAnuRandomData,
                 this.FetchNumbersInfoRandomData,
                 this.FetchRandomServerRandomData,
-                //this.FetchPhysikRandomData,           // Requires unmanged code which isn't working in my hosting environment.
+                this.FetchPhysikRandomData,           // Requires unmanged code which isn't working in my hosting environment.
             };
         }
 
@@ -419,12 +419,15 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             // The SSL version of this requires unmanaged OpenSSL, which I'm not going to use just yet.
             const int numberOfBytes = 4096;
 
-            if (Environment.Is64BitProcess)
-                throw new Exception("Cannot call Qrng.Physik: running in 64 bit process, but 32 bit DLL.");
 
 #if DEBUG
-            //Thread.Sleep(new Random().Next(1800));
-            //var result = this.GetFallbackRandomness(numberOfBytes);
+            Thread.Sleep(new Random().Next(1800));
+            var result = this.GetFallbackRandomness(numberOfBytes);
+            return result;
+#else
+            if (Environment.Is64BitProcess)
+                // Needs to be a 32-bit process
+                return null;
 
             // This follows the sample provided.
             var dll = new QrngPhysik();
@@ -452,10 +455,9 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                 throw new Exception("Error calling QrngPhysik: " + iRet.ToString() + (String.IsNullOrEmpty(errorMsg) ? "" : " - " + errorMsg));
             }
             return result;
-#else
-            return null;        // Disabled in production as the dll isn't loading correctly.
-
 #endif
+
+
         }
         private byte[] FetchNumbersInfoRandomData()
         {
