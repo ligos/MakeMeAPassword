@@ -64,7 +64,7 @@
 <a name="random"></a>
 <a href="/technical#randomgenerator"><h3>What Random Number Generator are you Using?</h3></a>
 <p>
-    The fundemental building block of any password generator is a <a href="http://en.wikipedia.org/wiki/Cryptographically_secure_pseudorandom_number_generator">cryptographic random number generator</a>. 
+    The fundamental building block of any password generator is a <a href="http://en.wikipedia.org/wiki/Cryptographically_secure_pseudorandom_number_generator">cryptographic random number generator</a>. 
     The key requirements of which are:
 </p>
 <ol>
@@ -74,7 +74,7 @@
 <p>
     The standard option on Windows .NET is to use <code>RNGCryptoServiceProvider</code>. 
     But I don't want to put all my eggs in one basket, so I designed my own random number generator (which <code>RNGCryptoServiceProvider</code> is just one of many sources of entropy).
-    Incidently, I realised after designing my RNG that I'd made a more primitive version of <a href="http://en.wikipedia.org/wiki/Yarrow_algorithm">Yarrow</a> or <a href="http://en.wikipedia.org/wiki/Fortuna_%28PRNG%29">Fortuna</a>. 
+    Incidentally, I realised after designing my RNG that I'd made a more primitive version of <a href="http://en.wikipedia.org/wiki/Yarrow_algorithm">Yarrow</a> or <a href="http://en.wikipedia.org/wiki/Fortuna_%28PRNG%29">Fortuna</a>. 
     I'd certainly have used one of them if I was starting from scratch, but it was a good learning exercise.
 </p>
 <p>
@@ -192,8 +192,8 @@
 
 <h4>Pronouncable Style</h4>
 <p>
-    Uses a lookup into vowel and consonent sounds.
-    Some very basic logic is used to alternate between vowels and consonents, but I could do much better cleaning up double letters and so on.
+    Uses a lookup into vowel and consonant sounds.
+    Some very basic logic is used to alternate between vowels and consonants, but I could do much better cleaning up double letters and so on.
 </p>
 
 <h4>Readable Passphrase Style</h4>
