@@ -375,13 +375,11 @@ $(document).on('click', '#impatientPassword', function (evt) {
 
     if (!$('input[name="pwType"]:checked').length) {
         // Randomly choose a style.
-        var rand = Math.floor(Math.random() * 3) + 1;
+        var rand = Math.floor(Math.random() * 2) + 1;
         if (rand > 0 && rand <= 1) {
             $('#pwTypeReadable').prop('checked', true);
         } else if (rand > 1 && rand <= 2) {
             $('#pwTypeDict').prop('checked', true);
-        } else if (rand > 2 && rand <= 3) {
-            $('#pwTypePronounce').prop('checked', true);
         }
     }
     if (!$('input[name="pwStrength"]:checked').length) {
