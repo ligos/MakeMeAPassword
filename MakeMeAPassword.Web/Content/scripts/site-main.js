@@ -388,14 +388,14 @@ $(document).on('click', '#impatientPassword', function (evt) {
         // Randomly choose a style.
         var rand = Math.floor(Math.random() * 2) + 1;
         if (rand > 0 && rand <= 1) {
-            $('#pwTypeReadable').prop('checked', true);
+            $('#pwTypeReadable').prop('checked', true).trigger('change');
         } else if (rand > 1 && rand <= 2) {
-            $('#pwTypeDict').prop('checked', true);
+            $('#pwTypeDict').prop('checked', true).trigger('change');
         }
     }
     if (!$('input[name="pwStrength"]:checked').length) {
         // Always select the shortest strength.
-        $('#pwPredefinedStrengthShort').prop('checked', true);
+        $('#pwPredefinedStrengthShort').prop('checked', true).trigger('change');
     }
 
 
