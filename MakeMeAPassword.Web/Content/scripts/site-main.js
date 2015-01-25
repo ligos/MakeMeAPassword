@@ -111,8 +111,19 @@ window.pwg = window.pwg || {};
     ns.doFrontPassword = function () {
         // Lookup the parameters.
         var frontParms = $('#passwordParameters input').serializeObject();
+        if (!frontParms.pwType) {
+            // If nothing was selected, randomly choose something just so we get a password.
+            var keys = Object.keys(m_frontLookup);
+            frontParms.pwType = keys[keys.length * Math.random() << 0];         // http://stackoverflow.com/a/15106541
+            $('#passwordParameters input[name="pwType"][value="' + frontParms.pwType + '"]').prop('checked', true).trigger('change');
+        }
         var strengthLookup = m_frontLookup[frontParms.pwType];
         var parms = {};     // Have to make a copy of this or we end up with nasty reference problems between calls.
+        if (!frontParms.pwStrength) {
+            // If nothing was selected, use the 'short' option.
+            frontParms.pwStrength = 'short';
+            $('#passwordParameters input[name="pwStrength"][value="short"]').prop('checked', true).trigger('change');
+        }
         var original = strengthLookup[frontParms.pwStrength];
         for (var k in original) {
             parms[k] = original[k];
