@@ -208,8 +208,12 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                 var swFirst = new System.Diagnostics.Stopwatch();
                 var swLast = new System.Diagnostics.Stopwatch();
                 var seedsAtStart = _Seeds.Count;
+                int seedsAtEnd = 0;
                 var total = 0;
-                lock (this._LoadingExternalDataFlag)
+                bool enteredLock = false;
+
+                if (Monitor.TryEnter(this._LoadingExternalDataFlag))
+                try
                 {
                     // Don't load if we have enough seeds.
                     if (_Seeds.Count > _MinSeedsInReserve)
@@ -266,20 +270,28 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                             }
                         }
                     }
+
+                    swLast.Stop();
+                    seedsAtEnd = _Seeds.Count;
                 }
-                swLast.Stop();
-                var seedsAtEnd = _Seeds.Count;
+                finally
+                {
+                    Monitor.Exit(this._LoadingExternalDataFlag);
+                }
 
                 // At the end, send an email to the site owner so we know how often new seeds are being generated.
-                this.LastSeedGenerationStats = new SeedGenerationStats()
+                if (enteredLock)
                 {
-                    SeedsAtStart = seedsAtStart,
-                    SeedsAtEnd = seedsAtEnd,
-                    TotalGenerated = total,
-                    TimeToFirstSeed = swFirst.Elapsed,
-                    TimeToLastSeed = swLast.Elapsed,
-                };
-                this.SendEmailToOwner(seedsAtStart, seedsAtEnd, total, swFirst.Elapsed, swLast.Elapsed);
+                    this.LastSeedGenerationStats = new SeedGenerationStats()
+                    {
+                        SeedsAtStart = seedsAtStart,
+                        SeedsAtEnd = seedsAtEnd,
+                        TotalGenerated = total,
+                        TimeToFirstSeed = swFirst.Elapsed,
+                        TimeToLastSeed = swLast.Elapsed,
+                    };
+                    this.SendEmailToOwner(seedsAtStart, seedsAtEnd, total, swFirst.Elapsed, swLast.Elapsed);
+                }
             }
             catch (Exception ex)
             {
