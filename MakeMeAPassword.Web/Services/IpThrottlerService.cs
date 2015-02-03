@@ -19,6 +19,8 @@ using System.Linq;
 using System.Web;
 using System.Net;
 using System.Runtime.Caching;
+using TakeIo.NetworkAddress;
+using System.Net.NetworkInformation;
 
 namespace MurrayGrant.PasswordGenerator.Web.Services
 {
@@ -36,11 +38,24 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
         private static object _Lock = new object();
 
         public static long TotalUsage = 0;
+        
+        // Assume IPv6 netmasks are always /64
+        private static readonly IPAddress _IPv6DefaultNetMask = new IPAddress(new byte[] { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
+
+        private static readonly IEnumerable<IPNetworkAddress> _LocalNetworks = IPGlobalProperties.GetIPGlobalProperties().GetUnicastAddresses()
+                .Where(x => x.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork || x.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
+                .Where(x => !x.Address.Equals(IPAddress.Loopback) && !x.Address.Equals(IPAddress.IPv6Loopback))
+                .Select(x => new IPNetworkAddress(x.Address, x.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6 ? _IPv6DefaultNetMask : x.IPv4Mask))
+                .ToArray();
 
         public static bool HasExceededLimit(IPAddress ip)
         {
             // Local addresses are always valid.
             if (IPAddress.IsLoopback(ip))
+                return false;
+
+            // Local network addresses are always valid.
+            if (_LocalNetworks.Any(x => x.IsSameNetwork(ip)))
                 return false;
 
             var key = CacheKey(ip);
