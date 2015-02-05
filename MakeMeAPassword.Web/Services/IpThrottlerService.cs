@@ -42,7 +42,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
         // Assume IPv6 netmasks are always /64
         private static readonly IPAddress _IPv6DefaultNetMask = new IPAddress(new byte[] { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
 
-        private static readonly IEnumerable<IPNetworkAddress> _LocalNetworks = IPGlobalProperties.GetIPGlobalProperties().GetUnicastAddresses()
+        private static readonly IPNetworkAddress[] _LocalNetworks = IPGlobalProperties.GetIPGlobalProperties().GetUnicastAddresses()
                 .Where(x => x.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork || x.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
                 .Where(x => !x.Address.Equals(IPAddress.Loopback) && !x.Address.Equals(IPAddress.IPv6Loopback))
                 .Select(x => new IPNetworkAddress(x.Address, x.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6 ? _IPv6DefaultNetMask : x.IPv4Mask))
@@ -55,8 +55,12 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                 return false;
 
             // Local network addresses are always valid.
-            if (_LocalNetworks.Any(x => x.IsSameNetwork(ip)))
-                return false;
+            for (int i = 0; i < _LocalNetworks.Length; i++)
+            {
+                var n = _LocalNetworks[i];
+                if (n.Address.AddressFamily == ip.AddressFamily && n.IsSameNetwork(ip))
+                    return false;
+            }
 
             var key = CacheKey(ip);
             int usage = 0;
