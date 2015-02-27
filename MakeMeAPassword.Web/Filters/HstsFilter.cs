@@ -12,17 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using MurrayGrant.PasswordGenerator.Web.Services;
+using MurrayGrant.PasswordGenerator.Web.Helpers;
 
-namespace MurrayGrant.PasswordGenerator.Web
+namespace MurrayGrant.PasswordGenerator.Web.Filters
 {
-    public class FilterConfig
+    /// <summary>
+    /// Adds a Strict-Transport-Security header to the request.
+    /// </summary>
+    public sealed class HstsFilter : ActionFilterAttribute
     {
-        public static void RegisterGlobalFilters(GlobalFilterCollection filters)
+        public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            filters.Add(new HandleErrorAttribute());
-            filters.Add(new Filters.HstsFilter());
+            filterContext.HttpContext.Response.AddHeader("Strict-Transport-Security", "max-age=16070400");
         }
     }
 }
