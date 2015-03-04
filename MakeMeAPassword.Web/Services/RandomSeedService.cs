@@ -83,7 +83,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             new Uri("http://www.yelp.com/sydney"),            
             new Uri("http://web.mit.edu/"),            
             new Uri("http://www.time.com/"),            
-            new Uri("http://www.100ye.com/"),            
+            new Uri("http://bj.100ye.com/"),            
             new Uri("http://www.nbcnews.com/"),            
             new Uri("http://www.nasa.gov/"),            
             new Uri("http://www.dailymail.co.uk/home/index.html"),            
