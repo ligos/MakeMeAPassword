@@ -213,70 +213,76 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                 bool enteredLock = false;
 
                 if (Monitor.TryEnter(this._LoadingExternalDataFlag))
-                try
                 {
-                    // Don't load if we have enough seeds.
-                    if (_Seeds.Count > _MinSeedsInReserve)
-                        return;
+                    try
+                    {
+                        // Don't load if we have enough seeds.
+                        if (_Seeds.Count > _MinSeedsInReserve)
+                            return;
 
-                    // Fire off requests to all the sources of random data.
-                    var sources = _UrlEntropySources.Select<Uri, Func<byte[]>>(url => () => FetchWebsiteData(url)).Concat(_RandomGeneratorSources);
-                    var parallelFetch = sources
-                            .Randomise()
-                            .AsParallel()
-                            .AsUnordered()
-                            .WithDegreeOfParallelism(8)
-                            .WithMergeOptions(ParallelMergeOptions.NotBuffered)
-                            .Where(fn => fn != null)
-                            .Select(fn => {
-                                try {
-                                    return fn();
-                                } catch (Exception ex) {
+                        // Fire off requests to all the sources of random data.
+                        var sources = _UrlEntropySources.Select<Uri, Func<byte[]>>(url => () => FetchWebsiteData(url)).Concat(_RandomGeneratorSources);
+                        var parallelFetch = sources
+                                .Randomise()
+                                .AsParallel()
+                                .AsUnordered()
+                                .WithDegreeOfParallelism(8)
+                                .WithMergeOptions(ParallelMergeOptions.NotBuffered)
+                                .Where(fn => fn != null)
+                                .Select(fn =>
+                                {
+                                    try
+                                    {
+                                        return fn();
+                                    }
+                                    catch (Exception ex)
+                                    {
 #if !DEBUG
                                     ex.ToExceptionless().AddObject(fn.Method.Name + "()").AddTags("RandomSeed").Submit();
 #endif
-                                    return null;
-                                }
-                            })
-                            .Where(bs => bs != null);
+                                        return null;
+                                    }
+                                })
+                                .Where(bs => bs != null);
 
-                    // Timing how long it takes to get first and last seed..
-                    swFirst.Start();
-                    swLast.Start();
-                    foreach (var randomBytes in parallelFetch)      // The parallel query does not start running until you start pulling from it.
-                    {
-                        // Add the random bytes to the pool in 64 byte blocks (which should be the minimum size of incoming byte arrays).
-                        // We use smaller blocks here so we produce as many seeds as we can from the larger randomness sources.
-                        const int blockSizeBytes = 64;
-                        for (int i = 0; i < randomBytes.Length; i += blockSizeBytes)
+                        // Timing how long it takes to get first and last seed..
+                        swFirst.Start();
+                        swLast.Start();
+                        foreach (var randomBytes in parallelFetch)      // The parallel query does not start running until you start pulling from it.
                         {
-                            lock (_EntropyPool)
+                            // Add the random bytes to the pool in 64 byte blocks (which should be the minimum size of incoming byte arrays).
+                            // We use smaller blocks here so we produce as many seeds as we can from the larger randomness sources.
+                            const int blockSizeBytes = 64;
+                            for (int i = 0; i < randomBytes.Length; i += blockSizeBytes)
                             {
-                                // Copy a block to the pool.
-                                if (_EntropyIndex + blockSizeBytes > _EntropyPool.Length)
-                                    _EntropyIndex = 0;
-                                Array.Copy(randomBytes, i, _EntropyPool, _EntropyIndex, blockSizeBytes);
-                                _EntropyIndex += blockSizeBytes;
-
-                                // If we have accumulated a minimum amount of entropy, we start generating SHA256 hashes of the whole pool and add them as seeds.
-                                if (_EntropyIndex > _MinimumEntropySizeBytes)
+                                lock (_EntropyPool)
                                 {
-                                    var hasher = new SHA256Managed();
-                                    _Seeds.Enqueue(hasher.ComputeHash(_EntropyPool));
-                                    Interlocked.Increment(ref total);
-                                    if (swFirst.IsRunning)
-                                        swFirst.Stop();
+                                    // Copy a block to the pool.
+                                    if (_EntropyIndex + blockSizeBytes > _EntropyPool.Length)
+                                        _EntropyIndex = 0;
+                                    Array.Copy(randomBytes, i, _EntropyPool, _EntropyIndex, blockSizeBytes);
+                                    _EntropyIndex += blockSizeBytes;
+
+                                    // If we have accumulated a minimum amount of entropy, we start generating SHA256 hashes of the whole pool and add them as seeds.
+                                    if (_EntropyIndex > _MinimumEntropySizeBytes)
+                                    {
+                                        var hasher = new SHA256Managed();
+                                        _Seeds.Enqueue(hasher.ComputeHash(_EntropyPool));
+                                        Interlocked.Increment(ref total);
+                                        if (swFirst.IsRunning)
+                                            swFirst.Stop();
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    swLast.Stop();
-                    seedsAtEnd = _Seeds.Count;
-                }
-                finally
-                {
-                    Monitor.Exit(this._LoadingExternalDataFlag);
+                        swLast.Stop();
+                        seedsAtEnd = _Seeds.Count;
+                    }
+                    finally
+                    {
+                        Monitor.Exit(this._LoadingExternalDataFlag);
+                    }
                 }
 
                 // At the end, send an email to the site owner so we know how often new seeds are being generated.
