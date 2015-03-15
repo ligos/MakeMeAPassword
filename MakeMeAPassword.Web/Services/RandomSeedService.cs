@@ -210,7 +210,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                 var seedsAtStart = _Seeds.Count;
                 int seedsAtEnd = 0;
                 var total = 0;
-                bool enteredLock = false;
+                bool triedToLoadData = false;
 
                 if (Monitor.TryEnter(this._LoadingExternalDataFlag))
                 {
@@ -246,6 +246,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                                 .Where(bs => bs != null);
 
                         // Timing how long it takes to get first and last seed..
+                        triedToLoadData = true; 
                         swFirst.Start();
                         swLast.Start();
                         foreach (var randomBytes in parallelFetch)      // The parallel query does not start running until you start pulling from it.
@@ -286,7 +287,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                 }
 
                 // At the end, send an email to the site owner so we know how often new seeds are being generated.
-                if (enteredLock)
+                if (triedToLoadData)
                 {
                     this.LastSeedGenerationStats = new SeedGenerationStats()
                     {
