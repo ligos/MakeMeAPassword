@@ -296,7 +296,9 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                         TimeToFirstSeed = swFirst.Elapsed,
                         TimeToLastSeed = swLast.Elapsed,
                     };
-                    this.SendEmailToOwner(seedsAtStart, seedsAtEnd, total, swFirst.Elapsed, swLast.Elapsed);
+#if !DEBUG
+                    ExceptionlessClient.Default.CreateFeatureUsage("RandomSeeds").AddObject(this.LastSeedGenerationStats).Submit();
+#endif
                 }
             }
             catch (Exception ex)
@@ -314,25 +316,6 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
         private bool IsLoadingExternalData()
         {
             return Monitor.IsEntered(this._LoadingExternalDataFlag);
-        }
-
-        private void SendEmailToOwner(int seedsAtStart, int seedsAtEnd, int totalGenerated, TimeSpan timeToFirstSeed, TimeSpan timeToLastSeed)
-        {
-            try
-            {
-                var p = System.Diagnostics.Process.GetCurrentProcess();
-                var body = String.Format("makemeapassword.org has generated new seeds at {4:u}.{0}Started with {1:N0} seeds, ended with {2:N0}, total of {3:N0} were generated.{0}First seed generated in {5:N1}ms, last seed generated after {6:N1}ms.{0}Pid = {7}, Process started at {8:u}", Environment.NewLine, seedsAtStart, seedsAtEnd, totalGenerated, DateTime.UtcNow, timeToFirstSeed.TotalMilliseconds, timeToLastSeed.TotalMilliseconds, p.Id, p.StartTime.ToUniversalTime());
-                var msg = new MailMessage(_MailSettings.from, _MailSettings.to, Environment.MachineName + " - makemeapassword.org - new seeds generated", body);
-                var sender = new SmtpClient(_MailSettings.server);
-#if !DEBUG
-                sender.Send(msg);
-#endif
-            }
-            catch (Exception ex)
-            {
-                // Not failing the whole app just because we couldn't notfiy the owner.
-                ex.ToExceptionless().AddTags("RandomSeed", "NotifyEmail").Submit();
-            }
         }
 
         private byte[] FetchWebsiteData(Uri uri)

@@ -27,6 +27,7 @@ using MurrayGrant.PasswordGenerator.Web.ViewModels.ApiV1;
 using MurrayGrant.PasswordGenerator.Web.Helpers;
 using MurrayGrant.PasswordGenerator.Web.Services;
 using MurrayGrant.PasswordGenerator.Web.Filters;
+using Exceptionless;
 
 namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
 {
@@ -185,6 +186,9 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
                 random.EndStats();
             }
             IpThrottlerService.IncrementUsage(IPAddressHelpers.GetHostOrCacheIp(this.HttpContext.Request), phraseCount);
+#if !DEBUG
+            ExceptionlessClient.Default.CreateFeatureUsage("Generate ReadablePassphrase").SetProperty("Strength", strength.ToString()).SetProperty("PhraseCount", phraseCount).Submit();
+#endif
         }
 
 

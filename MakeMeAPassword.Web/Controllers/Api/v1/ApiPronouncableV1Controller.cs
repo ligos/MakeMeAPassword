@@ -23,6 +23,7 @@ using MurrayGrant.PasswordGenerator.Web.Services;
 using MurrayGrant.PasswordGenerator.Web.Helpers;
 using MurrayGrant.PasswordGenerator.Web.Filters;
 using System.Text;
+using Exceptionless;
 
 namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
 {
@@ -127,6 +128,9 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
                 random.EndStats();
             }
             IpThrottlerService.IncrementUsage(IPAddressHelpers.GetHostOrCacheIp(this.HttpContext.Request), count);
+#if !DEBUG
+            ExceptionlessClient.Default.CreateFeatureUsage("Generate Pronounceable").SetProperty("SyllableCount", syllableCount).SetProperty("Count", count).Submit();
+#endif
         }
 
         protected override void OnException(ExceptionContext filterContext)
