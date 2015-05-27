@@ -482,13 +482,16 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             var startIdx = html.IndexOf("Download random numbers from quantum origin", StringComparison.OrdinalIgnoreCase);
             if (startIdx == -1)
                 throw new Exception("Cannot locate start string in html parsing of randomnumbers.info result.");
+            startIdx = html.IndexOf("<hr>", startIdx);
+            if (startIdx == -1)
+                throw new Exception("Cannot locate start string in html parsing of randomnumbers.info result.");
             var endIdx = html.IndexOf("</td>", startIdx, StringComparison.OrdinalIgnoreCase);
             if (endIdx == -1)
                 throw new Exception("Cannot locate end string in html parsing of randomnumbers.info result.");
             var haystack = html.Substring(startIdx, endIdx - startIdx);
-            var numbersAndOtherJunk = haystack.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);      // Numbers are space sparated.
+            var numbersAndOtherJunk = haystack.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);      // Numbers are space separated.
             var numbers = numbersAndOtherJunk
-                            .Where(x => x.All(Char.IsDigit))        // Remove non-numberic junk.
+                            .Where(x => x.All(Char.IsDigit))        // Remove non-numeric junk.
                             .Select(x => Int16.Parse(x))            // Parse to an int16.
                             .ToList();
             var result = new byte[numberOfBytes];
