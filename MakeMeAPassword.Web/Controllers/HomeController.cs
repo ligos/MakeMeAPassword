@@ -30,6 +30,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers
 #if !DEBUG
     [OutputCache(Duration = 60 * 60, Location = System.Web.UI.OutputCacheLocation.Any)]
 #endif
+    [Filters.CspFilter]
     public class HomeController : Controller
     {
         // GET: /Home/
