@@ -44,6 +44,7 @@ namespace MurrayGrant.PasswordGenerator.Web
                 this.Server.MapPath("~/App_Data/email.json")
             );
             Services.RandomSeedService.Singleton.BeginLoadingExternalData();
+            MvcHandler.DisableMvcResponseHeader = true;
         }
 
         protected void Application_Error(object sender, EventArgs e)
