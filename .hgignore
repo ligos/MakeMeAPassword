@@ -10,3 +10,4 @@ MakeMeAPassword.Web/App_Data/random.org.key.txt
 MakeMeAPassword.Web/App_Data/qrng.physik.credentials.txt
 deploy/**
 MakeMeAPassword.Web/App_Data/email.json
+.vs/**
