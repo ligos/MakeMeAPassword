@@ -22,6 +22,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers
 {
 #if !DEBUG
     [OutputCache(Duration = 60 * 60 * 24, Location = System.Web.UI.OutputCacheLocation.Any)]
+    [RequireHttps]
 #endif
     [Filters.CspFilter]
     public class GenerateController : Controller

@@ -31,15 +31,17 @@ namespace MurrayGrant.PasswordGenerator.Web.Filters
 default-src 'self';
 script-src 'self' 'unsafe-inline' https://oss.maxcdn.com https://code.jquery.com https://netdna.bootstrapcdn.com;
 style-src 'self' 'unsafe-inline' https://netdna.bootstrapcdn.com;
-img-src 'self' https://netdna.bootstrapcdn.com https://i.creativecommons.org https://licensebuttons.net;
+img-src 'self' https://netdna.bootstrapcdn.com https://i.creativecommons.org https://licensebuttons.net https://www.paypalobjects.com;
 font-src 'self' https://netdna.bootstrapcdn.com;
 ".Replace(Environment.NewLine, "");
 
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             var csp = BaseCsp;
+#if DEBUG
             if (!filterContext.HttpContext.Request.IsSecureConnection)
                 csp = csp.Replace("https://", "http://");
+#endif
 
             filterContext.HttpContext.Response.AddHeader("Content-Security-Policy", csp);
         }
