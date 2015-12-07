@@ -45,6 +45,8 @@ namespace MurrayGrant.PasswordGenerator.Web
             );
             Services.RandomSeedService.Singleton.BeginLoadingExternalData();
             MvcHandler.DisableMvcResponseHeader = true;
+
+            ExceptionlessClient.Default.CreateFeatureUsage("App Startup").Submit();
         }
 
         protected void Application_Error(object sender, EventArgs e)
