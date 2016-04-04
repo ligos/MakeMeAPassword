@@ -213,10 +213,6 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
                 random.EndStats();
             }
             IpThrottlerService.IncrementUsage(IPAddressHelpers.GetHostOrCacheIp(this.HttpContext.Request), phraseCount);
-#if !DEBUG
-            ExceptionlessClient.Default.CreateFeatureUsage("Generate Passphrase").SetProperty("WordCount", wordCount).SetProperty("PhraseCount", phraseCount).Submit();
-#endif
-
         }
 
         protected override void OnException(ExceptionContext filterContext)

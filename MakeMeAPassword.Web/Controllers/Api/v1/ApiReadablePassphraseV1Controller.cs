@@ -186,9 +186,6 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
                 random.EndStats();
             }
             IpThrottlerService.IncrementUsage(IPAddressHelpers.GetHostOrCacheIp(this.HttpContext.Request), phraseCount);
-#if !DEBUG
-            ExceptionlessClient.Default.CreateFeatureUsage("Generate ReadablePassphrase").SetProperty("Strength", strength.ToString()).SetProperty("PhraseCount", phraseCount).Submit();
-#endif
         }
 
 

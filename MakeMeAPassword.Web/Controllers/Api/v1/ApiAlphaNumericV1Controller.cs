@@ -123,10 +123,6 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
             }
 
             IpThrottlerService.IncrementUsage(IPAddressHelpers.GetHostOrCacheIp(this.HttpContext.Request), count);
-#if !DEBUG
-            ExceptionlessClient.Default.CreateFeatureUsage("Generate AlphaNumeric").SetProperty("Count", count).SetProperty("Length", length).Submit();
-#endif
-
         }
 
         protected override void OnException(ExceptionContext filterContext)

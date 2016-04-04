@@ -228,9 +228,6 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
             }
 
             IpThrottlerService.IncrementUsage(IPAddressHelpers.GetHostOrCacheIp(this.HttpContext.Request), count);
-#if !DEBUG
-            ExceptionlessClient.Default.CreateFeatureUsage("Generate Unicode").SetProperty("Length", length).SetProperty("Count", count).Submit();
-#endif
         }
 
         private bool InvalidSurrogateCodePoints(int cp)

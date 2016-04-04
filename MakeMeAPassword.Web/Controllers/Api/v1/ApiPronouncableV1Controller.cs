@@ -128,9 +128,6 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
                 random.EndStats();
             }
             IpThrottlerService.IncrementUsage(IPAddressHelpers.GetHostOrCacheIp(this.HttpContext.Request), count);
-#if !DEBUG
-            ExceptionlessClient.Default.CreateFeatureUsage("Generate Pronounceable").SetProperty("SyllableCount", syllableCount).SetProperty("Count", count).Submit();
-#endif
         }
 
         protected override void OnException(ExceptionContext filterContext)

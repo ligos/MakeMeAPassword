@@ -105,10 +105,6 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
                 random.EndStats();
             }
             IpThrottlerService.IncrementUsage(IPAddressHelpers.GetHostOrCacheIp(this.HttpContext.Request), count);
-#if !DEBUG
-            ExceptionlessClient.Default.CreateFeatureUsage("Generate Hex").SetProperty("Count", count).SetProperty("Length", length).Submit();
-#endif
-
         }
 
         protected override void OnException(ExceptionContext filterContext)
