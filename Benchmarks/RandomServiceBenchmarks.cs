@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
 
 using BenchmarkDotNet;
 using BenchmarkDotNet.Attributes;
@@ -18,7 +19,15 @@ namespace Benchmarks
     public class RandomServiceBenchmarks
     {
         private static readonly byte[] _Seed = new Random(1).GetBytes(32);
-        private readonly RandomService _Random = new RandomService(() => _Seed);
+
+        private readonly RandomService _RandomHmacSha256 = new RandomService(() => _Seed, new HMACSHA256());
+        private readonly RandomService _RandomHmacSha512 = new RandomService(() => _Seed, new HMACSHA512());
+        private readonly RandomService _RandomSha256Managed = new RandomService(() => _Seed, new SHA256Managed());
+        private readonly RandomService _RandomSha256Cng = new RandomService(() => _Seed, new SHA256Cng());
+        private readonly RandomService _RandomSha512Managed = new RandomService(() => _Seed, new SHA512Managed());
+        private readonly RandomService _RandomSha512Cng = new RandomService(() => _Seed, new SHA512Cng());
+        private readonly RandomService _RandomNull256 = new RandomService(() => _Seed, new NullHashFunction256());
+        private readonly RandomService _RandomNull512 = new RandomService(() => _Seed, new NullHashFunction512());
 
         private class Config : ManualConfig 
         { 
@@ -30,21 +39,67 @@ namespace Benchmarks
         }
 
         [Benchmark()]
-        public int Random_Int32()
+        public int Random_Int32_HmacSha256()
         {
-            return _Random.Next();
+            return _RandomHmacSha256.Next();
         }
         [Benchmark()]
-        public float Random_Single()
+        public int Random_Int32_HmacSha512()
         {
-            return _Random.NextSingle();
+            return _RandomHmacSha512.Next();
+        }
+
+        [Benchmark()]
+        public int Random_Int32_Sha256Managed()
+        {
+            return _RandomSha256Managed.Next();
         }
         [Benchmark()]
-        public byte[] Random_1024Bytes()
+        public int Random_Int32_Sha256Cng()
         {
-            return _Random.GetNextBytes(1024);
+            return _RandomSha256Cng.Next();
+        }
+
+        [Benchmark()]
+        public int Random_Int32_Sha512Managed()
+        {
+            return _RandomSha512Managed.Next();
+        }
+        [Benchmark()]
+        public int Random_Int32_Sha512Cng()
+        {
+            return _RandomSha512Cng.Next();
+        }
+
+        [Benchmark()]
+        public int Random_Int32_Null256()
+        {
+            return _RandomNull256.Next();
+        }
+        [Benchmark()]
+        public int Random_Int32_Null512()
+        {
+            return _RandomNull512.Next();
         }
     }
+
+    internal class NullHashFunction256 : HashAlgorithm
+    {
+        public override int HashSize => 256;
+        public override void Initialize() { }
+        
+        protected override void HashCore(byte[] array, int ibStart, int cbSize) { }
+        protected override byte[] HashFinal() => new byte[32];
+    }
+    internal class NullHashFunction512 : HashAlgorithm
+    {
+        public override int HashSize => 512;
+        public override void Initialize() { }
+
+        protected override void HashCore(byte[] array, int ibStart, int cbSize) { }
+        protected override byte[] HashFinal() => new byte[64];
+    }
+
 
     internal static class RandomHelper
     {

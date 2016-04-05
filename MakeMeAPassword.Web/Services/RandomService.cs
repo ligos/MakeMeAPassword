@@ -37,12 +37,13 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
         // Some of this is based on the KeePass CryptoRandom class.
 
         private readonly Func<byte[]> _SeedGetter;
-        private readonly byte[] _Buffer;
+        private readonly byte[] _Buffer;                                    // Length = _BlockSize * 2
         private readonly byte[] _OneByteBuffer = new byte[1];               // Static buffer for Boolean randoms.
         private readonly byte[] _FourByteBuffer = new byte[4];              // Static buffer for Int32 / Single randoms.
-        private readonly HMACSHA256 _HashFunction;
+        private readonly HashAlgorithm _HashFunction;
         private readonly Stopwatch _Stopwatch;
         private readonly TimeSpan _InitTime;
+        private readonly int _BlockSize;                                    // Based on the hash function.
         private int _CurrentIdx;
         private long _Counter = 103;        // Small prime;
         private readonly static long _CounterPrime1 = 1229;
@@ -63,7 +64,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
         public static RandomService GetForCurrentThread()
         {
             var threadId = Thread.CurrentThread.ManagedThreadId;
-            var result = _ThreadStaticRandoms.GetOrAdd(threadId, id => new RandomService(RandomSeedService.Singleton.GetSeed));
+            var result = _ThreadStaticRandoms.GetOrAdd(threadId, id => new RandomService(RandomSeedService.Singleton.GetSeed, new HMACSHA256()));
             return result;
         }
         public static IEnumerable<StatsByType> GetStats()
@@ -72,31 +73,35 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             return _ThreadStaticRandoms.SelectMany(x => x.Value._Statistics).Select(x => x.Value).ToList();
         }
 
-        public RandomService(Func<byte[]> seedGetter)
+        public RandomService(Func<byte[]> seedGetter, HashAlgorithm hashFunction)
         {
             if (seedGetter == null)
                 throw new ArgumentNullException(nameof(seedGetter));
-
-            var initialSeed = seedGetter();
-            if (initialSeed.Length != 32)
-                throw new ArgumentException("Expected 32 bytes of seed data.");
-            _SeedGetter = seedGetter;
+            if (hashFunction == null)
+                throw new ArgumentNullException(nameof(hashFunction));
 
             // Start the stopwatch.
             _Stopwatch = Stopwatch.StartNew();
             _Counter += Thread.CurrentThread.ManagedThreadId;
 
-            // The seed is placed in the high 32 bytes of the buffer.
-            _Buffer = new byte[64];
-            Buffer.BlockCopy(initialSeed, 0, _Buffer, 32, initialSeed.Length);
-
-
             // Initialise our HMAC, used as the hash function to generate randomness.
-            var secret = new byte[32];
-            using (var rand = new RNGCryptoServiceProvider())
-                rand.GetBytes(secret);
-            _HashFunction = new HMACSHA256(secret);
+            _HashFunction = hashFunction;
+            _BlockSize = _HashFunction.HashSize / 8;
+            if (_BlockSize < 32)
+                throw new InvalidOperationException($"Unsupported hash function '{_HashFunction.GetType().Name}'. Hashes must be a minimum of 256 bits.");
+            if (_BlockSize % 32 != 0)
+                throw new InvalidOperationException($"Unsupported hash function '{_HashFunction.GetType().Name}'. Hashes must be a multiple of 256 bits.");
 
+            var initialSeed = seedGetter();
+            if (initialSeed.Length < 32)
+                throw new ArgumentOutOfRangeException(nameof(seedGetter), "Expected minimum 32 bytes of seed data.");
+            _SeedGetter = seedGetter;
+            if (initialSeed.Length > _BlockSize)
+                throw new ArgumentOutOfRangeException(nameof(seedGetter), $"Seed data of {initialSeed.Length} exceeds the hash function block size of {_BlockSize}.");
+
+            // The seed is placed in the high chunk of the buffer.
+            _Buffer = new byte[_BlockSize * 2];
+            Buffer.BlockCopy(initialSeed, 0, _Buffer, _BlockSize * 1, initialSeed.Length);
 
             // Gather up some additional cheap(-ish) entropy from various sources.
             var ms = new MemoryStream();
@@ -140,13 +145,16 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             Thread.Sleep(1);
             ms.WriteBytes(BitConverter.GetBytes(_Stopwatch.ElapsedTicks));
 
-            // Take a hash of all the data we gathered and place in the bottom 32 bytes of our buffer.
+            // Take a hash of all the data we gathered and place in the bottom block of our buffer.
             ms.Position = 0L;
             var weakEntropy = new SHA256Managed().ComputeHash(ms);
             Buffer.BlockCopy(weakEntropy, 0, _Buffer, 0, weakEntropy.Length);
 
-            // And reset counters such that the first time GetNextBytes() is called, we hash all the raw data.
-            this._CurrentIdx = 32;
+            // Finally, take a hash of everything using our main hash function and copy to the bottom block.
+            // This will be used as the first block of data.
+            var overallHash = _HashFunction.ComputeHash(_Buffer);
+            Buffer.BlockCopy(overallHash, 0, _Buffer, 0, overallHash.Length);
+            this._CurrentIdx = 0;
 
             this._InitTime = _Stopwatch.Elapsed;
         }
@@ -159,19 +167,19 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             // Occasionally, a Guid is added into the mix.
             // Even less often, an entirely new 32 byte seed is used.
 
-            // Copy the low 32 bytes to the top 32 bytes.
-            Buffer.BlockCopy(_Buffer, 0, _Buffer, 32, 32);
+            // Copy the low block to the top block.
+            Buffer.BlockCopy(_Buffer, 0, _Buffer, _BlockSize, _BlockSize);
 
             if (_BytesUntilAdditionalSeed <= 0)
             {
-                // Fetch a new seed and places it in the bottom 32 bytes.
+                // Fetch a new seed and places it in the bottom block.
                 var seed32Bytes = _SeedGetter();
-                Buffer.BlockCopy(seed32Bytes, 0, _Buffer, 0, 32);
+                Buffer.BlockCopy(seed32Bytes, 0, _Buffer, 0, seed32Bytes.Length);
                 _BytesUntilAdditionalSeed = BytesUntilAdditionalSeed;
             }
             else if (_BytesUntilGuid <= 0)
             {
-                // Use a guid with the counter and stopwatch timer in the bottom 32 bytes.
+                // Use a guid with the counter and stopwatch timer in the bottom block.
                 Buffer.BlockCopy(BitConverter.GetBytes(_Stopwatch.ElapsedTicks), 0, _Buffer, 0, 8);
                 var guid = Guid.NewGuid();
                 Buffer.BlockCopy(guid.ToByteArray(), 0, _Buffer, 8, 16);
@@ -183,7 +191,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             }
             else
             {
-                // Write some cheap entropy to the bottom 32 bytes.
+                // Write some cheap entropy to the bottom block.
                 Buffer.BlockCopy(BitConverter.GetBytes(_ANumber), 0, _Buffer, 0, 8);
                 Buffer.BlockCopy(BitConverter.GetBytes(DateTime.UtcNow.Ticks), 0, _Buffer, 8, 8);
                 Buffer.BlockCopy(BitConverter.GetBytes(_Stopwatch.ElapsedTicks), 0, _Buffer, 16, 8);
@@ -194,16 +202,16 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             }
 
             // Run our hash function over the entire buffer.
-            // Note that the hash function contains a secret key.
+            // Note that the hash function may contain a secret key.
             var hashResult = this._HashFunction.ComputeHash(_Buffer);
 
-            // And write the result to the bottom 32 bytes to be used as our next block of randomness.
-            Buffer.BlockCopy(hashResult, 0, _Buffer, 0, 32);
+            // And write the result to the bottom block to be used as our next block of randomness.
+            Buffer.BlockCopy(hashResult, 0, _Buffer, 0, hashResult.Length);
             
             // Reset the index and update counters.
             _CurrentIdx = 0;
-            _BytesUntilGuid -= 32;
-            _BytesUntilAdditionalSeed -= 32;
+            _BytesUntilGuid -= _BlockSize;
+            _BytesUntilAdditionalSeed -= _BlockSize;
 
         }
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -214,13 +222,13 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             while (idx < bytes.Length)
             {
                 // Copy as much as we can, or whatever is remaining in our current block.
-                var size = Math.Min(bytes.Length - idx, 32 - _CurrentIdx);
+                var size = Math.Min(bytes.Length - idx, this._BlockSize - _CurrentIdx);
                 Buffer.BlockCopy(_Buffer, _CurrentIdx, bytes, idx, size);
                 idx += size;
 
                 // Update the index and possibly generate a new block.
                 _CurrentIdx += size;
-                if (_CurrentIdx >= 31)
+                if (_CurrentIdx >= this._BlockSize-1)
                     GenerateNextBlock();
             }
 
