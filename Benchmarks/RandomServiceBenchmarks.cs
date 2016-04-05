@@ -17,8 +17,8 @@ namespace Benchmarks
     [Config(typeof(RandomServiceBenchmarks.Config))]
     public class RandomServiceBenchmarks
     {
-        private static readonly byte[] _Seed = new byte[32];
-        private readonly RandomService _Random = new RandomService(_Seed);
+        private static readonly byte[] _Seed = new Random(1).GetBytes(32);
+        private readonly RandomService _Random = new RandomService(() => _Seed);
 
         private class Config : ManualConfig 
         { 
@@ -43,6 +43,16 @@ namespace Benchmarks
         public byte[] Random_1024Bytes()
         {
             return _Random.GetNextBytes(1024);
+        }
+    }
+
+    internal static class RandomHelper
+    {
+        public static byte[] GetBytes(this Random random, int n)
+        {
+            var result = new byte[n];
+            random.NextBytes(result);
+            return result;
         }
     }
 }

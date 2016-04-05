@@ -36,6 +36,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
     {
         // Some of this is based on the KeePass CryptoRandom class.
 
+        private readonly Func<byte[]> _SeedGetter;
         private readonly byte[] _Buffer;
         private readonly HMACSHA256 _HashFunction;
         private readonly Stopwatch _Stopwatch;
@@ -60,7 +61,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
         public static RandomService GetForCurrentThread()
         {
             var threadId = Thread.CurrentThread.ManagedThreadId;
-            var result = _ThreadStaticRandoms.GetOrAdd(threadId, id => new RandomService(RandomSeedService.Singleton.GetSeed()));
+            var result = _ThreadStaticRandoms.GetOrAdd(threadId, id => new RandomService(RandomSeedService.Singleton.GetSeed));
             return result;
         }
         public static IEnumerable<StatsByType> GetStats()
@@ -69,10 +70,15 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             return _ThreadStaticRandoms.SelectMany(x => x.Value._Statistics).Select(x => x.Value).ToList();
         }
 
-        public RandomService(byte[] seed)
+        public RandomService(Func<byte[]> seedGetter)
         {
-            if (seed.Length != 32)
+            if (seedGetter == null)
+                throw new ArgumentNullException(nameof(seedGetter));
+
+            var initialSeed = seedGetter();
+            if (initialSeed.Length != 32)
                 throw new ArgumentException("Expected 32 bytes of seed data.");
+            _SeedGetter = seedGetter;
 
             // Start the stopwatch.
             _Stopwatch = Stopwatch.StartNew();
@@ -80,7 +86,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
 
             // The seed is placed in the high 32 bytes of the buffer.
             _Buffer = new byte[64];
-            Buffer.BlockCopy(seed, 0, _Buffer, 32, seed.Length);
+            Buffer.BlockCopy(initialSeed, 0, _Buffer, 32, initialSeed.Length);
 
 
             // Initialise our HMAC, used as the hash function to generate randomness.
@@ -157,7 +163,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             if (_BytesUntilAdditionalSeed <= 0)
             {
                 // Fetch a new seed and places it in the bottom 32 bytes.
-                var seed32Bytes = RandomSeedService.Singleton.GetSeed();
+                var seed32Bytes = _SeedGetter();
                 Buffer.BlockCopy(seed32Bytes, 0, _Buffer, 0, 32);
                 _BytesUntilAdditionalSeed = BytesUntilAdditionalSeed;
             }
