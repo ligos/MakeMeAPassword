@@ -24,8 +24,10 @@ namespace Benchmarks
         private readonly RandomService _RandomHmacSha512 = new RandomService(() => _Seed, new HMACSHA512());
         private readonly RandomService _RandomSha256Managed = new RandomService(() => _Seed, new SHA256Managed());
         private readonly RandomService _RandomSha256Cng = new RandomService(() => _Seed, new SHA256Cng());
+        private readonly RandomService _RandomSha256Csp = new RandomService(() => _Seed, new SHA256CryptoServiceProvider());
         private readonly RandomService _RandomSha512Managed = new RandomService(() => _Seed, new SHA512Managed());
         private readonly RandomService _RandomSha512Cng = new RandomService(() => _Seed, new SHA512Cng());
+        private readonly RandomService _RandomSha512Csp = new RandomService(() => _Seed, new SHA512CryptoServiceProvider());
         private readonly RandomService _RandomNull256 = new RandomService(() => _Seed, new NullHashFunction256());
         private readonly RandomService _RandomNull512 = new RandomService(() => _Seed, new NullHashFunction512());
 
@@ -59,6 +61,11 @@ namespace Benchmarks
         {
             return _RandomSha256Cng.Next();
         }
+        [Benchmark()]
+        public int Random_Int32_Sha256Csp()
+        {
+            return _RandomSha256Csp.Next();
+        }
 
         [Benchmark()]
         public int Random_Int32_Sha512Managed()
@@ -70,7 +77,11 @@ namespace Benchmarks
         {
             return _RandomSha512Cng.Next();
         }
-
+        [Benchmark()]
+        public int Random_Int32_Sha512Csp()
+        {
+            return _RandomSha512Csp.Next();
+        }
         [Benchmark()]
         public int Random_Int32_Null256()
         {
