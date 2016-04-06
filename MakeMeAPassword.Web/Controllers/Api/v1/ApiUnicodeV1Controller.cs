@@ -190,10 +190,9 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
 
                     while (numberOfCharacters < length)
                     {
-                        // Get random 4 bytes and create a code point from them.
+                        // Get random int32 and create a code point from it.
                         // PERF: can reduce number of bytes required here based on the mask.
-                        var buf = random.GetNextBytes(4);
-                        var codePoint = BitConverter.ToInt32(buf, 0);
+                        var codePoint = random.Next();
                         codePoint = codePoint & mask;       // Mask off the top bits, which aren't used.
                         attempts++;
 

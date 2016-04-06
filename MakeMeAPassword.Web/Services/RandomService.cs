@@ -58,13 +58,15 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
         private StatsByType _CurrentStats;
         private int _BytesConsumed;
 
+        private static readonly Func<HashAlgorithm> CreateDefaultHashFunction = () => new SHA512Cng();        // SHA512Cng is the fastest hash algorithm supported.
+
         // Note, these are never killed off. They remain for the duration of the AppDomain.
         private static readonly ConcurrentDictionary<int, RandomService> _ThreadStaticRandoms = new ConcurrentDictionary<int, RandomService>();
         
         public static RandomService GetForCurrentThread()
         {
             var threadId = Thread.CurrentThread.ManagedThreadId;
-            var result = _ThreadStaticRandoms.GetOrAdd(threadId, id => new RandomService(RandomSeedService.Singleton.GetSeed, new HMACSHA256()));
+            var result = _ThreadStaticRandoms.GetOrAdd(threadId, id => new RandomService(RandomSeedService.Singleton.GetSeed, CreateDefaultHashFunction()));
             return result;
         }
         public static IEnumerable<StatsByType> GetStats()
@@ -84,7 +86,8 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             _Stopwatch = Stopwatch.StartNew();
             _Counter += Thread.CurrentThread.ManagedThreadId;
 
-            // Initialise our HMAC, used as the hash function to generate randomness.
+            // Initialise our hash function to generate randomness.
+            // 256 and 512 bit hash functions are supported, but the main difference is performance (no addition entropy is used for either hash function).
             _HashFunction = hashFunction;
             _BlockSize = _HashFunction.HashSize / 8;
             if (_BlockSize < 32)
