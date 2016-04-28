@@ -139,6 +139,9 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
                 yield break;
 
             phraseCount = Math.Min(phraseCount, MaxCount);
+            if (phraseCount <= 0)
+                yield break;
+
             var random = RandomService.GetForCurrentThread();
             var generator = this.GetGenerator(random);
             int attempts = 0;

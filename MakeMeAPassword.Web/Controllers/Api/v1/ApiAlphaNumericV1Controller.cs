@@ -100,6 +100,9 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
         {
             length = Math.Min(length, MaxLength);
             count = Math.Min(count, MaxCount);
+            if (count <= 0)
+                yield break;
+
             var chars = includeSymbols ? AllCharacters : AlphanumericCharacters;
 
             var random = RandomService.GetForCurrentThread();

@@ -93,6 +93,8 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
         {
             syllableCount = Math.Min(syllableCount, MaxSyllableCount);
             count = Math.Min(count, MaxCount);
+            if (count <= 0)
+                yield break;
 
             var random = RandomService.GetForCurrentThread();
             var sb = new StringBuilder();
