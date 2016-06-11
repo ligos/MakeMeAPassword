@@ -168,7 +168,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
                     do
                     {
                         // Generate a phrase.
-                        candidate = generator.Generate(strength, true, mutators);
+                        candidate = generator.Generate(strength, " ", mutators);
 
                         // Finally, remove spaces if required (as the mutators depend on whitespace to do their work).
                         if (!includeSpaces)
