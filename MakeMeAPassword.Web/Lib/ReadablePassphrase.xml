@@ -98,11 +98,6 @@
             Makes no changes to the word.
             </summary>
         </member>
-        <member name="M:MurrayGrant.ReadablePassphrase.Mutators.IMutator.Mutate(System.Text.StringBuilder,MurrayGrant.ReadablePassphrase.Random.RandomSourceBase)">
-            <summary>
-            Makes changes to an existing passphrase like capitalising or adding numbers.
-            </summary>
-        </member>
         <member name="T:MurrayGrant.ReadablePassphrase.Mutators.NumericMutator">
             <summary>
             Adds numbers to a passphrase at random.
@@ -153,6 +148,11 @@
             The UppercaseWordMutator
             </summary>
         </member>
+        <member name="M:MurrayGrant.ReadablePassphrase.Mutators.IMutator.Mutate(System.Text.StringBuilder,MurrayGrant.ReadablePassphrase.Random.RandomSourceBase)">
+            <summary>
+            Makes changes to an existing passphrase like capitalising or adding numbers.
+            </summary>
+        </member>
         <member name="T:MurrayGrant.ReadablePassphrase.PhraseCombinations">
             <summary>
             Represents the number of combinations for a given phrase strength and dictionary.
@@ -184,6 +184,11 @@
             Each clause is the basic building block of passphrases.
             </summary>
         </member>
+        <member name="P:MurrayGrant.ReadablePassphrase.PhraseDescription.Clause.IsPresent">
+            <summary>
+            True if this clause is present in the final result.
+            </summary>
+        </member>
         <member name="M:MurrayGrant.ReadablePassphrase.PhraseDescription.Clause.InitialiseRelationships(System.Collections.Generic.IEnumerable{MurrayGrant.ReadablePassphrase.PhraseDescription.Clause})">
             <summary>
             Relates each clause to others in the overall phrase.
@@ -209,11 +214,6 @@
             Returns a phrase description based on the supplied strength, randomly if random strength chosen.
             </summary>
         </member>
-        <member name="P:MurrayGrant.ReadablePassphrase.PhraseDescription.Clause.IsPresent">
-            <summary>
-            True if this clause is present in the final result.
-            </summary>
-        </member>
         <member name="T:MurrayGrant.ReadablePassphrase.PhraseDescription.AnyWordClause">
             <summary>
             Any word form in the dictionary at all. Used for creating non-grammatical passphrases.
@@ -232,14 +232,14 @@
             An external random source from any function returning a byte array.
             </summary>
         </member>
-        <member name="T:MurrayGrant.ReadablePassphrase.Random.RandomSourceBase">
-            <summary>
-            An abstract source of random bytes (with various easier to use methods)
-            </summary>
-        </member>
         <member name="T:MurrayGrant.ReadablePassphrase.Random.CryptoRandomSource">
             <summary>
             The default random source uses the <c>RNGCryptoServiceProvider</c>.
+            </summary>
+        </member>
+        <member name="T:MurrayGrant.ReadablePassphrase.Random.RandomSourceBase">
+            <summary>
+            An abstract source of random bytes (with various easier to use methods)
             </summary>
         </member>
         <member name="T:MurrayGrant.ReadablePassphrase.ReadablePassphraseGenerator">
@@ -358,6 +358,14 @@
             <param name="strength">One of the predefined <c>PhraseStrength</c> enumeration members.</param>
             <param name="includeSpacesBetweenWords">Include spaces between words (defaults to true).</param>
         </member>
+        <member name="M:MurrayGrant.ReadablePassphrase.ReadablePassphraseGenerator.GenerateAsSecure(MurrayGrant.ReadablePassphrase.PhraseStrength,System.String)">
+            <summary>
+            Generates a single phrase as a <c>SecureString</c> based on the given phrase strength.
+            This is the slowest and most secure method.
+            </summary>
+            <param name="strength">One of the predefined <c>PhraseStrength</c> enumeration members.</param>
+            <param name="wordDelimiter">The string to place between each word in the passphrase.</param>
+        </member>
         <member name="M:MurrayGrant.ReadablePassphrase.ReadablePassphraseGenerator.GenerateAsSecure(System.Collections.Generic.IEnumerable{MurrayGrant.ReadablePassphrase.PhraseStrength},System.Boolean)">
             <summary>
             Generates a single phrase as a <c>SecureString</c> based on the given phrase strength.
@@ -365,6 +373,14 @@
             </summary>
             <param name="strengths">A collection of the predefined <c>PhraseStrength</c> enumeration members to choose between at random.</param>
             <param name="includeSpacesBetweenWords">Include spaces between words (defaults to true).</param>
+        </member>
+        <member name="M:MurrayGrant.ReadablePassphrase.ReadablePassphraseGenerator.GenerateAsSecure(System.Collections.Generic.IEnumerable{MurrayGrant.ReadablePassphrase.PhraseStrength},System.String)">
+            <summary>
+            Generates a single phrase as a <c>SecureString</c> based on the given phrase strength.
+            This is the slowest and most secure method.
+            </summary>
+            <param name="strengths">A collection of the predefined <c>PhraseStrength</c> enumeration members to choose between at random.</param>
+            <param name="wordDelimiter">The string to place between each word in the passphrase.</param>
         </member>
         <member name="M:MurrayGrant.ReadablePassphrase.ReadablePassphraseGenerator.GenerateAsSecure(System.Collections.Generic.IEnumerable{MurrayGrant.ReadablePassphrase.PhraseDescription.Clause},System.Boolean)">
             <summary>
@@ -374,31 +390,39 @@
             <param name="phraseDescription">One or more <c>Clause</c> objects defineing the details of the phrase.</param>
             <param name="includeSpacesBetweenWords">Include spaces between words (defaults to true).</param>
         </member>
-        <member name="M:MurrayGrant.ReadablePassphrase.ReadablePassphraseGenerator.Generate(MurrayGrant.ReadablePassphrase.PhraseStrength,System.Boolean,System.Collections.Generic.IEnumerable{MurrayGrant.ReadablePassphrase.Mutators.IMutator})">
+        <member name="M:MurrayGrant.ReadablePassphrase.ReadablePassphraseGenerator.GenerateAsSecure(System.Collections.Generic.IEnumerable{MurrayGrant.ReadablePassphrase.PhraseDescription.Clause},System.String)">
+            <summary>
+            Generates a single phrase as a <c>SecureString</c> based on the given phrase description.
+            This is the slowest and most secure method.
+            </summary>
+            <param name="phraseDescription">One or more <c>Clause</c> objects defineing the details of the phrase.</param>
+            <param name="wordDelimiter">The string to place between each word in the passphrase.</param>
+        </member>
+        <member name="M:MurrayGrant.ReadablePassphrase.ReadablePassphraseGenerator.Generate(MurrayGrant.ReadablePassphrase.PhraseStrength,System.String,System.Collections.Generic.IEnumerable{MurrayGrant.ReadablePassphrase.Mutators.IMutator})">
             <summary>
             Generates a single phrase based on the given phrase strength in a <c>StringBuilder</c>.
             This is the fastest and least secure method.
             </summary>
             <param name="strength">One of the predefined <c>PhraseStrength</c> enumeration members (default: Random).</param>
-            <param name="includeSpacesBetweenWords">Include spaces between words (default: true).</param>
+            <param name="wordDelimiter">The string to place between each word in the passphrase (default: single space).</param>
             /// <param name="mutators">Applies one or more mutators to the passphrase after it is generated (default: none).</param>
         </member>
-        <member name="M:MurrayGrant.ReadablePassphrase.ReadablePassphraseGenerator.Generate(System.Collections.Generic.IEnumerable{MurrayGrant.ReadablePassphrase.PhraseStrength},System.Boolean,System.Collections.Generic.IEnumerable{MurrayGrant.ReadablePassphrase.Mutators.IMutator})">
+        <member name="M:MurrayGrant.ReadablePassphrase.ReadablePassphraseGenerator.Generate(System.Collections.Generic.IEnumerable{MurrayGrant.ReadablePassphrase.PhraseStrength},System.String,System.Collections.Generic.IEnumerable{MurrayGrant.ReadablePassphrase.Mutators.IMutator})">
             <summary>
             Generates a single phrase based on a randomly chosen phrase strength in a <c>StringBuilder</c>.
             This is the fastest and least secure method.
             </summary>
             <param name="strengths">A collection of the predefined <c>PhraseStrength</c> enumeration members to choose between at random.</param>
-            <param name="includeSpacesBetweenWords">Include spaces between words (default: true).</param>
+            <param name="wordDelimiter">The string to place between each word in the passphrase (default: single space).</param>
             <param name="mutators">Applies one or more mutators to the passphrase after it is generated (default: none).</param>
         </member>
-        <member name="M:MurrayGrant.ReadablePassphrase.ReadablePassphraseGenerator.Generate(System.Collections.Generic.IEnumerable{MurrayGrant.ReadablePassphrase.PhraseDescription.Clause},System.Boolean,System.Collections.Generic.IEnumerable{MurrayGrant.ReadablePassphrase.Mutators.IMutator})">
+        <member name="M:MurrayGrant.ReadablePassphrase.ReadablePassphraseGenerator.Generate(System.Collections.Generic.IEnumerable{MurrayGrant.ReadablePassphrase.PhraseDescription.Clause},System.String,System.Collections.Generic.IEnumerable{MurrayGrant.ReadablePassphrase.Mutators.IMutator})">
             <summary>
             Generates a single phrase based on the given phrase description in a <c>StringBuilder</c>.
             This is the fastest and least secure method.
             </summary>
             <param name="phraseDescription">One or more <c>Clause</c> objects defineing the details of the phrase.</param>
-            <param name="includeSpacesBetweenWords">Include spaces between words (defaults to true).</param>
+            <param name="wordDelimiter">The string to place between each word in the passphrase (default: single space).</param>
             <param name="mutators">Applies one or more mutators to the passphrase after it is generated (default: none).</param>
         </member>
         <member name="M:MurrayGrant.ReadablePassphrase.ReadablePassphraseGenerator.GenerateAsUtf8Bytes">
@@ -421,6 +445,14 @@
             <param name="strength">One of the predefined <c>PhraseStrength</c> enumeration members.</param>
             <param name="includeSpacesBetweenWords">Include spaces between words (defaults to true).</param>
         </member>
+        <member name="M:MurrayGrant.ReadablePassphrase.ReadablePassphraseGenerator.GenerateAsUtf8Bytes(MurrayGrant.ReadablePassphrase.PhraseStrength,System.String)">
+            <summary>
+            Generates a single phrase based on the given phrase strength in a UTF8 <c>byte[]</c>.
+            This is slightly slower than <c>Generate()</c> and allows deterministic destruction of the data, but is still unencrypted.
+            </summary>
+            <param name="strength">One of the predefined <c>PhraseStrength</c> enumeration members.</param>
+            <param name="wordDelimiter">The string to place between each word in the passphrase.</param>
+        </member>
         <member name="M:MurrayGrant.ReadablePassphrase.ReadablePassphraseGenerator.GenerateAsUtf8Bytes(System.Collections.Generic.IEnumerable{MurrayGrant.ReadablePassphrase.PhraseStrength})">
             <summary>
             Generates a single phrase based on a randomly selected phrase strength in a UTF8 <c>byte[]</c>.
@@ -436,6 +468,14 @@
             <param name="strengths">A collection of the predefined <c>PhraseStrength</c> enumeration members to choose between at random.</param>
             <param name="includeSpacesBetweenWords">Include spaces between words (defaults to true).</param>
         </member>
+        <member name="M:MurrayGrant.ReadablePassphrase.ReadablePassphraseGenerator.GenerateAsUtf8Bytes(System.Collections.Generic.IEnumerable{MurrayGrant.ReadablePassphrase.PhraseStrength},System.String)">
+            <summary>
+            Generates a single phrase based on a randomly selected phrase strength in a UTF8 <c>byte[]</c>.
+            This is slightly slower than <c>Generate()</c> and allows deterministic destruction of the data, but is still unencrypted.
+            </summary>
+            <param name="strengths">A collection of the predefined <c>PhraseStrength</c> enumeration members to choose between at random.</param>
+            <param name="wordDelimiter">The string to place between each word in the passphrase.</param>
+        </member>
         <member name="M:MurrayGrant.ReadablePassphrase.ReadablePassphraseGenerator.GenerateAsUtf8Bytes(System.Collections.Generic.IEnumerable{MurrayGrant.ReadablePassphrase.PhraseDescription.Clause})">
             <summary>
             Generates a single phrase based on the given phrase description in a UTF8 <c>byte[]</c>.
@@ -450,11 +490,13 @@
             <param name="phraseDescription">One or more <c>Clause</c> objects defineing the details of the phrase.</param>
             <param name="includeSpacesBetweenWords">Include spaces between words (defaults to true).</param>
         </member>
-        <member name="T:MurrayGrant.ReadablePassphrase.WordTemplate.Template">
+        <member name="M:MurrayGrant.ReadablePassphrase.ReadablePassphraseGenerator.GenerateAsUtf8Bytes(System.Collections.Generic.IEnumerable{MurrayGrant.ReadablePassphrase.PhraseDescription.Clause},System.String)">
             <summary>
-            A template word has a 1:1 correspondance with actual dictionary words, where as a <c>Clause</c> does not.
-            A <c>Clause</c> produces one or more template words, which then choose their final <c>Word</c> from a dictionary.
+            Generates a single phrase based on the given phrase description in a UTF8 <c>byte[]</c>.
+            This is slightly slower than <c>Generate()</c> and allows deterministic destruction of the data, but is still unencrypted.
             </summary>
+            <param name="phraseDescription">One or more <c>Clause</c> objects defineing the details of the phrase.</param>
+            <param name="wordDelimiter">The string to place between each word in the passphrase.</param>
         </member>
         <member name="T:MurrayGrant.ReadablePassphrase.WordTemplate.AnyTemplate">
             <summary>
@@ -469,6 +511,12 @@
         <member name="T:MurrayGrant.ReadablePassphrase.WordTemplate.NounConjunctionTemplate">
             <summary>
             Noun conjunctions join noun clauses together. Eg: the bat and the ball.
+            </summary>
+        </member>
+        <member name="T:MurrayGrant.ReadablePassphrase.WordTemplate.Template">
+            <summary>
+            A template word has a 1:1 correspondance with actual dictionary words, where as a <c>Clause</c> does not.
+            A <c>Clause</c> produces one or more template words, which then choose their final <c>Word</c> from a dictionary.
             </summary>
         </member>
     </members>

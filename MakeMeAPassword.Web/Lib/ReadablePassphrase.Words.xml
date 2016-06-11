@@ -9,14 +9,14 @@
             Thrown if a parsing error occurs within a dictionary.
             </summary>
         </member>
-        <member name="T:MurrayGrant.ReadablePassphrase.Dictionaries.UnableToLoadDictionaryException">
-            <summary>
-            Thrown if an <c>IDictionaryLoader</c> cannot load the dictionary.
-            </summary>
-        </member>
         <member name="T:MurrayGrant.ReadablePassphrase.Dictionaries.InvalidDictionaryLoaderArgumentException">
             <summary>
             Thrown if the arguments dictionary passed to the <c>IDictionaryLoader</c> are invalid.
+            </summary>
+        </member>
+        <member name="T:MurrayGrant.ReadablePassphrase.Dictionaries.UnableToLoadDictionaryException">
+            <summary>
+            Thrown if an <c>IDictionaryLoader</c> cannot load the dictionary.
             </summary>
         </member>
         <member name="T:MurrayGrant.ReadablePassphrase.Dictionaries.WordDictionary">
