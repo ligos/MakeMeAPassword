@@ -155,6 +155,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                 this.FetchNumbersInfoRandomData,
                 this.FetchRandomServerRandomData,
                 this.FetchPhysikRandomData,           // Requires unmanged code which isn't working in my hosting environment.
+                this.FetchHotBitsRandomData,
             };
         }
 
@@ -523,6 +524,31 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
 #endif
             return result;
 
+        }
+        private byte[] FetchHotBitsRandomData()
+        {
+            // http://www.fourmilab.ch/hotbits/
+            const int numberOfBytes = 1024;
+#if DEBUG
+            Thread.Sleep(new Random().Next(1950));
+            var result = this.GetFallbackRandomness(numberOfBytes);
+#else
+            var fetchUri = new Uri("https://www.fourmilab.ch/cgi-bin/Hotbits?fmt=hex&nbytes=" + numberOfBytes.ToString());
+            var wc = new WebClient();
+            wc.Headers.Add("User-Agent", "Microsoft.NET; makemeapassword.org; makemeapassword@ligos.net");
+            var html = wc.DownloadString(fetchUri);           // This returns HTML, which means I'm doing some hacky parsing here.
+            
+            // Locate some pretty clear boundaries around the random numbers returned.
+            var startIdx = html.IndexOf("<pre>", StringComparison.OrdinalIgnoreCase);
+            if (startIdx == -1)
+                throw new Exception("Cannot locate start string in html parsing of hotbits result.");
+            var endIdx = html.IndexOf("</pre>", startIdx, StringComparison.OrdinalIgnoreCase);
+            if (endIdx == -1)
+                throw new Exception("Cannot locate end string in html parsing of hotbits result.");
+            var hexBytes = html.Substring(startIdx, endIdx - startIdx).Replace("<pre>", "").Replace("</pre>", "").Replace("\n", "");
+            result = hexBytes.Trim().ToByteArray();
+#endif
+            return result;
         }
         private static byte[] FetchWebsiteRawData(Uri uri)
         {
