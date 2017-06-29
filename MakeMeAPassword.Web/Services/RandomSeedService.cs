@@ -546,7 +546,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             if (endIdx == -1)
                 throw new Exception("Cannot locate end string in html parsing of hotbits result.");
             var hexBytes = html.Substring(startIdx, endIdx - startIdx).Replace("<pre>", "").Replace("</pre>", "").Replace("\n", "");
-            result = hexBytes.Trim().ToByteArray();
+            var result = hexBytes.Trim().ToByteArray();
 #endif
             return result;
         }
