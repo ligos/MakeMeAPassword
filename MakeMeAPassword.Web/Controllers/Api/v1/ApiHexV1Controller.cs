@@ -87,7 +87,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
         {
             length = Math.Min(length, MaxLength);
             count = Math.Min(count, MaxCount);
-            if (count <= 0)
+            if (count <= 0 || length <= 0)
                 yield break;
 
             var random = RandomService.GetForCurrentThread();
