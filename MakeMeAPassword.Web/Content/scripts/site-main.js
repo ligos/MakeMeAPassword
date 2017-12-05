@@ -342,12 +342,6 @@ $(document).on('change', '#passwordParameters input', function (evt) {
 });
 
 $(document).ready(function () {
-    // Make darned sure we're on the https version.
-    if (window.location.hostname.toLowerCase() !== 'localhost' && window.location.protocol.toLowerCase() !== 'https:') {
-        window.location.href = window.location.href.replace(window.location.protocol, 'https:');
-        return;
-    }
-
     // Automatically trigger getting combinations and a default password on each of the specific pages.
     var getBtn = $('#passwordGet');
     if (getBtn.length) {
