@@ -29,12 +29,12 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
     /// </summary>
     public static class IpThrottlerService
     {
-        public static readonly TimeSpan Timeout = TimeSpan.FromHours(2);
+        public static readonly TimeSpan Timeout = TimeSpan.FromHours(1);
         
         // A request unit is one password / passphrase or one combination count (which is cached for an hour anyway).
         // Hitting any of the detailed pages requires 2 minimum, the front page requires 1.
         // Once an ip address exceeds this limit, it gets an access denied error until the limit is cleared.
-        public static readonly int MaxRequestUnits = 150;
+        public static readonly int MaxRequestUnits = 200;
         private static object _Lock = new object();
 
         public static long TotalUsage = 0;
