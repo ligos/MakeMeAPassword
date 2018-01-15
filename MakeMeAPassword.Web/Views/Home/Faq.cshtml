@@ -393,3 +393,26 @@
     There is no <em>Save</em> button, however.
     Any time you change your a setting, your web browser just remembers.
 </p>
+
+
+<a name="domainchange"></a>
+<a href="/faq#domainchange"><h3>What's With Changing The Domain?</h3></a>
+<p>
+    In early 2018, I decided to migrate the site away from <code>makemeapassword.org</code> to <code>makemeapassword.ligos.net</code>.
+    Mostly, this was to save me a few dollars on domain registration (and the Australian Dollar isn't doing to well, so what's US$25 comes out to closer to AU$50 after conversions and fees).
+</p>
+<p>
+    Please update any bookmarks, references or scripts to <a href="https://makemeapassword.ligos.net">makemeapassword.ligos.net</a>.
+    Any scripts which directly reference the API endpoint will receive no notification; they will simply stop working in December 2018.
+</p>
+<p>
+    The timeline is as follows:
+    <ul>
+        <li><strong>January 2018</strong>: announced intention to migrate, enabled hosting on <a href="https://makemeapassword.ligos.net">makemeapassword.ligos.net</a>.</li>
+        <li><strong>January 2018</strong>: added a notification at the top of pages with a summary of the change and link to new domain.</li>
+        <li><strong>May 2018</strong>: do a soft (javascript based) redirect after 20 seconds to the new domain.</li>
+        <li><strong>October 2018</strong>: do an immediate redirect to the new domain (still via javascript).</li>
+        <li><strong>November 2018</strong>: 301 permanent HTTP redirect to the new domain.</li>
+        <li><strong>December 2018</strong>: domain registration will expire and <code>makemeapassword.org</code> will stop working.</li>
+    </ul>
+</p>

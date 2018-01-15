@@ -414,6 +414,13 @@ $(document).on('change', '.parameters-panel .mutators input[type="radio"]', func
 });
 
 
+// Detect the old domain and show the moving alert.
+$(document).ready(function () {
+    if (window.location.hostname.toLocaleLowerCase().indexOf('makemeapassword.org') != -1) {
+        $('#domainChangeAlert').show(400);
+    }
+});
+
 // http://stackoverflow.com/a/1186309/117070
 $.fn.serializeObject = function () {
     var o = {};

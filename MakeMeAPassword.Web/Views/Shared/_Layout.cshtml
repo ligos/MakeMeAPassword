@@ -72,6 +72,20 @@ else
 
         @Html.Partial("_TopNavbar")
 
+        <div class="container">
+            <div class="alert alert-danger alert-dismissible" role="alert" id="domainChangeAlert" style="display:none">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+                <h4>Make Me a Password is Moving!</h4>
+                <p>
+                    Please update links, references, and bookmarks to <strong><a href="https://makemeapassword.ligos.net">makemeapassword.ligos.net</a></strong>.
+                </p>
+                <p>
+                    <a href="/faq#domainchange">See the FAQ for more information and the timeline for the move</a>.
+                </p>
+            </div>
+        </div>
+
         <div class="container container-body">
             @RenderBody()
         </div>
