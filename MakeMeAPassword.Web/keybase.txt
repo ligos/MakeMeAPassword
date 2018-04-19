@@ -1,0 +1,56 @@
+==================================================================
+https://keybase.io/ligos
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of https://makemeapassword.ligos.net
+  * I am ligos (https://keybase.io/ligos) on keybase.
+  * I have a public key ASBsG7so5Y3GU-xuHFlgSbSukwr2OUmlRDCt_JIGB6jKUQo
+
+To do so, I am signing this object:
+
+{
+  "body": {
+    "key": {
+      "eldest_kid": "012034b88a1cecdab49be1e4c33fe94667e39be2fe6e2be764acf4a6a4909a93fd520a",
+      "host": "keybase.io",
+      "kid": "01206c1bbb28e58dc653ec6e1c596049b4ae930af63949a54430adfc920607a8ca510a",
+      "uid": "d190cba9fc7b99a4ad2e41a093097a19",
+      "username": "ligos"
+    },
+    "merkle_root": {
+      "ctime": 1524050730,
+      "hash": "30437de049c30cf70029c41ba8f67ae6282447340aaec3830bb74bd31393f3fbfd60f8f206eb0618aa099d8f74cfabad1a0959888cb7c7c3c6d609ed08799465",
+      "hash_meta": "aef273693b5a9ccc7aec72a3b4925aeff3fded57cb492bf9e4532ce688ead681",
+      "seqno": 2406767
+    },
+    "service": {
+      "entropy": "IRcFNzQBdgCPxXscl94Hu/jk",
+      "hostname": "makemeapassword.ligos.net",
+      "protocol": "https:"
+    },
+    "type": "web_service_binding",
+    "version": 2
+  },
+  "client": {
+    "name": "keybase.io go client",
+    "version": "1.0.47"
+  },
+  "ctime": 1524050755,
+  "expire_in": 504576000,
+  "prev": "e5957222474ee39b0b08549c7a07408df5d39bfe2d4d7fce5097aa34f658f90c",
+  "seqno": 23,
+  "tag": "signature"
+}
+
+which yields the signature:
+
+hKRib2R5hqhkZXRhY2hlZMOpaGFzaF90eXBlCqNrZXnEIwEgbBu7KOWNxlPsbhxZYEm0rpMK9jlJpUQwrfySBgeoylEKp3BheWxvYWTESpcCF8Qg5ZVyIkdO45sLCFScegdAjfXTm/4tTX/OUJeqNPZY+QzEIESCZrIlb1iuWVkM5XV2uFN+WNgpLzM/V2YEyWTllEN9AgHCo3NpZ8RAPYc5eDfanVuK25PVpM03tbvdR3o/YkuVuZR2kpEwCPYA0CLFLTkrvioB4S2fHhdKIqGjnRNA16Bm4zSRX8kEDahzaWdfdHlwZSCkaGFzaIKkdHlwZQildmFsdWXEIF0nN+AbgWaNY9xABuBf5iSrbndk0w50K6+6fCwNWKIYo3RhZ80CAqd2ZXJzaW9uAQ==
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/ligos
+
+==================================================================
