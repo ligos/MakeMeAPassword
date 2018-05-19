@@ -153,7 +153,7 @@ window.pwg = window.pwg || {};
 
         // TODO: validation.
         if (!parms) {
-            var parms = getParameters();
+            parms = getParameters();
         }
         doIpLimitWarning();
 
@@ -183,7 +183,7 @@ window.pwg = window.pwg || {};
             }
         }).error(function (e) {
             $('.password-get').button('reset');
-            if (e.status == 403) {
+            if (e.status === 403) {
                 $('#passwordError .message').text(e.statusText);
             } else {
                 $('#passwordError .message').text("Sorry, we couldn't get your password because of a server error.");
@@ -212,7 +212,7 @@ window.pwg = window.pwg || {};
                 $('#combinationsPlace ').removeClass('panel-default').removeClass('panel-danger').removeClass('panel-warning');
                 if (d.middle.rating <= 1) 
                     $('#combinationsPlace').addClass('panel-danger');
-                else if (d.middle.rating == 2)
+                else if (d.middle.rating === 2)
                     $('#combinationsPlace').addClass('panel-warning');
                 else 
                     $('#combinationsPlace').addClass('panel-default');
@@ -241,7 +241,7 @@ window.pwg = window.pwg || {};
                 $('#combinationsPlace ').removeClass('panel-default').removeClass('panel-danger').removeClass('panel-warning');
                 if (d.rating <= 1)
                     $('#combinationsPlace').addClass('panel-danger');
-                else if (d.rating == 2)
+                else if (d.rating === 2)
                     $('#combinationsPlace').addClass('panel-warning');
                 else
                     $('#combinationsPlace').addClass('panel-default');
@@ -418,6 +418,10 @@ $(document).on('change', '.parameters-panel .mutators input[type="radio"]', func
 $(document).ready(function () {
     if (window.location.hostname.toLowerCase().indexOf('makemeapassword.org') !== -1) {
         $('#domainChangeAlert').show(400);
+
+        window.setTimeout(function () {
+            window.location = 'https://makemeapassword.ligos.net'
+        }, 20000);
     }
 });
 

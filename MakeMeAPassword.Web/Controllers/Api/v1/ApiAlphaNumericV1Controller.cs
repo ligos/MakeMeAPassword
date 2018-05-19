@@ -23,7 +23,8 @@ using MurrayGrant.PasswordGenerator.Web.Services;
 using MurrayGrant.PasswordGenerator.Web.Helpers;
 using MurrayGrant.PasswordGenerator.Web.Filters;
 using System.Text;
-using Exceptionless;
+using System.Threading.Tasks;
+using MurrayGrant.Terninger;
 
 namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
 {
@@ -31,6 +32,8 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
     [IpThrottlingFilter]
     public class ApiAlphaNumericV1Controller : Controller
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public readonly static int MaxLength = 128;
         public readonly static int MaxCount = 50;
         public readonly static int DefaultLength = 8;
@@ -42,36 +45,45 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
         public readonly static string AllCharacters = AlphanumericCharacters + SymbolCharacters;
 
         // GET: /api/v1/alphanumeric/plain
-        public string Plain(int? l, int? c, string sym)
+        public async Task<string> Plain(int? l, int? c, string sym)
         {
             // Return as plain text string.
-            var passwords = SelectPasswords(
+            using (var random = await RandomService.PooledGenerator.CreateCypherBasedGeneratorAsync())
+            {
+                var passwords = SelectPasswords(random,
                                 l.HasValue ? l.Value : DefaultLength,
                                 c.HasValue ? c.Value : DefaultCount,
                                 sym.IsTruthy(DefaultSymbols));
-            return String.Join(Environment.NewLine, passwords);
+                return String.Join(Environment.NewLine, passwords);
+            }
         }
 
         // GET: /api/v1/readablepassphrase/json
-        public ActionResult Json(int? l, int? c, string sym)
+        public async Task<ActionResult> Json(int? l, int? c, string sym)
         {
             // Return as Json array.
-            var passwords = SelectPasswords(
+            using (var random = await RandomService.PooledGenerator.CreateCypherBasedGeneratorAsync())
+            {
+                var passwords = SelectPasswords(random,
                                 l.HasValue ? l.Value : DefaultLength,
                                 c.HasValue ? c.Value : DefaultCount,
                                 sym.IsTruthy(DefaultSymbols));
-            return new JsonNetResult(new JsonPasswordContainer() { pws = passwords.ToList() });
+                return new JsonNetResult(new JsonPasswordContainer() { pws = passwords.ToList() });
+            }
         }
         
         // GET: /api/v1/readablepassphrase/xml
-        public ActionResult Xml(int? l, int? c, string sym)
+        public async Task<ActionResult> Xml(int? l, int? c, string sym)
         {
             // Return as XML.
-            var passwords = SelectPasswords(
+            using (var random = await RandomService.PooledGenerator.CreateCypherBasedGeneratorAsync())
+            {
+                var passwords = SelectPasswords(random,
                                 l.HasValue ? l.Value : DefaultLength,
                                 c.HasValue ? c.Value : DefaultCount,
                                 sym.IsTruthy(DefaultSymbols));
-            return new XmlResult(passwords.ToList());
+                return new XmlResult(passwords.ToList());
+            }
         }
 
         // GET: /api/v1/alphanumeric/combinations
@@ -92,44 +104,32 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
             return new JsonNetResult(result);
         }
 
-        private IEnumerable<string> SelectPasswords(int length, int count, bool includeSymbols)
+        private IEnumerable<string> SelectPasswords(IRandomNumberGenerator random, int length, int count, bool includeSymbols)
         {
             length = Math.Min(length, MaxLength);
             count = Math.Min(count, MaxCount);
             if (count <= 0 || length <= 0)
                 yield break;
 
+            var sw = System.Diagnostics.Stopwatch.StartNew();
             var chars = includeSymbols ? AllCharacters : AlphanumericCharacters;
-
-            var random = RandomService.GetForCurrentThread();
             var sb = new StringBuilder();
 
-            random.BeginStats(this.GetType());
-            try
+            for (int c = 0; c < count; c++)
             {
-                for (int c = 0; c < count; c++)
-                {
-                    for (int l = 0; l < length; l++)
-                        sb.Append(chars[random.Next(chars.Length)]);
+                for (int l = 0; l < length; l++)
+                    sb.Append(chars[random.GetRandomInt32(chars.Length)]);
 
-                    var result = sb.ToString();
-                    random.IncrementStats(result);
-                    yield return result;
-                    sb.Clear();
-                }
-            } finally {
-                random.EndStats();
+                var result = sb.ToString();
+                yield return result;
+                sb.Clear();
             }
+            sw.Stop();
+
+            var bytesRequested = (int)((random as Terninger.Generator.CypherBasedPrngGenerator)?.BytesRequested).GetValueOrDefault();
+            RandomService.LogPasswordStat("AlphaNumeric", count, sw.Elapsed, bytesRequested);
 
             IpThrottlerService.IncrementUsage(IPAddressHelpers.GetHostOrCacheIp(this.HttpContext.Request), count);
-        }
-
-        protected override void OnException(ExceptionContext filterContext)
-        {
-            if (!filterContext.ExceptionHandled)
-            {
-
-            }
         }
     }
 }

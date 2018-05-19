@@ -25,7 +25,8 @@ using System.Text;
 using System.Globalization;
 using System.Runtime.Caching;
 using MurrayGrant.PasswordGenerator.Web.Filters;
-using Exceptionless;
+using System.Threading.Tasks;
+using MurrayGrant.Terninger;
 
 namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
 {
@@ -33,6 +34,8 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
     [IpThrottlingFilter]
     public class ApiUnicodeV1Controller : Controller
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public readonly static int MaxLength = 64;
         public readonly static int MaxCount = 50;
         public readonly static int MaxAttemptsPerCodePoint = 600;
@@ -88,41 +91,50 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
 
 
         // GET: /api/v1/unicode/plain
-        public String Plain(int? l, int? c, string bmp, string asian)
+        public async Task<String> Plain(int? l, int? c, string bmp, string asian)
         {
-            var passwords = SelectPasswords(
+            using (var random = await RandomService.PooledGenerator.CreateCypherBasedGeneratorAsync())
+            {
+                var passwords = SelectPasswords(random,
                                 l.HasValue ? l.Value : DefaultLength,
                                 c.HasValue ? c.Value : DefaultCount,
                                 bmp.IsTruthy(DefaultBmp),
                                 asian.IsTruthy(DefaultAsian)
                             );
-            return String.Join(Environment.NewLine, passwords);
+                return String.Join(Environment.NewLine, passwords);
+            }
         }
 
         // GET: /api/v1/unicode/json
-        public ActionResult Json(int? l, int? c, string bmp, string asian)
+        public async Task<ActionResult> Json(int? l, int? c, string bmp, string asian)
         {
             // Return as Json array.
-            var passwords = SelectPasswords(
+            using (var random = await RandomService.PooledGenerator.CreateCypherBasedGeneratorAsync())
+            {
+                var passwords = SelectPasswords(random,
                                 l.HasValue ? l.Value : DefaultLength,
                                 c.HasValue ? c.Value : DefaultCount,
                                 bmp.IsTruthy(DefaultBmp),
                                 asian.IsTruthy(DefaultAsian)
                             );
-            return new JsonNetResult(new JsonPasswordContainer() { pws = passwords.ToList() });
+                return new JsonNetResult(new JsonPasswordContainer() { pws = passwords.ToList() });
+            }
         }
 
         // GET: /api/v1/unicode/xml
-        public ActionResult Xml(int? l, int? c, string bmp, string asian)
+        public async Task<ActionResult> Xml(int? l, int? c, string bmp, string asian)
         {
             // Return as XML.
-            var passwords = SelectPasswords(
+            using (var random = await RandomService.PooledGenerator.CreateCypherBasedGeneratorAsync())
+            {
+                var passwords = SelectPasswords(random,
                                 l.HasValue ? l.Value : DefaultLength,
                                 c.HasValue ? c.Value : DefaultCount,
                                 bmp.IsTruthy(DefaultBmp),
                                 asian.IsTruthy(DefaultAsian)
                             );
-            return new XmlResult(passwords.ToList());
+                return new XmlResult(passwords.ToList());
+            }
         }
 
         // GET: /api/v1/unicode/combinations
@@ -164,7 +176,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
             return new JsonNetResult(result);
         }
 
-        private IEnumerable<string> SelectPasswords(int length, int count, bool onlyFromBasicMultilingualPlane, bool includeEastAsianCharacters)
+        private IEnumerable<string> SelectPasswords(IRandomNumberGenerator random, int length, int count, bool onlyFromBasicMultilingualPlane, bool includeEastAsianCharacters)
         {
             length = Math.Min(length, MaxLength);
             count = Math.Min(count, MaxCount);
@@ -172,57 +184,54 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
                 yield break;
             var allowedCategories = includeEastAsianCharacters ? AsianCategories : DefaultCategories;
 
-            var random = RandomService.GetForCurrentThread();
+            var sw = System.Diagnostics.Stopwatch.StartNew();
             int numberOfCharacters = 0, attempts = 0;
             var mask = onlyFromBasicMultilingualPlane ? 0x0000ffff : 0x001fffff;
             var sb = new StringBuilder();
 
-            random.BeginStats(this.GetType());
-            try
+            for (int i = 0; i < count; i++)
             {
-                for (int i = 0; i < count; i++)
+                numberOfCharacters = 0;
+                attempts = 0;
+                sb.Clear();
+
+                while (numberOfCharacters < length)
                 {
-                    numberOfCharacters = 0;
-                    attempts = 0;
-                    sb.Clear();
+                    // Get random int32 and create a code point from it.
+                    // PERF: can reduce number of bytes required here based on the mask.
+                    var codePoint = random.GetRandomInt32();
+                    codePoint = codePoint & mask;       // Mask off the top bits, which aren't used.
+                    attempts++;
 
-                    while (numberOfCharacters < length)
-                    {
-                        // Get random int32 and create a code point from it.
-                        // PERF: can reduce number of bytes required here based on the mask.
-                        var codePoint = random.Next();
-                        codePoint = codePoint & mask;       // Mask off the top bits, which aren't used.
-                        attempts++;
+                    // Break if too many attempts.
+                    if (attempts > MaxAttemptsPerCodePoint)
+                        continue;
 
-                        // Break if too many attempts.
-                        if (attempts > MaxAttemptsPerCodePoint)
-                            continue;
+                    // Surrogate code points are invalid.
+                    if (this.InvalidSurrogateCodePoints(codePoint))
+                        continue;
+                    // Ensure the code point is not outside the maximum range.
+                    if (this.InvalidMaxCodePoints(codePoint))
+                        continue;
 
-                        // Surrogate code points are invalid.
-                        if (this.InvalidSurrogateCodePoints(codePoint))
-                            continue;
-                        // Ensure the code point is not outside the maximum range.
-                        if (this.InvalidMaxCodePoints(codePoint))
-                            continue;
-
-                        // the Int32 to up to 2 Char structs (in a string).
-                        var s = Char.ConvertFromUtf32(codePoint);
-                        var category = Char.GetUnicodeCategory(s, 0);
-                        if (!allowedCategories.Contains(category))
-                            // Not allowed category.
-                            continue;
-                        sb.Append(s);
-                        numberOfCharacters++;
-                    }
-
-                    var result = sb.ToString();
-                    random.IncrementStats(result);
-                    yield return result;
-                    attempts = 0;
+                    // the Int32 to up to 2 Char structs (in a string).
+                    var s = Char.ConvertFromUtf32(codePoint);
+                    var category = Char.GetUnicodeCategory(s, 0);
+                    if (!allowedCategories.Contains(category))
+                        // Not allowed category.
+                        continue;
+                    sb.Append(s);
+                    numberOfCharacters++;
                 }
-            } finally {
-                random.EndStats();
+
+                var result = sb.ToString();
+                yield return result;
+                attempts = 0;
             }
+            sw.Stop();
+
+            var bytesRequested = (int)((random as Terninger.Generator.CypherBasedPrngGenerator)?.BytesRequested).GetValueOrDefault();
+            RandomService.LogPasswordStat("Unicode", count, sw.Elapsed, bytesRequested);
 
             IpThrottlerService.IncrementUsage(IPAddressHelpers.GetHostOrCacheIp(this.HttpContext.Request), count);
         }
@@ -234,14 +243,6 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
         private bool InvalidMaxCodePoints(int cp)
         {
             return cp >= 0x10ffff;
-        }
-
-        protected override void OnException(ExceptionContext filterContext)
-        {
-            if (!filterContext.ExceptionHandled)
-            {
-
-            }
         }
     }
 }

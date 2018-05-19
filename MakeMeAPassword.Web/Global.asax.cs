@@ -18,7 +18,6 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
-using Exceptionless;
 
 namespace MurrayGrant.PasswordGenerator.Web
 {
@@ -27,8 +26,12 @@ namespace MurrayGrant.PasswordGenerator.Web
 
     public class MvcApplication : System.Web.HttpApplication
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         protected void Application_Start()
         {
+            Logger.Info("App Starting");
+
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
 
@@ -36,23 +39,27 @@ namespace MurrayGrant.PasswordGenerator.Web
             // http://stackoverflow.com/a/4598747
             Environment.SetEnvironmentVariable("PATH", Environment.GetEnvironmentVariable("PATH") + ";" + this.Server.MapPath("~/lib_native"), EnvironmentVariableTarget.Process);
 
-            Services.RandomSeedService.Singleton.Init(
-                this.Server.MapPath("~/App_Data/random.org.key.txt"), 
-                this.Server.MapPath("~/App_Data/qrng.physik.credentials.txt"),
-                this.Server.MapPath("~/App_Data/email.json")
-            );
-            Services.RandomSeedService.Singleton.BeginLoadingExternalData();
             MvcHandler.DisableMvcResponseHeader = true;
 
-            ExceptionlessClient.Default.CreateFeatureUsage("App Startup").Submit();
+            MurrayGrant.PasswordGenerator.Web.Services.RandomService.PooledGenerator.Start();
+
+            Logger.Info("App Started");
         }
 
         protected void Application_Error(object sender, EventArgs e)
         {
-#if !DEBUG
             Exception ex = Server.GetLastError();
-            ex.ToExceptionless().MarkAsCritical().AddTags("Global.asax", "LastChance").Submit();
-#endif
+            Logger.Error(ex, "Unhandled error");
+        }
+
+
+        protected void Application_End(object sender, EventArgs e)
+        {
+            Logger.Info("Terninger pooled random generater stats: bytes requested = {0}, reseed count = {1}", Services.RandomService.PooledGenerator.BytesRequested, Services.RandomService.PooledGenerator.ReseedCount);
+            Logger.Info("App Disposed");
+            Services.RandomService.PooledGenerator.RequestStop();
+            NLog.LogManager.Flush(TimeSpan.FromSeconds(30));
+            NLog.LogManager.Shutdown();
         }
     }
 }

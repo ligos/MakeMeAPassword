@@ -23,7 +23,8 @@ using MurrayGrant.PasswordGenerator.Web.Services;
 using MurrayGrant.PasswordGenerator.Web.Helpers;
 using MurrayGrant.PasswordGenerator.Web.Filters;
 using System.Text;
-using Exceptionless;
+using System.Threading.Tasks;
+using MurrayGrant.Terninger;
 
 namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
 {
@@ -31,6 +32,8 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
     [IpThrottlingFilter]
     public class ApiPronouncableV1Controller : Controller
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public readonly static int MaxSyllableCount = 32;
         public readonly static int MaxCount = 50;
         public readonly static int DefaultSyllableCount = 4;
@@ -41,32 +44,44 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
         private static readonly Single ProbabilityOfTwoConsonantsInOneSyllable = 0.212f;
 
         // GET: /api/v1/pronouncable/plain
-        public String Plain(int? sc, int? c, string dsh)
+        public async Task<String> Plain(int? sc, int? c, string dsh)
         {
-            var pws = SelectPasswords(sc.HasValue ? sc.Value : DefaultSyllableCount,
+            using (var random = await RandomService.PooledGenerator.CreateCypherBasedGeneratorAsync())
+            {
+                var pws = SelectPasswords(random,
+                                        sc.HasValue ? sc.Value : DefaultSyllableCount,
                                         c.HasValue ? c.Value : DefaultCount,
                                         dsh.IsTruthy(true));
-            return String.Join(Environment.NewLine, pws);
+                return String.Join(Environment.NewLine, pws);
+            }
         }
 
         // GET: /api/v1/pronouncable/json
-        public ActionResult Json(int? sc, int? c, string dsh)
+        public async Task<ActionResult> Json(int? sc, int? c, string dsh)
         {
             // Return as Json array.
-            var pws = SelectPasswords(sc.HasValue ? sc.Value : DefaultSyllableCount,
+            using (var random = await RandomService.PooledGenerator.CreateCypherBasedGeneratorAsync())
+            {
+                var pws = SelectPasswords(random,
+                                        sc.HasValue ? sc.Value : DefaultSyllableCount,
                                         c.HasValue ? c.Value : DefaultCount,
                                         dsh.IsTruthy(true));
-            return new JsonNetResult(new JsonPasswordContainer() { pws = pws });
+                return new JsonNetResult(new JsonPasswordContainer() { pws = pws.ToList() });
+            }
         }
 
         // GET: /api/v1/pronouncable/xml
-        public ActionResult Xml(int? sc, int? c, string dsh)
+        public async Task<ActionResult> Xml(int? sc, int? c, string dsh)
         {
             // Return as XML.
-            var pws = SelectPasswords(sc.HasValue ? sc.Value : DefaultSyllableCount,
+            using (var random = await RandomService.PooledGenerator.CreateCypherBasedGeneratorAsync())
+            {
+                var pws = SelectPasswords(random,
+                                        sc.HasValue ? sc.Value : DefaultSyllableCount,
                                         c.HasValue ? c.Value : DefaultCount,
                                         dsh.IsTruthy(true));
-            return new XmlResult(pws);
+                return new XmlResult(pws.ToList());
+            }
         }
 
         // GET: /api/v1/pronouncable/combinations
@@ -85,55 +100,45 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
             return new JsonNetResult(result);
         }
 
-        private IEnumerable<string> SelectPasswords(int syllableCount, int count, bool hyphansBetweenSyllables)
+        private IEnumerable<string> SelectPasswords(IRandomNumberGenerator random, int syllableCount, int count, bool hyphansBetweenSyllables)
         {
             syllableCount = Math.Min(syllableCount, MaxSyllableCount);
             count = Math.Min(count, MaxCount);
             if (count <= 0 || syllableCount <= 0)
                 yield break;
 
-            var random = RandomService.GetForCurrentThread();
+            var sw = System.Diagnostics.Stopwatch.StartNew();
             var sb = new StringBuilder();
 
-            random.BeginStats(this.GetType());
-            try
+            for (int c = 0; c < count; c++)
             {
-                for (int c = 0; c < count; c++)
+                // Generate a password.
+                for (int l = 0; l < syllableCount; l++)
                 {
-                    // Generate a password.
-                    for (int l = 0; l < syllableCount; l++)
-                    {
-                        sb.Append(ConsonantSounds[random.Next(ConsonantSounds.Length)]);
-                        sb.Append(VowelSounds[random.Next(VowelSounds.Length)]);
-                        if (sb[sb.Length-2] != 'g' && sb[sb.Length-1] != 'h' 
-                                && random.NextSingle() < ProbabilityOfTwoConsonantsInOneSyllable)
-                            sb.Append(ConsonantSounds[random.Next(ConsonantSounds.Length)]);
+                    sb.Append(ConsonantSounds[random.GetRandomInt32(ConsonantSounds.Length)]);
+                    sb.Append(VowelSounds[random.GetRandomInt32(VowelSounds.Length)]);
+                    if (sb[sb.Length-2] != 'g' && sb[sb.Length-1] != 'h' 
+                            && random.GetRandomSingle() < ProbabilityOfTwoConsonantsInOneSyllable)
+                        sb.Append(ConsonantSounds[random.GetRandomInt32(ConsonantSounds.Length)]);
 
-                        if (hyphansBetweenSyllables)
-                            sb.Append('-');
-                    }
-                    if (hyphansBetweenSyllables && sb[sb.Length-1] == '-')
-                        sb.Remove(sb.Length - 1, 1);
-
-
-                    // Yield the phrase and reset state.
-                    var result = sb.ToString();
-                    random.IncrementStats(result);
-                    yield return result;
-                    sb.Clear();
+                    if (hyphansBetweenSyllables)
+                        sb.Append('-');
                 }
-            } finally {
-                random.EndStats();
+                if (hyphansBetweenSyllables && sb[sb.Length-1] == '-')
+                    sb.Remove(sb.Length - 1, 1);
+
+
+                // Yield the phrase and reset state.
+                var result = sb.ToString();
+                yield return result;
+                sb.Clear();
             }
+            sw.Stop();
+
+            var bytesRequested = (int)((random as Terninger.Generator.CypherBasedPrngGenerator)?.BytesRequested).GetValueOrDefault();
+            RandomService.LogPasswordStat("Pronouncable", count, sw.Elapsed, bytesRequested);
+
             IpThrottlerService.IncrementUsage(IPAddressHelpers.GetHostOrCacheIp(this.HttpContext.Request), count);
-        }
-
-        protected override void OnException(ExceptionContext filterContext)
-        {
-            if (!filterContext.ExceptionHandled)
-            {
-
-            }
         }
     }
 }

@@ -54,5 +54,16 @@ namespace MurrayGrant.PasswordGenerator.Web.Helpers
                 result[i] = Byte.Parse(s[i*2].ToString() + s[(i*2)+1].ToString(), System.Globalization.NumberStyles.HexNumber);
             return result;
         }
+
+        public static Guid? ParseAsGuidOrNull(this string s)
+        {
+            if (String.IsNullOrEmpty(s))
+                return null;
+
+            if (Guid.TryParse(s, out var result))
+                return result;
+            else
+                return null;
+        }
     }
 }

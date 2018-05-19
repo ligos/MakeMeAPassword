@@ -11,3 +11,4 @@ MakeMeAPassword.Web/App_Data/qrng.physik.credentials.txt
 deploy/**
 MakeMeAPassword.Web/App_Data/email.json
 .vs/**
+MakeMeAPassword.Web/App_Data/logs/**

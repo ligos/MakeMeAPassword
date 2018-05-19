@@ -23,7 +23,8 @@ using MurrayGrant.PasswordGenerator.Web.Services;
 using MurrayGrant.PasswordGenerator.Web.Helpers;
 using System.Text;
 using MurrayGrant.PasswordGenerator.Web.Filters;
-using Exceptionless;
+using MurrayGrant.Terninger;
+using System.Threading.Tasks;
 
 namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
 {
@@ -31,6 +32,8 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
     [IpThrottlingFilter]
     public class ApiPinV1Controller : Controller
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         public readonly static int MaxLength = 128;
         public readonly static int MaxCount = 50;
         public readonly static string Characters = "0123456789";
@@ -51,29 +54,41 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
 
 
         // GET: /api/v1/pin/plain
-        public String Plain(int? c, int? l)
+        public async Task<String> Plain(int? c, int? l)
         {
-            var pins = SelectPins(l.HasValue ? l.Value : DefaultLength, 
+            using (var random = await RandomService.PooledGenerator.CreateCypherBasedGeneratorAsync())
+            {
+                var pins = SelectPins(random,
+                                  l.HasValue ? l.Value : DefaultLength,
                                   c.HasValue ? c.Value : DefaultCount);
-            return String.Join(Environment.NewLine, pins);
+                return String.Join(Environment.NewLine, pins);
+            }
         }
 
         // GET: /api/v1/pin/json
-        public ActionResult Json(int? c, int? l)
+        public async Task<ActionResult> Json(int? c, int? l)
         {
             // Return as Json array.
-            var pins = SelectPins(l.HasValue ? l.Value : DefaultLength,
+            using (var random = await RandomService.PooledGenerator.CreateCypherBasedGeneratorAsync())
+            {
+                var pins = SelectPins(random,
+                                  l.HasValue ? l.Value : DefaultLength,
                                   c.HasValue ? c.Value : DefaultCount);
-            return new JsonNetResult(new JsonPasswordContainer() { pws = pins.ToList() });
+                return new JsonNetResult(new JsonPasswordContainer() { pws = pins.ToList() });
+            }
         }
 
         // GET: /api/v1/readablepassphrase/xml
-        public ActionResult Xml(int? c, int? l)
+        public async Task<ActionResult> Xml(int? c, int? l)
         {
             // Return as XML.
-            var pins = SelectPins(l.HasValue ? l.Value : DefaultLength,
-                                  c.HasValue ? c.Value : DefaultCount);
-            return new XmlResult(pins.ToList());
+            using (var random = await RandomService.PooledGenerator.CreateCypherBasedGeneratorAsync())
+            {
+                var pins = SelectPins(random,
+                                      l.HasValue ? l.Value : DefaultLength,
+                                      c.HasValue ? c.Value : DefaultCount);
+                return new XmlResult(pins.ToList());
+            }
         }
 
         // GET: /api/v1/readablepassphrase/combinations
@@ -94,47 +109,38 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
             return new JsonNetResult(result);
         }
 
-        private IEnumerable<string> SelectPins(int length, int count)
+        private IEnumerable<string> SelectPins(IRandomNumberGenerator random, int length, int count)
         {
             length = Math.Min(length, MaxLength);
             count = Math.Min(count, MaxCount);
             if (count <= 0 || length <= 0)
                 yield break;
 
-            var random = RandomService.GetForCurrentThread();
+            var sw = System.Diagnostics.Stopwatch.StartNew();
             var sb = new StringBuilder();
             var blacklist = Blacklist.Value;
 
-            random.BeginStats(this.GetType());
-            try
+            for (int c = 0; c < count; c++)
             {
-                for (int c = 0; c < count; c++)
-                {
-                    for (int l = 0; l < length; l++)
-                        sb.Append(Characters[random.Next(Characters.Length)]);
+                for (int l = 0; l < length; l++)
+                    sb.Append(Characters[random.GetRandomInt32(Characters.Length)]);
                 
-                    var candidate = sb.ToString();
-                    if (!blacklist.Contains(candidate)
-                            // 4 digit PINs starting with '19' are more likely, so weight them lower.
-                            || (length == 4 && candidate.Substring(0, 2) == "19" && random.Next(0, 3) == 0))
-                    {
-                        random.IncrementStats(candidate);
-                        yield return candidate;
-                    }
-
-                    sb.Clear();
+                var candidate = sb.ToString();
+                if (!blacklist.Contains(candidate)
+                        // 4 digit PINs starting with '19' are more likely, so weight them lower.
+                        || (length == 4 && candidate.Substring(0, 2) == "19" && random.GetRandomInt32(0, 3) == 0))
+                {
+                    yield return candidate;
                 }
-            } finally {
-                random.EndStats();
-            }
-            IpThrottlerService.IncrementUsage(IPAddressHelpers.GetHostOrCacheIp(this.HttpContext.Request), count);
-        }
 
-        protected override void OnException(ExceptionContext filterContext)
-        {
-            if (!filterContext.ExceptionHandled)
-            {
+                sb.Clear();
             }
+            sw.Stop();
+
+            var bytesRequested = (int)((random as Terninger.Generator.CypherBasedPrngGenerator)?.BytesRequested).GetValueOrDefault();
+            RandomService.LogPasswordStat("Pin", count, sw.Elapsed, bytesRequested);
+
+            IpThrottlerService.IncrementUsage(IPAddressHelpers.GetHostOrCacheIp(this.HttpContext.Request), count);
         }
     }
 }
