@@ -27,6 +27,7 @@ using MurrayGrant.Terninger;
 using MurrayGrant.Terninger.Generator;
 using System.Threading.Tasks;
 using System.Text;
+using System.Web;
 
 namespace MurrayGrant.PasswordGenerator.Web.Services
 {
@@ -35,25 +36,40 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
     /// </summary>
     public static class RandomService
     {
+        private static readonly NLog.Logger StatsLogger = NLog.LogManager.GetLogger("MurrayGrant.PasswordGenerator.PasswordStats");
+        private static readonly Terninger.EntropySources.Local.UserSuppliedSource _WebRequestEntropySource = new Terninger.EntropySources.Local.UserSuppliedSource() { Name = "IncomingWebRequestSource" };
+
         public static readonly PooledEntropyCprngGenerator PooledGenerator =
                             RandomGenerator.CreateTerninger()
-#if TRUE // !DEBUG
                             .With(RandomGenerator.NetworkSources(
                                         userAgent: "Mozilla/5.0; Microsoft.NET; makemeapassword.ligos.net; makemeapassword@ligos.net; bitbucket.org/ligos/Terninger",
                                         hotBitsApiKey: System.Configuration.ConfigurationManager.AppSettings["HotBits.ApiKey"],
                                         randomOrgApiKey: System.Configuration.ConfigurationManager.AppSettings["RandomOrg.ApiKey"].ParseAsGuidOrNull()
                                 )
                             )
-#endif
+                            .With(_WebRequestEntropySource)     // Gather entropy from people making web requests.
                             ;
 
         // This uses the new structured logging support in NLog 4.5+ to log to a CSV.
-        private static readonly NLog.Logger StatsLogger = NLog.LogManager.GetLogger("MurrayGrant.PasswordGenerator.PasswordStats");
         public static void LogPasswordStat(string name, int count, TimeSpan duration, int randomBytesConsumed)
             => StatsLogger.Info("{Name} {Count} {RandomBytesConsumed} {Duration:N3} {RandomBytesConsumedEa} {DurationEa:N4} {LocalOffset}",
                 name, count, randomBytesConsumed, duration.TotalMilliseconds, randomBytesConsumed == 0 ? 0 : (double)randomBytesConsumed / (double)count, duration.TotalMilliseconds / count, (DateTimeOffset.Now.Offset >= TimeSpan.Zero ? "+" : "-") + DateTimeOffset.Now.Offset.ToString("hh\\:mm")
             );
 
+
+        // Gather entropy from people making web requests.
+        public static void AddWebRequestEntropy(HttpRequestBase request)
+        {
+            var sb = new StringBuilder();
+            var allThings = (request.AcceptTypes ?? Enumerable.Empty<string>())
+                .Concat(request.UserLanguages ?? Enumerable.Empty<string>())
+                .Concat(new[] { request.RawUrl ?? "", request.UserHostAddress ?? "", request.UserAgent ?? "" });
+            foreach (var x in allThings)
+                sb.Append(x);
+            var hasher = SHA256.Create();
+            var requestEntropy = hasher.ComputeHash(Encoding.UTF8.GetBytes(sb.ToString()));
+            _WebRequestEntropySource.SetEntropy(requestEntropy);
+        }
 
         public sealed class StatsByType
         {

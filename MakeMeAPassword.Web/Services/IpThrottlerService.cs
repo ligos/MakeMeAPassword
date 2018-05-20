@@ -37,7 +37,6 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
         public static readonly int MaxRequestUnits = 200;
         private static object _Lock = new object();
 
-        public static long TotalUsage = 0;
         
         // Assume IPv6 netmasks are always /64
         private static readonly IPAddress _IPv6DefaultNetMask = new IPAddress(new byte[] { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
@@ -84,7 +83,16 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                     usage = usage + (int)maybeUsage;
                 MemoryCache.Default.Set(key, usage, DateTimeOffset.Now.Add(Timeout));
             }
-            System.Threading.Interlocked.Add(ref TotalUsage, units);
+        }
+
+        public static bool HasAnyUsage(IPAddress ip)
+        {
+            var key = CacheKey(ip);
+            lock (_Lock)
+            {
+                var maybeUsage = MemoryCache.Default[key];
+                return (maybeUsage != null);
+            }
         }
 
         private static string CacheKey(IPAddress ip)
