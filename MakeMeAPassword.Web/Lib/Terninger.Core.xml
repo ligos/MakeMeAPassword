@@ -822,6 +822,16 @@
             If the Pooled Generator has not created its first seed, this will use the system crypto random to derive a seed.
             </summary>
         </member>
+        <member name="T:MurrayGrant.Terninger.RandomGenerator">
+            <summary>
+            Terninger random number generator: and implementation of Fortuna in C#.
+            </summary>
+        </member>
+        <member name="F:MurrayGrant.Terninger.RandomGenerator.Website">
+            <summary>
+            For more information.
+            </summary>
+        </member>
         <member name="M:MurrayGrant.Terninger.RandomGenerator.CreateFortuna">
             <summary>
             Creates a pooled random number generator that conforms to the Fortuna spec.
@@ -844,14 +854,14 @@
             <summary>
             An additional set of sources which gather entropy from external network sources such as ping timings, web content and 3rd party entropy generators.
             </summary>
-            <param name="userAgent">A user agent string to include in web requests. Highly recommended to identify yourself in case of problems.</param>
+            <param name="userAgent">A user agent string to include in web requests. Highly recommended to identify yourself in case of problems. See MurrayGrant.Terninger.Helpers.WebClientHelpers.DefaultUserAgent for an example.</param>
             <param name="hotBitsApiKey">API key for true random source at https://www.fourmilab.ch/hotbits </param>
             <param name="randomOrgApiKey">API for https://api.random.org </param>
         </member>
         <member name="M:MurrayGrant.Terninger.RandomGenerator.UserSuppliedEntropy(System.Byte[])">
             <summary>
             If you have one-off externally derived entropy, you can add it here.
-            If you have a stream of external entropy, you should add your own UserSuppliedSource and call SetEntropy().
+            If you have a stream of external entropy, you should add your own UserSuppliedSource and call SetEntropy() as required.
             </summary>
         </member>
         <member name="M:MurrayGrant.Terninger.RandomGenerator.CreateCypherBasedGenerator">
@@ -862,6 +872,7 @@
         <member name="M:MurrayGrant.Terninger.RandomGenerator.CreateCypherBasedGenerator(System.Byte[])">
             <summary>
             Create a random number generator based on a cryptographic cypher using the supplied seed.
+            This generator is deterministic based on the seed (that is, the same seed gives the same sequence of random numbers).
             </summary>
         </member>
         <member name="M:MurrayGrant.Terninger.RandomGenerator.CreateUnbufferedCypherBasedGenerator">
@@ -872,6 +883,7 @@
         <member name="M:MurrayGrant.Terninger.RandomGenerator.CreateUnbufferedCypherBasedGenerator(System.Byte[])">
             <summary>
             Create an unbuffered (slower but more secure) random number generator based on a cryptographic cypher using the supplied seed.
+            This generator is deterministic based on the seed (that is, the same seed gives the same sequence of random numbers).
             </summary>
         </member>
         <member name="T:BigMath.Utils.ArrayUtils">
