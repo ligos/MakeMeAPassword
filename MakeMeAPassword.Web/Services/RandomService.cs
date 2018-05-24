@@ -48,7 +48,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                                 )
                             )
                             .With(_WebRequestEntropySource)     // Gather entropy from people making web requests.
-                            ;
+                            .StartNoWait();
 
         // This uses the new structured logging support in NLog 4.5+ to log to a CSV.
         public static void LogPasswordStat(string name, int count, TimeSpan duration, int randomBytesConsumed)
