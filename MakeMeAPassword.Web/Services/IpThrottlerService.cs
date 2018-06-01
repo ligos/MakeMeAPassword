@@ -52,7 +52,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                 .ToArray();
 
         private static readonly Dictionary<string, string> _LimitByPassKeyToId =
-                ConfigurationManager.AppSettings["BypassKeys"].Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
+                (ConfigurationManager.AppSettings["BypassKeys"] ?? "").Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(x =>
                     {
                         var pair = x.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
