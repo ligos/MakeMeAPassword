@@ -41,19 +41,21 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
 
         public static readonly PooledEntropyCprngGenerator PooledGenerator =
                             RandomGenerator.CreateTerninger()
+#if !DEBUG
                             .With(RandomGenerator.NetworkSources(
                                         userAgent: "Mozilla/5.0; Microsoft.NET; makemeapassword.ligos.net; makemeapassword@ligos.net; bitbucket.org/ligos/Terninger",
                                         hotBitsApiKey: System.Configuration.ConfigurationManager.AppSettings["HotBits.ApiKey"],
                                         randomOrgApiKey: System.Configuration.ConfigurationManager.AppSettings["RandomOrg.ApiKey"].ParseAsGuidOrNull()
                                 )
                             )
+#endif
                             .With(_WebRequestEntropySource)     // Gather entropy from people making web requests.
                             .StartNoWait();
 
         // This uses the new structured logging support in NLog 4.5+ to log to a CSV.
-        public static void LogPasswordStat(string name, int count, TimeSpan duration, int randomBytesConsumed)
-            => StatsLogger.Info("{Name} {Count} {RandomBytesConsumed} {Duration:N3} {RandomBytesConsumedEa} {DurationEa:N4} {LocalOffset}",
-                name, count, randomBytesConsumed, duration.TotalMilliseconds, randomBytesConsumed == 0 ? 0 : (double)randomBytesConsumed / (double)count, duration.TotalMilliseconds / count, (DateTimeOffset.Now.Offset >= TimeSpan.Zero ? "+" : "-") + DateTimeOffset.Now.Offset.ToString("hh\\:mm")
+        public static void LogPasswordStat(string name, int count, TimeSpan duration, int randomBytesConsumed, System.Net.Sockets.AddressFamily addressFamily, string bypassKeyId)
+            => StatsLogger.Info("{Name} {Count} {RandomBytesConsumed} {Duration:N3} {RandomBytesConsumedEa} {DurationEa:N4} {LocalOffset} {AddressFamily} {BypassKeyId}",
+                name, count, randomBytesConsumed, duration.TotalMilliseconds, randomBytesConsumed == 0 ? 0 : (double)randomBytesConsumed / (double)count, duration.TotalMilliseconds / count, (DateTimeOffset.Now.Offset >= TimeSpan.Zero ? "+" : "-") + DateTimeOffset.Now.Offset.ToString("hh\\:mm"), addressFamily, bypassKeyId
             );
 
 

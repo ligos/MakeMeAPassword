@@ -29,13 +29,14 @@ namespace MurrayGrant.PasswordGenerator.Web.Filters
     {
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            if (IpThrottlerService.HasExceededLimit(IPAddressHelpers.GetHostOrCacheIp(filterContext.HttpContext.Request)))
+            var maybeBypassKey = IpThrottlerService.GetBypassKey(filterContext.HttpContext.Request);
+            if (IpThrottlerService.HasExceededLimit(IPAddressHelpers.GetHostOrCacheIp(filterContext.HttpContext.Request), maybeBypassKey))
             {
                 bool isAjaxRequest = false;
                 if (isAjaxRequest)
                 {
                     // TODO: return a friendly message about IP limiting with appropriate HTTP status code.
-                    filterContext.Result = new HttpStatusCodeResult(System.Net.HttpStatusCode.Forbidden, "You have exceeded IP based limits. These will be lifted automatically within 2 hours.");
+                    filterContext.Result = new HttpStatusCodeResult(429, "{ 'message':'You have exceeded IP based limits. These will be lifted automatically within 2 hours.'");
                 }
                 else
                 {
