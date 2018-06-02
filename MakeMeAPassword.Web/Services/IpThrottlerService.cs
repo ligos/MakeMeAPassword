@@ -51,18 +51,10 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                 .Select(x => new IPNetworkAddress(x.Address, x.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6 ? _IPv6DefaultNetMask : x.IPv4Mask))
                 .ToArray();
 
-        private static readonly Dictionary<string, string> _LimitByPassKeyToId =
-                (ConfigurationManager.AppSettings["BypassKeys"] ?? "").Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x =>
-                    {
-                        var pair = x.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                        return new KeyValuePair<string, string>(pair[0].ToLower(), pair[1]);
-                    })
-                .ToDictionary(x => x.Key, x => x.Value);
-            
 
 
-        public static bool HasExceededLimit(IPAddress ip, string maybeBypassKey)
+
+        public static bool HasExceededLimit(IPAddress ip, string maybeBypassId)
         {
             // Local addresses are always valid.
             if (IPAddress.IsLoopback(ip))
@@ -77,7 +69,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
             }
 
             // A valid bypass key is always valid.
-            if (!String.IsNullOrEmpty(maybeBypassKey) && !String.IsNullOrEmpty(LookupBypassKeyId(maybeBypassKey)))
+            if (!String.IsNullOrEmpty(maybeBypassId))
                 return false;
 
             var key = CacheKey(ip);
@@ -112,32 +104,6 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
                 var maybeUsage = MemoryCache.Default[key];
                 return (maybeUsage != null);
             }
-        }
-
-        public static string LookupBypassKeyId(HttpRequestBase req) => LookupBypassKeyId(IpThrottlerService.GetBypassKey(req));
-        public static string LookupBypassKeyId(string key)
-        {
-            if (String.IsNullOrEmpty(key))
-                return null;
-            var lookupKey = SHA256.Create().ComputeHash(Encoding.UTF8.GetBytes(key)).ToHexString().ToLower();
-            if (_LimitByPassKeyToId.TryGetValue(lookupKey, out var value))
-                return value;
-            else
-                return null;
-        }
-
-        public static string GetBypassKey(HttpRequestBase req)
-        {
-            // Bypass key can be in a 
-            var result = "";
-            result = req.Headers["X-MmapApiKey"];
-            if (!String.IsNullOrEmpty(result))
-                return result;
-            result = req.QueryString["ApiKey"];
-            if (!String.IsNullOrEmpty(result))
-                return result;
-            result = req.Cookies["MmapApiKey"]?.Value;
-            return result;
         }
 
         private static string CacheKey(IPAddress ip)

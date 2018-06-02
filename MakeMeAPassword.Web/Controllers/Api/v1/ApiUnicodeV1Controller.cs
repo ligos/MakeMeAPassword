@@ -230,8 +230,9 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
             }
             sw.Stop();
 
+            
             var bytesRequested = (int)((random as Terninger.Generator.CypherBasedPrngGenerator)?.BytesRequested).GetValueOrDefault();
-            RandomService.LogPasswordStat("Unicode", count, sw.Elapsed, bytesRequested, IPAddressHelpers.GetHostOrCacheIp(Request).AddressFamily, IpThrottlerService.LookupBypassKeyId(Request));
+            RandomService.LogPasswordStat("Unicode", count, sw.Elapsed, bytesRequested, IPAddressHelpers.GetHostOrCacheIp(Request).AddressFamily, HttpContext.GetApiKeyId());
             if (!IpThrottlerService.HasAnyUsage(IPAddressHelpers.GetHostOrCacheIp(this.HttpContext.Request)))
                 RandomService.AddWebRequestEntropy(this.Request);
             IpThrottlerService.IncrementUsage(IPAddressHelpers.GetHostOrCacheIp(this.HttpContext.Request), count);

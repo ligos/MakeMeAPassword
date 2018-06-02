@@ -12,17 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Web;
-using System.Web.Mvc;
 
-namespace MurrayGrant.PasswordGenerator.Web
+namespace MurrayGrant.PasswordGenerator.Web.Helpers
 {
-    public class FilterConfig
+    public static class HttpContextHelpers
     {
-        public static void RegisterGlobalFilters(GlobalFilterCollection filters)
-        {
-            filters.Add(new Filters.ApiTokenFilter());
-            filters.Add(new HandleErrorAttribute());
-        }
+        public static string GetApiKeyId(this HttpContextBase ctx) => (string)ctx.Items["Mmap.ApiKeyId"];
     }
 }

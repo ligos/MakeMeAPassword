@@ -29,8 +29,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Filters
     {
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            var maybeBypassKey = IpThrottlerService.GetBypassKey(filterContext.HttpContext.Request);
-            if (IpThrottlerService.HasExceededLimit(IPAddressHelpers.GetHostOrCacheIp(filterContext.HttpContext.Request), maybeBypassKey))
+            if (IpThrottlerService.HasExceededLimit(IPAddressHelpers.GetHostOrCacheIp(filterContext.HttpContext.Request), filterContext.HttpContext.GetApiKeyId()))
             {
                 bool isAjaxRequest = false;
                 if (isAjaxRequest)
@@ -41,7 +40,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Filters
                 else
                 {
                     // TODO: return plain text details about the error.
-                    filterContext.Result = new HttpStatusCodeResult(System.Net.HttpStatusCode.Forbidden, "You have exceeded IP based limits. These will be lifted automatically within 2 hours.");
+                    filterContext.Result = new HttpStatusCodeResult(429, "You have exceeded IP based limits. These will be lifted automatically within 2 hours.");
                 }
             }
         }
