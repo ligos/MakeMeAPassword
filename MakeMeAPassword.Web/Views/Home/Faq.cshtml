@@ -25,7 +25,7 @@
 <a name="styles"></a>
 <a href="/faq#styles"><h3>What Password and Passphrase Styles are Supported?</h3></a>
 <p>
-    <a href="/generate">See here for details</a>. 
+    <a href="/generate">See here for details</a>.
     Or click across the different options across the top of the page to try different styles out.
 </p>
 
@@ -33,7 +33,7 @@
 <a name="usagelimit"></a>
 <a href="/faq#usagelimit"><h3>What Usage Limits Apply?</h3></a>
 <p>
-    To make sure this site is available to as many people as possible, usage limits are applied based on your IP address. 
+    To make sure this site is available to as many people as possible, usage limits are applied based on your IP address.
     Because you don't need large numbers of passwords in bulk, the limits are designed such that they should never be accidently reached, while still allowing plenty of scope for experimentation and testing.
 </p>
 <p>
@@ -54,7 +54,7 @@
     To be 100% sure, grab a copy of the <a href="/faq#sourcecode">source code</a> and generate passwords in your own controlled environment.
 </p>
 <p>
-    OK, with that out of the way, here's the list: 
+    OK, with that out of the way, here's the list:
 </p>
 <ul>
     <li>Generated passwords are not recorded, logged, analysed or otherwise noted. Passwords are supposed to be secret, so I don't look at them.</li>
@@ -62,6 +62,9 @@
     <li>The source code for all the algorithms are available for appropriately skilled people to examine. I'm happy for <a href="/contact">feedback</a> if I've gotten anything wrong.</li>
     <li>Generated passwords are transmitted securely via SSL so third parties can't (easily) see your generated passwords.</li>
 </ul>
+<p>
+    There are <a href="#browseronly">browser only (Javascript) password generators available</a>. See below for details.
+</p>
 
 
 <a name="hosting"></a>
@@ -84,7 +87,7 @@
 <a name="guessable"></a>
 <a href="/faq#guessable"><h3>How Easy are the Passwords to Guess?</h3></a>
 <p>
-    The generated passwords and passphrase are entirely random. 
+    The generated passwords and passphrase are entirely random.
     So, without any pattern to work with, any attacker would need to try every combination in turn.
     Which means the longer password you can memorise, the harder it is for the bad guys to guess.
 </p>
@@ -119,10 +122,21 @@
 </p>
 
 
+<a name="browseronly"></a>
+<a href="/faq#browseronly"><h3>Is there a browser only (Javascript) version?</h3></a>
+<p>
+    Make Me a Password generates passwords on my server, and then sends them to you via a HTTPS connection.
+    (See above for details about the <a href="#security">security of the site</a>).
+    If you don't trust me (or my server, or my ISP) there are a number of password generators which run entirely in your browser (in Javascript) - use your favourite search engine to find them.
+    And <a href="https://saintly.zeck.net/readablepassphrase/">Steven Zeck has made a Javascript version of Readable Passphrase Generator</a>.
+</p>
+
+
+
 <a name="dictionaries"></a>
 <a href="/faq#dictionaries"><h3>Are the Dictionaries Used Available?</h3></a>
 <p>
-    Yes. 
+    Yes.
 </p>
 <p>
     The <a href="/content/data/DictionaryEnglish.txt">passphrase dictionary</a> is a plain text file with one word per line.
@@ -148,19 +162,19 @@
     Maybe. For best results, please don't.
 </p>
 <p>
-    OK, you can pretty safely <strong>add</strong> to the password without any problem. 
+    OK, you can pretty safely <strong>add</strong> to the password without any problem.
     Adding does not decrease the number of combinations (and may even increase them, although password crackers are very good at guessing common additions).
 </p>
 <p>
     I commonly add a number and a symbol to a passphrase to meet my employer's password quality requirements, but leave the rest of the passphrase exactly as is.
 </p>
 <p>
-    On the other hand, all bets are off if you change a word or character within a password to, say, something you like better. 
+    On the other hand, all bets are off if you change a word or character within a password to, say, something you like better.
     Or changing the letter <code>o</code> to a number <code>0</code>.
     Or capitalising a letter.
 </p>
 <p>
-    Quite simply, I don't know how your change will affect the total combinations. 
+    Quite simply, I don't know how your change will affect the total combinations.
     Some change you think looks totally random may actually be a common modification known by crackers and add very little to the password.
     It's always best to rely on randomness and length rather than funky modifications.
 </p>
@@ -169,7 +183,7 @@
 <a name="readablerange"></a>
 <a href="/faq#readablerange"><h3>Why is the Readable Passphrase Quality a Range?</h3></a>
 <p>
-    The readable passphrases have considerably more complex structure than any other style. 
+    The readable passphrases have considerably more complex structure than any other style.
     As any student of languages knows all too well, natural language is, well, complicated.
     Even slight differences in phrase structure, for example an imperative verb rather than present tense, can dramatically change the number of combinations.
     And the different <a href="/faq#readablelength">phrase length options</a> each imply different phrase templates.
@@ -179,9 +193,9 @@
     So, rather than showing the maxium or minimum combinations, the range represents both.
 </p>
 <p>
-    The minimum represents the smallest number of combinations possible (assuming the worst case for everything). 
+    The minimum represents the smallest number of combinations possible (assuming the worst case for everything).
     Maximum is the largest number of combinations (assume best case).
-    And the average, which is used as the headline, is a middle ground of the two. 
+    And the average, which is used as the headline, is a middle ground of the two.
     The average is a good "working estimate" for comparing with other styles, but be aware you can occassionally get much easier or harder to guess phrases.
 </p>
 <p>
@@ -193,7 +207,7 @@
 <a name="readablelength"></a>
 <a href="/faq#readablelength"><h3>What do the Readable Passphrase Length Options Mean?</h3></a>
 <p>
-    The readable passphrases have considerably more complex structure than any other style. 
+    The readable passphrases have considerably more complex structure than any other style.
     Rather than a simple number of words to control the phrase length, the readable passphrase is based on templates (eg: <span class="label label-default">noun</span> <span class="label label-default">verb</span> <span class="label label-default">adjective</span> <span class="label label-default">noun</span>).
     Longer phrases use more complex templates. And most templates contain at least one optional word (eg: the adjective in the previous example is optional in most templates).
 </p>
@@ -211,7 +225,7 @@
     But you can also use them to make a passphrase without spaces easier to read (by making all the first letters upper case).
 </p>
 <p>
-    Only 4 options are available on the web interface. 
+    Only 4 options are available on the web interface.
     But, if you use the <a href="/api">API</a> directly, you can control precicely where the numbers and upper case letter are added.
     And exactly how many are added.
 </p>
@@ -220,7 +234,7 @@
 <a name="pinrating"></a>
 <a href="/faq#pinrating"><h3>Why are PIN Quality Ratings Different?</h3></a>
 <p>
-    PINs are fundementally insecure to be used as normal passwords. 
+    PINs are fundementally insecure to be used as normal passwords.
     There are simply too few combinations in a 4 number PIN to stop someone trying every combination.
     They rely on the fact that you can only enter them a few times before your phone is locked or your ATM card is shredded.
 </p>
@@ -341,7 +355,7 @@
     Although it will significantly increase the number of combinations for your passwords.
 </p>
 <p>
-    In the end, it's a personal choice to make. 
+    In the end, it's a personal choice to make.
     But, because I can't read East Asian characters and they have no meaning to me, I prefer to exclude them.
 </p>
 
@@ -375,7 +389,7 @@
     My server wouldn't need to look so hard, and we'd have 10 times the number of characters which would make for even more insanely hard to guess passwords!
 </p>
 <p>
-    So, to repeat the summary: it's not really worth allowing more than the BMP when generating Unicode passwords. 
+    So, to repeat the summary: it's not really worth allowing more than the BMP when generating Unicode passwords.
     Just leave that check box unticked.
 </p>
 
