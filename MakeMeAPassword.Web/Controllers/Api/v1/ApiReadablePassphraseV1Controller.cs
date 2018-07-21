@@ -29,6 +29,7 @@ using MurrayGrant.PasswordGenerator.Web.Services;
 using MurrayGrant.PasswordGenerator.Web.Filters;
 using System.Threading.Tasks;
 using MurrayGrant.Terninger;
+using System.IO;
 
 namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
 {
@@ -49,13 +50,11 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
         public readonly static AllUppercaseStyles DefaultWhenUppercase = AllUppercaseStyles.Never;
         public readonly static int DefaultUppercase = 2;
 
-        private readonly static Lazy<WordDictionary> Dictionary;
+        private readonly static Lazy<WordDictionary> _Dictionary;
 
         static ApiReadablePassphraseV1Controller()
         {
-            Dictionary = new Lazy<WordDictionary>(() =>
-                                new ExplicitXmlDictionaryLoader().LoadFrom(System.Web.HttpContext.Current.Request.MapPath("~/content/data/dictionary.xml"))
-                            );
+            _Dictionary = new Lazy<WordDictionary>(() => ReadablePassphrase.Dictionaries.Default.Load());
         }
 
         // GET: /api/v1/readablepassphrase/plain
@@ -143,6 +142,17 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
             return new JsonNetResult(result);
         }
 
+
+#if !DEBUG
+        [OutputCache(Duration = 60 * 60)]       // Cache for one hour.
+#endif
+        public ActionResult Dictionary() =>
+            new FileStreamResult(
+                    typeof(MurrayGrant.ReadablePassphrase.Dictionaries.Default).Assembly.GetManifestResourceStream("MurrayGrant.ReadablePassphrase.dictionary.xml.gz")
+                    , "application/x-gzip"
+            );
+
+
         private IEnumerable<string> SelectPhrases(IRandomNumberGenerator random, PhraseStrength strength, int phraseCount, bool includeSpaces, int minChars, int maxChars, NumericStyles whenNumeric, int numbersToAdd, AllUppercaseStyles whenUpper, int uppersToAdd)
         {
             if (minChars > maxChars)
@@ -206,7 +216,7 @@ namespace MurrayGrant.PasswordGenerator.Web.Controllers.Api.v1
             // Creates a generator with a seeded random number generator, and loaded dictionary.
             // Only one dictionary is loaded and shared between all threads.
             var wrapper = new MurrayGrant.ReadablePassphrase.Random.ExternalRandomSource(random.GetRandomBytes);
-            var result = new ReadablePassphraseGenerator(Dictionary.Value, wrapper);
+            var result = MurrayGrant.ReadablePassphrase.Generator.Create(_Dictionary.Value, wrapper);
             return result;
         }
     }
