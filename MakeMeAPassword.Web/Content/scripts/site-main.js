@@ -420,8 +420,8 @@ $(document).ready(function () {
         $('#domainChangeAlert').show(400);
 
         window.setTimeout(function () {
-            window.location = 'https://makemeapassword.ligos.net'
-        }, 20000);
+            window.location = 'https://makemeapassword.ligos.net';
+        }, 3000);
     }
 });
 
