@@ -24,7 +24,7 @@ using System.Net.NetworkInformation;
 using MurrayGrant.PasswordGenerator.Web.Helpers;
 
 using MurrayGrant.Terninger;
-using MurrayGrant.Terninger.Generator;
+using MurrayGrant.Terninger.Random;
 using System.Threading.Tasks;
 using System.Text;
 using System.Web;
@@ -41,9 +41,10 @@ namespace MurrayGrant.PasswordGenerator.Web.Services
 
         public static readonly PooledEntropyCprngGenerator PooledGenerator =
                             RandomGenerator.CreateTerninger()
+                            .With(ExtendedSources.All())
 #if !DEBUG
-                            .With(RandomGenerator.NetworkSources(
-                                        userAgent: "Mozilla/5.0; Microsoft.NET; makemeapassword.ligos.net; makemeapassword@ligos.net; bitbucket.org/ligos/Terninger",
+                            .With(NetworkSources.All(
+                                        userAgent: NetworkSources.UserAgent("makemeapassword.ligos.net"),
                                         hotBitsApiKey: System.Configuration.ConfigurationManager.AppSettings["HotBits.ApiKey"],
                                         randomOrgApiKey: System.Configuration.ConfigurationManager.AppSettings["RandomOrg.ApiKey"].ParseAsGuidOrNull()
                                 )
