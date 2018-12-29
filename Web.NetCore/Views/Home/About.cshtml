@@ -1,7 +1,135 @@
-﻿@{
+﻿@* Copyright 2019 Murray Grant
+    //
+    //    Licensed under the Apache License, Version 2.0 (the "License");
+    // you may not use this file except in compliance with the License.
+    // You may obtain a copy of the License at
+    //
+    // http://www.apache.org/licenses/LICENSE-2.0
+    //
+    //    Unless required by applicable law or agreed to in writing, software
+    // distributed under the License is distributed on an "AS IS" BASIS,
+    // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    // See the License for the specific language governing permissions and
+    // limitations under the License.
+*@
+@{
     ViewData["Title"] = "About";
 }
-<h2>@ViewData["Title"]</h2>
-<h3>@ViewData["Message"]</h3>
 
-<p>Use this area to provide additional information.</p>
+<h2>About</h2>
+
+<p>
+    Make Me a Password is all about passwords which a human being can remember (or at least has some chance of remembering), but are actually secure.
+    That is, the passwords are really passphrases, which are much, much easier to memorise (and are occasionally quite humerous).
+    And we carefully count all the possible combinations, making mathematically certain that passwords are difficult to guess.
+</p>
+
+
+<a name="recommended"></a>
+<h3>Recommended Usage</h3>
+<p>
+    We recommend the passwords generated from this site are used only for memorised passwords. 
+    Use a <a href="/faq#passwordmanager">password manager</a> for 95% of your accounts, but you have to memorise (at the very least) the password to your password manager - and probably your computer as well.
+    Let your password manager remember as many passwords as possible (after all, computers are very good at remembering), but let this site make your password manager password and your login password.
+</p>
+
+<p>
+    More questions? There's a stack of <a href="/faq">questions and answers</a> (some detailed and technical) at the <a href="/faq">FAQ page</a>.
+</p>
+
+
+<a name="secure"></a>
+<h3>Secure</h3>
+<p>
+    What do we mean by "<a href="/faq#security">secure</a>"?
+    There are many ways to answer that question. But here are three key points:
+</p>
+<ol>
+    <li>Passwords are not saved on the server. We don't analyse, track or otherwise make any notes about your password. Ever. No exceptions. Your password needs to be secret to be effective and we make every effort to keep it secret.</li>
+    <li>Passwords are sent over a secure HTTPS connection. This is the same as banks use and keeps 3rd parties from prying on your password.</li>
+    <li>Weak or easily guessable passwords are not allowed. We mathematicly check each password generated to make sure its hard to guess.</li>
+</ol>
+<p>See the <a href="/faq#security">FAQ</a> and <a href="/technical">technical section</a> for more information</p>
+
+
+<h3>Donations</h3>
+<p>
+    You can support this site by making a <a href="/donate">small donation</a>. 
+    Donations are completely optional and will not otherwise affect your ability to use or access the site.
+</p>
+
+
+<h3>Copyright</h3>
+<p>
+    This site is copyright © Murray Grant 2014. Content by the author is licensed under a Creative Commons License <a href="https://creativecommons.org/licenses/by/4.0/deed.en_GB">CC BY 4.0</a>. Other content is copyright their respective owners.
+</p>
+<p>
+    <a href="/faq#sourcecode">Source code</a> is available under the <a href="https://www.apache.org/licenses/LICENSE-2.0.html">Apache license</a>.
+</p>
+<p>
+    Dictionaries are available for download under <a href="https://creativecommons.org/licenses/by/4.0/deed.en_GB">CC BY 4.0</a>.
+</p>
+<p>
+    A quick summary of the licenses: the site and passwords generated from it to be used for any purpose (commercial or non-commercial) as long as appropriate attribution is included (a link to this site is appropriate).
+</p>
+
+
+<h3>Terms of Use</h3>
+<p>
+    This site is available for public consumption under the assumption that it provides a useful service (yes, this is a big assumption!).
+    If you find the site is not useful, you are advised to stop using it.
+</p>
+<p>
+    There is no warrent of fitness or guarentee of service implied or expressed. 
+    The service is made available on a best effort basis, as is. It may be unavailable without warning.
+</p>
+<p>
+    The author reserves the right to discontinue the service and remove the site without warning or prior notice.
+</p>
+<p>
+    The author controls content and functionality of this site at his sole discression. 
+    While you can provide <a href="/contact">feedback</a>, there is no guarentee such feedback will be incorporated into the site or underlying algorithms.
+</p>
+<p>
+    <a href="/faq#usagelimit">Acceptable usage limits</a> apply. 
+    Based on your IP address, your may be temporarily blocked from using the site after generating excessive passwords. 
+    Such blocks are automatically lifted after one hour.
+</p>
+
+
+<h3>Privacy / GPDR</h3>
+<p>
+    This site does not record any personally identifiable information about you.
+    No cookies are created to identify you or your browser.
+    No names, addresses, emails, phone numbers, birthdays or usernames are required to generate passwords.
+    No <a href="/faq#security">generated passwords are recorded</a> - no exceptions.
+</p>
+<p>
+    <a href="/faq#remembersettings">Local storage</a> is used to record you last selection when you generate passwords.
+    These preferences do not leave your browser.
+</p>
+<p>
+    Standard web server logs are kept of each request.
+    This includes the current date and time, your computer's IP address, and details of what kind of password was requested (eg: dictionary passphrase of 4 words).
+</p>
+<p>
+    Statistics record the amount of entropy used to generate passwords.
+    No IP address are recorded against these statistics.
+    These statistics are used by me to check the correct operation of the site, and note usage patterns.
+    <br />
+    If you are using a <a href="/faq#usagelimit">Usage Limit Bypass Key</a>, this is logged against the statistics (anonymous requests do not have a bypass key).
+</p>
+<p>
+    Data is purged when I get around to it.
+    Generally, that means data is retained for a minimum of 12 months, and without any maximum duration (that is, I keep logs until my disk space runs low).
+</p>
+<p>
+    Data is not shared with any third party, unless I am legally compelled to do so.
+</p>
+<p>
+    You may request a copy or request I delete the data I have identifying you (under <a href="https://en.wikipedia.org/wiki/General_Data_Protection_Regulation">GPDR</a>).
+    Generally, I cannot comply with such requests as IP addresses are the only identifying marker I keep
+    (you would need to produce evidence of particular IP address(es) used by you for specific dates to have any hope of me complying).
+    <br />
+    If you are using a <a href="/faq#usagelimit">Usage Limit Bypass Key</a>, I may be able to use this to comply with data requests.
+</p>

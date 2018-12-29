@@ -1,94 +1,139 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@* Copyright 2019 Murray Grant
+    //
+    //    Licensed under the Apache License, Version 2.0 (the "License");
+    // you may not use this file except in compliance with the License.
+    // You may obtain a copy of the License at
+    //
+    // http://www.apache.org/licenses/LICENSE-2.0
+    //
+    //    Unless required by applicable law or agreed to in writing, software
+    // distributed under the License is distributed on an "AS IS" BASIS,
+    // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    // See the License for the specific language governing permissions and
+    // limitations under the License.
+*@
+@{
+    ViewData["Title"] = "";
 }
 
-<div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="6000">
-    <ol class="carousel-indicators">
-        <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
-        <li data-target="#myCarousel" data-slide-to="1"></li>
-        <li data-target="#myCarousel" data-slide-to="2"></li>
-    </ol>
-    <div class="carousel-inner" role="listbox">
-        <div class="item active">
-            <img src="~/images/banner1.svg" alt="ASP.NET" class="img-responsive" />
-            <div class="carousel-caption" role="option">
-                <p>
-                    Learn how to build ASP.NET apps that can run anywhere.
-                    <a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkID=525028&clcid=0x409">
-                        Learn More
-                    </a>
-                </p>
-            </div>
-        </div>
-        <div class="item">
-            <img src="~/images/banner2.svg" alt="Visual Studio" class="img-responsive" />
-            <div class="carousel-caption" role="option">
-                <p>
-                    There are powerful new features in Visual Studio for building modern web apps.
-                    <a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkID=525030&clcid=0x409">
-                        Learn More
-                    </a>
-                </p>
-            </div>
-        </div>
-        <div class="item">
-            <img src="~/images/banner3.svg" alt="Microsoft Azure" class="img-responsive" />
-            <div class="carousel-caption" role="option">
-                <p>
-                    Learn how Microsoft's Azure cloud platform allows you to build, deploy, and scale web apps.
-                    <a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkID=525027&clcid=0x409">
-                        Learn More
-                    </a>
-                </p>
-            </div>
-        </div>
+<div class="row jumbotron" >
+    <div class="logo-background">
+        <i class="fa fa-asterisk fa-4x"></i>
+        <i class="fa fa-asterisk fa-4x"></i>
+        <i class="fa fa-asterisk fa-4x"></i>
+        <span class="hidden-xs inline">
+            <i class="fa fa-asterisk fa-4x"></i>
+            <i class="fa fa-asterisk fa-4x"></i>
+            <i class="fa fa-asterisk fa-4x"></i>
+        </span>
     </div>
-    <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
-        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-        <span class="sr-only">Previous</span>
-    </a>
-    <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
-        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-        <span class="sr-only">Next</span>
-    </a>
+
+    <h1>Make Me A Password</h1>
+    <p>Let's face it, humans aren't very good at thinking up passwords.</p>
+    <p>Generate a password the bad people can't guess, but you can easily remember.</p>
+    <p>
+        <a class="btn btn-primary btn-lg" href="/About">More Info &raquo;</a>
+        &nbsp;
+        <a class="btn btn-default btn-lg" href="#options" >Show Me The Options <i class="fa fa-arrow-down"></i></a>
+        <button type="button" class="btn btn-inverse btn-lg" id="impatientPassword">Just Make Me A Password! <br /> Right Now!!</button>
+    </p>
 </div>
 
-<div class="row">
-    <div class="col-md-3">
-        <h2>Application uses</h2>
-        <ul>
-            <li>Sample pages using ASP.NET Core MVC</li>
-            <li>Theming using <a href="https://go.microsoft.com/fwlink/?LinkID=398939">Bootstrap</a></li>
-        </ul>
+
+<hr />
+
+<div class="row-fluid"><div class="span10 offset1">
+    <a name="options"></a>
+    <h2>Your Next Password in 3 Steps</h2>
+
+    <div id="passwordParameters" data-pagekey="main">
+        <h4>1. Choose your style</h4>
+        <div class="text-margin-small">
+            <label class="radio">
+                <input type="radio" name="pwType" id="pwTypeReadable" value="readable" class="example-password-radio"
+                       data-urlpassword="/api/v1/readablepassphrase/json" data-urlcombinations="/api/v1/readablepassphrase/combinations"
+                       title="Easiest to remember, but longest to type.">
+                    Readable passphrase &nbsp; <span class="label label-default example-password ">The statesman will burgle amidst lucid sunlamps</span>
+            </label>
+            <label class="radio">
+                <input type="radio" name="pwType" id="pwTypeDict" value="dict" class="example-password-radio"
+                       data-urlpassword="/api/v1/passphrase/json" data-urlcombinations="/api/v1/passphrase/combinations"
+                       title="Pretty easy to remember, medium length.">
+                    Dictionary passphrase &nbsp; <span class="label label-default example-password">correct horse battery staple</span>
+            </label>
+            <small>Not what you're looking for? Try <a href="/generate">alternative styles</a>.</small>
+        </div>
+
+        <h4>2. Choose your strength</h4>
+        <div class="text-margin-small">
+            <label class="radio">
+                <input type="radio" name="pwStrength" id="pwPredefinedStrengthShort" value="short" />
+                    Low value online sites, general computer logins or passwords you need to enter often
+            </label>
+            <label class="radio">
+                <input type="radio" name="pwStrength" id="pwPredefinedStrengthLong" value="long">
+                    High value online sites (financial, email, social networking), password managers or secure computer logins
+            </label>
+            <label class="radio">
+                <input type="radio" name="pwStrength" id="pwPredefinedStrengthForever" value="forever">
+                    Ultra high security, full disk encryption or wireless access points (resists offline cracking)
+            </label>
+            <small>Want more control? <a href="/generate">More options are available</a>.</small>
+        </div>
+
+        <h4>3. Add Extras</h4>
+        <div class="text-margin-small">
+            <label class="checkbox" for="extraNums" title="Adds 2 numbers to your passphrase.">
+                <input type="checkbox" id="extraNums" value="nums" name="extras" />
+                Add 2 Numbers
+            </label>
+            <label class="checkbox" for="extraCaps" title="Adds 2 capitals to your passphrase.">
+                <input type="checkbox" id="extraCaps" value="caps" name="extras" />
+                Add 2 Capitals
+            </label>
+            <label class="checkbox" for="extraCapsWord" title="Makes one word of your passphrase all capitals.">
+                <input type="checkbox" id="extraCapsWord" value="capsWord" name="extras" />
+                Make One Word All Capitals
+            </label>
+            <label class="checkbox" for="extraWifi" title="Removes all spaces and capitalise the first letter of each word (so its easier to type).">
+                <input type="checkbox" id="extraWifi" value="wifi" name="extras" />
+                Make it Wifi Ready
+            </label>
+        </div>
     </div>
-    <div class="col-md-3">
-        <h2>How to</h2>
-        <ul>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=398600">Add a Controller and View</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=699315">Manage User Secrets using Secret Manager.</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=699316">Use logging to log a message.</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=699317">Add packages using NuGet.</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=699319">Target development, staging or production environment.</a></li>
-        </ul>
+
+    <a name="getpassword"></a>
+    <p class="text-margin-top">
+        <button class="btn btn-primary password-get" id="passwordGetFront">Get Password</button>
+    </p>
+    <p id="passwordError" style="display:none;">
+        <i class="icon-sadface"></i> 
+        <span class="message"></span> <br />
+        <span> Please try again later or <a href="/contact">Contact</a> the author.</span>
+    </p>
+
+
+    <div id="ipBasedLimitWarning" class="alert alert-info" style="display:none;">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <h4>Usage Limits</h4>
+        <p>To ensure everyone can make passwords, there are <a href="/faq#">usage limits</a> based on your IP Address.</p>
+        <p>Please do not abuse this service or you will be temporarily blocked.</p>
     </div>
-    <div class="col-md-3">
-        <h2>Overview</h2>
-        <ul>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=518008">Conceptual overview of what is ASP.NET Core</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=699320">Fundamentals of ASP.NET Core such as Startup and middleware.</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=398602">Working with Data</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=398603">Security</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=699321">Client side development</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=699322">Develop on different platforms</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=699323">Read more on the documentation site</a></li>
-        </ul>
+
+    <div id="passwordPlace" class="well password-panel"><div class="panel-body">
+        <span class="pw">Click 'Get Password' to make your new password</span>
+    </div></div>
+
+
+    <div id="impatientPasswordHint" style="display:none;">
+        <p><span class="label label-warning">Don't Like That Password?</span> <a href="#options">Scroll up</a> to try different options.</p>
     </div>
-    <div class="col-md-3">
-        <h2>Run &amp; Deploy</h2>
-        <ul>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=517851">Run your app</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=517853">Run tools such as EF migrations and more</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=398609">Publish to Microsoft Azure Web Apps</a></li>
-        </ul>
+
+    <div class="alert alert-info" id="passwordPostFront" style="display:none;">
+        <h4>4. What Now?</h4>
+        <p>You should write down or record your new password until you memorise it. </p>
+        <p><span class="label label-default">Remember</span> Store your password securely in a <a href="/faq#passwordmanager">Password Manager</a>, your wallet or with important documents like your passport.</p>
+        <p>If you need to <strong>add</strong> a number or symbol for your password to be accepted, that's fine, but makes as few changes as possible. <small>(Fine print: <a href="/Faq#changepassword">implications of changing a generated password</a>).</small></p>
+        <p>If you find this site useful, consider making a <a href="/donate">small donation</a> to help keep it running.</p>
     </div>
-</div>
+</div></div>
