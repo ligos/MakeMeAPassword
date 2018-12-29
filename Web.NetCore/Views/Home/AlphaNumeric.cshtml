@@ -1,0 +1,112 @@
+﻿@* Copyright 2019 Murray Grant
+    //
+    //    Licensed under the Apache License, Version 2.0 (the "License");
+    // you may not use this file except in compliance with the License.
+    // You may obtain a copy of the License at
+    //
+    // http://www.apache.org/licenses/LICENSE-2.0
+    //
+    //    Unless required by applicable law or agreed to in writing, software
+    // distributed under the License is distributed on an "AS IS" BASIS,
+    // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    // See the License for the specific language governing permissions and
+    // limitations under the License.
+*@
+@{
+    ViewData["Title"] = "Generate - Alpha Numeric";
+}
+
+<h2 class="text-center">Alpha Numeric Password</h2>
+
+<div id="ipBasedLimitWarning" class="alert alert-info" style="display:none;">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    <h4>Usage Limits</h4>
+    <p>To ensure everyone can make passwords, there are <a href="/faq#usagelimit">usage limits</a> based on your IP Address.</p>
+    <p>Please do not abuse this service or you will be temporarily blocked.</p>
+</div>
+
+<p>
+    Alpha numeric is a classic. Upper and lower case letters, with a few numbers thrown in for good measure. 
+    And optional punctuation and symbols if you tweak the parameters below.
+</p>
+<p>Example: <span class="label label-default example-password">RcJd04QINyIv</span></p>
+<p>
+    Its absolutely fine (and recommended) to generate and store these in a password manager (although every password manager already does this for you), 
+    but they are a real pain to remember. Especially with more than 12 characters (the recommended minimum these days).
+</p>
+<p>
+    Use a <a href="/generate/readablepassphrase">Readable Passphrase</a>,
+    <a href="/generate/passphrase">Dictionary Passphrase</a> or
+    <a href="/generate/pronouncable">Pronouncable Password</a>
+    if you need to memorise your password.
+</p>
+
+<div id="passwordPlace" class="well password-panel">
+    <div class="panel-body">
+        <span class="pw">Generating...</span>
+    </div>
+</div>
+
+<div>
+    <button class="btn btn-primary password-get" id="passwordGet" data-loading-text="Generating..."
+                    data-urlpassword="/api/v1/alphanumeric/json" data-urlcombinations="/api/v1/alphanumeric/combinations">
+        Get Another
+    </button>
+    <p id="passwordError" style="display:none;">
+        <i class="icon-sadface"></i> 
+        <span class="message"></span> <br />
+        <span> Please try again later or <a href="/contact">contact the author</a>.</span>
+    </p>
+</div>
+
+<div id="combinationsPlace" style="display:none;" class="panel panel-default combinations-panel">
+    <div class="panel-heading">
+        <h2>Password Quality</h2>
+    </div>
+
+    <div class="panel-body">
+        <div class="rating">
+            <h4></h4>
+            <p></p>
+        </div>
+
+        <div class="fineprint">
+            <label>Total Combination Details:</label> 
+            <div class="numbers">
+                <span class="label label-default formatted"></span> (<span class="label label-default base10"></span> <span class="label label-default base2"></span> bits)
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="passwordParameters" data-pagekey="alphanumeric" class="panel panel-default parameters-panel">
+    <div class="panel-heading">
+        <h2>Fine Tuning</h2>
+    </div>
+
+    <div class="panel-body">
+        <div class="form-group">
+            <label for="pwLength" class="control-label">Password Length</label>
+            <input type="number" class="form-control" name="l" id="pwLength" value="8" />
+        </div>
+
+        <div class="form-group">
+            <label for="pwCount" class="control-label">Number of Passwords</label>
+            <input type="number" class="form-control" name="c" id="pwCount" value="1" />
+        </div>
+
+        <div class="form-group">
+            <a href="/faq#" class="pull-right">What's this mean?</a>
+            <label for="pwSymbols" class="control-label">Include Symbols</label>
+            <div class="checkbox-inline checkbox-right">
+                <input type="checkbox" class="checkbox" name="sym" id="pwSymbols" value="y" data-uncheckedvalue="n" />
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<button class="btn btn-primary password-get" data-loading-text="Generating..."
+        data-urlpassword="/api/v1/alphanumeric/json" data-urlcombinations="/api/v1/alphanumeric/combinations">
+    Get Another
+</button>

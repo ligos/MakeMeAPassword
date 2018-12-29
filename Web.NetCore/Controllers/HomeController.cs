@@ -68,6 +68,64 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers
             return View();
         }
 
+        [HttpGet("/generate")]
+        public IActionResult Generate()
+        {
+            ViewBag.CurrentNav = "GenerateIndex";
+            return View();
+        }
+
+        [HttpGet("/generate/readablepassphrase")]
+        public IActionResult GenerateReadablePassphrase()
+        {
+            ViewBag.CurrentNav = "ReadablePassphrase";
+            return View("ReadablePassphrase");
+        }
+
+        [HttpGet("/generate/passphrase")]
+        [HttpGet("/generate/dictionary")]
+        public IActionResult GeneratePassphrase()
+        {
+            ViewBag.CurrentNav = "DictionaryPassphrase";
+            return View("Passphrase");
+        }
+
+        [HttpGet("/generate/hex")]
+        public IActionResult GenerateHex()
+        {
+            ViewBag.CurrentNav = "Hex";
+            return View("Hex");
+        }
+
+        [HttpGet("/generate/unicode")]
+        public IActionResult GenerateUnicode()
+        {
+            ViewBag.CurrentNav = "Unicode";
+            return View("Unicode");
+        }
+
+        [HttpGet("/generate/alphanumeric")]
+        [HttpGet("/generate/lettersandnumbers")]
+        public IActionResult GenerateAlphaNumeric()
+        {
+            ViewBag.CurrentNav = "AlphaNumeric";
+            return View("AlphaNumeric");
+        }
+
+        [HttpGet("/generate/pin")]
+        public IActionResult GeneratePin()
+        {
+            ViewBag.CurrentNav = "PIN";
+            return View("PIN");
+        }
+
+        [HttpGet("/generate/pronouncable")]
+        public IActionResult GeneratePronouncable()
+        {
+            ViewBag.CurrentNav = "Pronouncable";
+            return View("Pronouncable");
+        }
+
         [HttpGet("/error")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

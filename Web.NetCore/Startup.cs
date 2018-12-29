@@ -68,6 +68,8 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore
                 //));
             }).Start();
 
+            services.AddSingleton<PasswordRatingService>();
+
             logger.Debug("ConfigureServices() end");
         }
 

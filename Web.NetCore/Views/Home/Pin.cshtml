@@ -1,0 +1,111 @@
+﻿@* Copyright 2019 Murray Grant
+    //
+    //    Licensed under the Apache License, Version 2.0 (the "License");
+    // you may not use this file except in compliance with the License.
+    // You may obtain a copy of the License at
+    //
+    // http://www.apache.org/licenses/LICENSE-2.0
+    //
+    //    Unless required by applicable law or agreed to in writing, software
+    // distributed under the License is distributed on an "AS IS" BASIS,
+    // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    // See the License for the specific language governing permissions and
+    // limitations under the License.
+*@
+@{
+    ViewData["Title"] = "Generate - PIN";
+}
+
+<h2 class="text-center">PIN</h2>
+
+<div id="ipBasedLimitWarning" class="alert alert-info" style="display:none;">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    <h4>Usage Limits</h4>
+    <p>To ensure everyone can make passwords, there are <a href="/faq#usagelimit">usage limits</a> based on your IP Address.</p>
+    <p>Please do not abuse this service or you will be temporarily blocked.</p>
+</div>
+
+
+<p>
+    Generates a random PIN (personal identification number).
+</p>
+<p>
+    Example: <span class="label label-default example-password">9237</span>
+</p>
+<p>
+    PINs are used to protect mobile devices, credit cards and open doors. 
+    Unfortunately, the classic 4 digit PIN is usually <code>1234</code>, or perhaps <code>0000</code>. 
+    Those classic bloopers will never be generated here.
+</p>
+<p>
+    You can do better! Use a 6 (or even 8) digit PIN to keep the phone thief guessing.
+</p>
+
+
+<div id="passwordPlace" class="well password-panel">
+    <div class="panel-body">
+        <span class="pw">Generating...</span>
+    </div>
+</div>
+
+
+<div>
+    <button class="btn btn-primary password-get" id="passwordGet" data-loading-text="Generating..."
+            data-urlpassword="/api/v1/pin/json" data-urlcombinations="/api/v1/pin/combinations">
+        Get PINs
+    </button>
+    <p id="passwordError" style="display:none;">
+        <i class="icon-sadface"></i> 
+        <span class="message"></span> <br />
+        <span> Please try again later or <a href="/contact">contact the author</a>.</span>
+    </p>
+</div>
+
+
+
+<div id="combinationsPlace" style="display:none;" class="panel panel-default combinations-panel">
+    <div class="panel-heading">
+        <h3>PIN Quality</h3>
+    </div>
+    <div class="panel-body">
+        <div class="rating">
+            <a href="/Faq#" class="pull-right">More about PIN ratings</a>
+            <h4></h4>
+            <p></p>
+            <div>
+                <p>
+                    <span class="label label-danger">Important</span> This rating assumes the PIN will be used on a phone, tablet or credit card. Never use a PIN as your password on your computer.
+                </p>
+            </div>
+        </div>
+        <div class="fineprint">
+            <label>Total Combination Details:</label>
+            <div class="numbers">
+                 <span class="label label-default formatted"></span> (<span class="label label-default base10"></span> <span class="label label-default base2"></span> bits)
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="passwordParameters" data-pagekey="pin" class="panel panel-default parameters-panel">
+    <div class="panel-heading">
+        <h3>Fine Tuning</h3>
+    </div>
+
+    <div class="panel-body">
+        <div class="form-group">
+            <label for="pwLength" class="control-label">PIN Length</label>
+            <input type="number" class="form-control" name="l" id="pwLength" value="4" />
+        </div>
+
+        <div class="form-group">
+            <label for="pwCount" class="control-label">Number of PINs</label>
+            <input type="number" class="form-control" name="c" id="pwCount" value="1" />
+        </div>
+    </div>
+</div>
+
+<button class="btn btn-primary password-get" data-loading-text="Generating..."
+        data-urlpassword="/api/v1/pin/json" data-urlcombinations="/api/v1/pin/combinations">
+    Get PINs
+</button>
