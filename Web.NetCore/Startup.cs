@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
+using MurrayGrant.MakeMeAPassword.Web.NetCore.Services;
+
 namespace MurrayGrant.MakeMeAPassword.Web.NetCore
 {
     public class Startup
@@ -35,8 +37,21 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-
+            
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            
+            // Initialise the random number generator.
+            services.AddTerninger(t => {
+                // TODO: work out how much of this can be added to Terninger Config package.
+                t.AddInitialisedSources(Terninger.ExtendedSources.All());
+                t.AddInitialisedSources(Terninger.NetworkSources.All(
+                    userAgent: Terninger.NetworkSources.UserAgent("makemeapassword.ligos.net")
+                ));
+                    // TODO: read from config / secrets.
+                    //hotBitsApiKey: // System.Configuration.ConfigurationManager.AppSettings["HotBits.ApiKey"],
+                    //randomOrgApiKey: System.Configuration.ConfigurationManager.AppSettings["RandomOrg.ApiKey"].ParseAsGuidOrNull()
+                //));
+            }).Start();
 
             logger.Debug("ConfigureServices() end");
         }
@@ -58,7 +73,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
-
+            app.UseTerningerEntropyFromWebRequests();
             app.UseCors(c =>
             {
                 c.AllowAnyOrigin()
@@ -69,7 +84,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore
             });
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseCookiePolicy();
+            
 
             app.UseMvc(routes =>
             {
