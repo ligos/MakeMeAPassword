@@ -27,8 +27,8 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers
         public readonly static string SymbolCharacters = "!@#$%^&*()`-=~_+[]\\;',./{}|:\"<>?";
         public readonly static string AllCharacters = AlphanumericCharacters + SymbolCharacters;
 
-        public ApiV1AlphaNumericController(PooledEntropyCprngGenerator terninger, PasswordRatingService ratingService) 
-            : base(terninger, ratingService) { }
+        public ApiV1AlphaNumericController(PooledEntropyCprngGenerator terninger, PasswordRatingService ratingService, PasswordStatisticService statisticService) 
+            : base(terninger, ratingService, statisticService) { }
 
         [HttpGet("/api/v1/alphanumeric/plain")]
         public async Task<IActionResult> Plain([FromQuery]int? l, [FromQuery]int? c, [FromQuery]string sym)

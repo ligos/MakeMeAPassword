@@ -159,7 +159,8 @@ window.mmap = window.mmap || {};
 
         $('.password-get').button('loading');
         $('#passwordPlace').html('<span class="pw">Generating...</span>');
-        $.get(url, parms, function (d, status) {
+        $.getJSON(url, parms)
+        .done(function (d, status) {
             // TODO: the string.charCodeAt() function returns unicode values in the BMP, which we could use to allow display of code points in hex.
             // TODO: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/charCodeAt has some examples of handling code points outside the BMP.
             // TODO: suggest a (double)click on a password to change to code points as U+1234.
@@ -199,7 +200,8 @@ window.mmap = window.mmap || {};
         var parms = getParameters();
         doIpLimitWarning();
 
-        $.get(url, parms, function (d, status) {
+        $.getJSON(url, parms)
+        .done(function (d, status) {
             // TODO: error handling.
 
             if (d.upper && d.lower && d.middle) {

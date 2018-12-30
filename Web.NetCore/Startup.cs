@@ -26,6 +26,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using MurrayGrant.MakeMeAPassword.Web.NetCore.Services;
+using MurrayGrant.MakeMeAPassword.Web.NetCore.Middleware;
 
 namespace MurrayGrant.MakeMeAPassword.Web.NetCore
 {
@@ -43,7 +44,8 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore
         {
             var logger = NLog.LogManager.GetCurrentClassLogger();
             logger.Debug("ConfigureServices() start");
-
+            var appConfig = Configuration.GetSection("mmap").Get<Models.AppConfig>();
+            
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
@@ -52,16 +54,25 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            
+            services.AddCors(c =>
+            {
+                c.AddPolicy("Mmap", b => b.AllowAnyOrigin()
+                  .WithMethods("GET", "POST")
+                  .WithHeaders("X-MmapApiKey", "Content-Type")
+                  .SetPreflightMaxAge(TimeSpan.FromDays(1))
+                );
+            });
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             
             // Initialise the random number generator.
             services.AddTerninger(t => {
                 // TODO: work out how much of this can be added to Terninger Config package.
                 t.AddInitialisedSources(Terninger.ExtendedSources.All());
+#if !DEBUG
                 t.AddInitialisedSources(Terninger.NetworkSources.All(
                     userAgent: Terninger.NetworkSources.UserAgent("makemeapassword.ligos.net")
                 ));
+#endif
                     // TODO: read from config / secrets.
                     //hotBitsApiKey: // System.Configuration.ConfigurationManager.AppSettings["HotBits.ApiKey"],
                     //randomOrgApiKey: System.Configuration.ConfigurationManager.AppSettings["RandomOrg.ApiKey"].ParseAsGuidOrNull()
@@ -69,6 +80,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore
             }).Start();
 
             services.AddSingleton<PasswordRatingService>();
+            services.AddSingleton<PasswordStatisticService>();
 
             logger.Debug("ConfigureServices() end");
         }
@@ -81,6 +93,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore
             logger.Debug("Environment: {0}, IsDevelopment: {1}, IsProduction: {2}.", env.EnvironmentName, env.IsDevelopment(), env.IsProduction());
             logger.Debug("Runtime Version: {0}, System Version: {1}, OS: {2}, Source: {3}.", Environment.Version, System.Runtime.InteropServices.RuntimeEnvironment.GetSystemVersion(), Environment.OSVersion, System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory());
 
+            app.UseForwardedHeaders(new ForwardedHeadersOptions());     // Map X-Forwarded-For to HttpContext.Connection
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -91,24 +104,11 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore
                 app.UseHsts();
             }
             app.UseTerningerEntropyFromWebRequests();
-            app.UseCors(c =>
-            {
-                c.AllowAnyOrigin()
-                  .WithMethods("GET", "POST")
-                  .WithHeaders("X-MmapApiKey", "Content-Type")
-                  .SetPreflightMaxAge(TimeSpan.FromDays(1))
-                  .Build();
-            });
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            
+            app.UseApiBypassKeys();     // Allow users to bypass API usage limits with a special key.
 
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
-            });
+            app.UseMvc();
 
             logger.Debug("Configure() end.");
         }
