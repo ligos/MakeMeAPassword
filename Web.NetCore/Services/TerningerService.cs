@@ -26,61 +26,6 @@ using MurrayGrant.Terninger.EntropySources.Local;
 
 namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Services
 {
-    /// <summary>
-    /// Provides an instance of the Terninger pooled random number generator.
-    /// Should be configured as singleton in your DI framework.
-    /// </summary>
-    public class TerningerService
-    {
-        private static readonly NLog.Logger StatsLogger = NLog.LogManager.GetLogger("MurrayGrant.PasswordGenerator.PasswordStats");
-
-        // This uses the new structured logging support in NLog 4.5+ to log to a CSV.
-        public static void LogPasswordStat(string name, int count, TimeSpan duration, int randomBytesConsumed, System.Net.Sockets.AddressFamily addressFamily, string bypassKeyId)
-            => StatsLogger.Info("{Name} {Count} {RandomBytesConsumed} {Duration:N3} {RandomBytesConsumedEa} {DurationEa:N4} {LocalOffset} {AddressFamily} {BypassKeyId}",
-                name, count, randomBytesConsumed, duration.TotalMilliseconds, randomBytesConsumed == 0 ? 0 : (double)randomBytesConsumed / (double)count, duration.TotalMilliseconds / count, (DateTimeOffset.Now.Offset >= TimeSpan.Zero ? "+" : "-") + DateTimeOffset.Now.Offset.ToString("hh\\:mm"), addressFamily, bypassKeyId
-            );
-
-
-
-        public sealed class StatsByType
-        {
-            public readonly RuntimeTypeHandle StyleTypeHandle;
-            public Type StyleType { get { return Type.GetTypeFromHandle(this.StyleTypeHandle); } }
-            public String Style { get { return this.StyleType.Name.Replace("Api", "").Replace("Controller", "").Replace("V1", ""); } }
-
-            private readonly CypherBasedPrngGenerator _Rng;
-
-            public readonly int ThreadId;
-            public DateTime LastUsedUtc;
-            public long RandomBytesConsumed;
-            public long PasswordsGenerated;
-            public long PasswordUtf8BytesGenerated;
-            public long PasswordCharactersGenerated;
-
-            public StatsByType(int threadId, IRandomNumberGenerator rng, Type t)
-            {
-                this.StyleTypeHandle = t.TypeHandle;
-                this.ThreadId = threadId;
-                this._Rng = rng as CypherBasedPrngGenerator;
-            }
-
-            public void AddPassword(string password)
-            {
-                var bytes = Encoding.UTF8.GetByteCount(password);
-                this.PasswordsGenerated++;
-                this.PasswordUtf8BytesGenerated += bytes;
-                this.PasswordCharactersGenerated += password.Length;
-            }
-
-            public void Add(StatsByType other)
-            {
-                this.RandomBytesConsumed += other.RandomBytesConsumed;
-                this.PasswordsGenerated += other.PasswordsGenerated;
-                this.PasswordUtf8BytesGenerated += other.PasswordUtf8BytesGenerated;
-                this.PasswordCharactersGenerated += other.PasswordCharactersGenerated;
-            }
-        }
-    }
     public static class TerningerServiceConfig
     {
         // TODO: move this into the Terninger Config package.

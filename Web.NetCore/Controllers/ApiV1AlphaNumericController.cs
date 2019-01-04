@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MurrayGrant.MakeMeAPassword.Web.NetCore.Services;
 using MurrayGrant.MakeMeAPassword.Web.NetCore.Helpers;
+using MurrayGrant.MakeMeAPassword.Web.NetCore.Filters;
 using MurrayGrant.MakeMeAPassword.Web.NetCore.Models.ApiV1;
 using MurrayGrant.Terninger;
 using MurrayGrant.Terninger.Random;
 
 namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers
 {
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    //[IpThrottlingFilter]
+    
     public class ApiV1AlphaNumericController : ApiV1Controller
     {
         
@@ -27,8 +27,8 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers
         public readonly static string SymbolCharacters = "!@#$%^&*()`-=~_+[]\\;',./{}|:\"<>?";
         public readonly static string AllCharacters = AlphanumericCharacters + SymbolCharacters;
 
-        public ApiV1AlphaNumericController(PooledEntropyCprngGenerator terninger, PasswordRatingService ratingService, PasswordStatisticService statisticService) 
-            : base(terninger, ratingService, statisticService) { }
+        public ApiV1AlphaNumericController(PooledEntropyCprngGenerator terninger, PasswordRatingService ratingService, PasswordStatisticService statisticService, IpThrottlerService ipThrottler) 
+            : base(terninger, ratingService, statisticService, ipThrottler) { }
 
         [HttpGet("/api/v1/alphanumeric/plain")]
         public async Task<IActionResult> Plain([FromQuery]int? l, [FromQuery]int? c, [FromQuery]string sym)

@@ -27,6 +27,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using MurrayGrant.MakeMeAPassword.Web.NetCore.Services;
 using MurrayGrant.MakeMeAPassword.Web.NetCore.Middleware;
+using MurrayGrant.MakeMeAPassword.Web.NetCore.Filters;
 
 namespace MurrayGrant.MakeMeAPassword.Web.NetCore
 {
@@ -63,7 +64,14 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore
                 );
             });
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            
+
+            // Configuration options.
+            services.AddMemoryCache(o =>
+            {
+                o.ExpirationScanFrequency = TimeSpan.FromMinutes(15);
+            });
+            services.Configure<IpThrottlerService.IpThrottlerOptions>(Configuration.GetSection("Mmap").GetSection("IpThrottler"));
+
             // Initialise the random number generator.
             services.AddTerninger(t => {
                 // TODO: work out how much of this can be added to Terninger Config package.
@@ -79,8 +87,10 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore
                 //));
             }).Start();
 
+            services.AddScoped<IpThrottlingFilter>();
             services.AddSingleton<PasswordRatingService>();
             services.AddSingleton<PasswordStatisticService>();
+            services.AddSingleton<IpThrottlerService>();
 
             logger.Debug("ConfigureServices() end");
         }

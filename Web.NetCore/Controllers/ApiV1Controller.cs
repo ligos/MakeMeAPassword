@@ -14,45 +14,48 @@ using MurrayGrant.MakeMeAPassword.Web.NetCore.Models.ApiV1;
 using MurrayGrant.Terninger;
 using MurrayGrant.Terninger.Random;
 using Microsoft.AspNetCore.Cors;
+using MurrayGrant.MakeMeAPassword.Web.NetCore.Filters;
 
 namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers
 {
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    //[IpThrottlingFilter]
+    [ServiceFilter(typeof(IpThrottlingFilter), IsReusable = true)]
     [EnableCors("Mmap")]
     public class ApiV1Controller : Controller
     {
         protected readonly PooledEntropyCprngGenerator _Terninger;
         protected readonly PasswordRatingService _RatingService;
         private readonly PasswordStatisticService _StatisticService;
+        private readonly IpThrottlerService _IpThrottler;
 
         public ApiV1Controller(PooledEntropyCprngGenerator terninger
                 , PasswordRatingService ratingService
-                , PasswordStatisticService statisticService)
+                , PasswordStatisticService statisticService
+                , IpThrottlerService ipThrottler)
         {
             _Terninger = terninger;
             _RatingService = ratingService;
             _StatisticService = statisticService;
+            _IpThrottler = ipThrottler;
         }
 
         protected void IncrementUsage(int count)
         {
-            //IpThrottlerService.IncrementUsage(IPAddressHelpers.GetHostOrCacheIp(this.HttpContext.Request), count);
+            _IpThrottler.IncrementUsage(HttpContext.Connection.RemoteIpAddress, count, HttpContext.GetApiKeyId());
         }
 
         protected void PostSelectionAction(string name, int count, TimeSpan duration, IRandomNumberGenerator random)
         {
             var bytesRequested = (int)((random as Terninger.Random.CypherBasedPrngGenerator)?.BytesRequested).GetValueOrDefault();
             var clientIp = HttpContext.Connection.RemoteIpAddress;
+
             _StatisticService.LogPasswordStat(name, count, duration, bytesRequested, clientIp.AddressFamily, HttpContext.GetApiKeyId());
-            //if (!IpThrottlerService.HasAnyUsage(IPAddressHelpers.GetHostOrCacheIp(this.HttpContext.Request)))
-            //    RandomService.AddWebRequestEntropy(this.Request);
-            //IpThrottlerService.IncrementUsage(IPAddressHelpers.GetHostOrCacheIp(this.HttpContext.Request), count);
+            IncrementUsage(count);
         }
 
         protected IActionResult Plain(IEnumerable<string> lines)
         {
-            return new ContentResult() { Content = String.Join(StringHelpers.WindowsNewLine, lines), ContentType = "text/plain" };
+            return new ContentResult() { Content = String.Join(StringHelpers.WindowsNewLine, lines) + StringHelpers.WindowsNewLine, ContentType = "text/plain" };
         }
         protected IActionResult Xml(object o)
         {
