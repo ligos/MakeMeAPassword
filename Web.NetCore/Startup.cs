@@ -91,6 +91,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore
             services.AddSingleton<PasswordRatingService>();
             services.AddSingleton<PasswordStatisticService>();
             services.AddSingleton<IpThrottlerService>();
+            services.AddSingleton<DictionaryService>();
 
             logger.Debug("ConfigureServices() end");
         }

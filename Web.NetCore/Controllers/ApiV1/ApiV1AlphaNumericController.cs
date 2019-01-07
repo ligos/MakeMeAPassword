@@ -1,4 +1,18 @@
-﻿using System;
+﻿// Copyright 2019 Murray Grant
+//
+//    Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+//    Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,7 +25,7 @@ using MurrayGrant.MakeMeAPassword.Web.NetCore.Models.ApiV1;
 using MurrayGrant.Terninger;
 using MurrayGrant.Terninger.Random;
 
-namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers
+namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers.ApiV1
 {
     
     public class ApiV1AlphaNumericController : ApiV1Controller
@@ -27,8 +41,8 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers
         public readonly static string SymbolCharacters = "!@#$%^&*()`-=~_+[]\\;',./{}|:\"<>?";
         public readonly static string AllCharacters = AlphanumericCharacters + SymbolCharacters;
 
-        public ApiV1AlphaNumericController(PooledEntropyCprngGenerator terninger, PasswordRatingService ratingService, PasswordStatisticService statisticService, IpThrottlerService ipThrottler) 
-            : base(terninger, ratingService, statisticService, ipThrottler) { }
+        public ApiV1AlphaNumericController(PooledEntropyCprngGenerator terninger, PasswordRatingService ratingService, PasswordStatisticService statisticService, IpThrottlerService ipThrottler, DictionaryService dictionaryService)
+            : base(terninger, ratingService, statisticService, ipThrottler, dictionaryService) { }
 
         [HttpGet("/api/v1/alphanumeric/plain")]
         public async Task<IActionResult> Plain([FromQuery]int? l, [FromQuery]int? c, [FromQuery]string sym)
@@ -76,7 +90,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers
 #if !DEBUG
         [OutputCache(Duration = 60 * 60)]       // Cache for one hour.
 #endif
-        public ActionResult Combinations(int? l, string sym)
+        public ActionResult Combinations([FromQuery]int? l, [FromQuery]string sym)
         {
             IncrementUsage(1);
 
