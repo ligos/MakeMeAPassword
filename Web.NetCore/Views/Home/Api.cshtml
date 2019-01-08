@@ -34,7 +34,7 @@
 <h3>Requirements</h3>
 <ul>
     <li>Network access to <code>@ViewData["SiteAbsoluteUrl"]</code></li>
-    <li>Any programming environment which can make HTTPS requests (unencrypted HTTP requests will be redirected to HTTPS equivelents)</li>
+    <li>Any programming environment which can make HTTPS requests (unencrypted HTTP requests will be redirected to HTTPS equivalents)</li>
     <li>All requests should be <code>GET</code>. <code>POST</code> will also work, but no data is ever saved on the server anyway.</li>
     <li>HTTP headers are set to prevent caching on all API calls. After all, every request should produce new passwords.</li>
 </ul>
@@ -71,9 +71,9 @@
 <ul>
     <li>All API requests are case insensitive (although the resulting passwords may have upper and lower case letters).</li>
     <li>Each style and format will work with reasonable defaults without any parameters. That is, <code>/api/v1/passphrase/plain</code> will return a single passphrase rather than an error.</li>
-    <li>Each style has a <code>combinations</code> "format". This returns JSON information about how many possible combinations are availble </li>
+    <li>Each style has a <code>combinations</code> "format". This returns JSON information about how many possible combinations are available </li>
     <li>There are parameters for the number of passwords to return (count) and length of passwords. Although these vary slightly in naming between styles.</li>
-    <li>All parameters have a minimum and maxium. Values outside will be clamped to the nearest value (ie: if the maximum number of passwords is <span class="label label-default">50</span> and you ask for <span class="label label-default">100</span>, you'll only get <span class="label label-default">50</span>).</li>
+    <li>All parameters have a minimum and maximum. Values outside will be clamped to the nearest value (ie: if the maximum number of passwords is <span class="label label-default">50</span> and you ask for <span class="label label-default">100</span>, you'll only get <span class="label label-default">50</span>).</li>
     <li>Any parameter which is not understood is ignored. There are no error messages if your parameters are wrong.</li>
 </ul>
 
@@ -133,7 +133,7 @@
 </p>
 <p>Combinations URL: <code>/api/v1/&lt;style&gt;/combinations</code></p>
 <p>
-    The combinations URL accepts the same parameters, defaults and limits as a normal API call, except the count of passwords to generate is ignored (as it is not relevent).
+    The combinations URL accepts the same parameters, defaults and limits as a normal API call, except the count of passwords to generate is ignored (as it is not relevant).
 </p>
 <p>
     Combinations are always returned as JSON.
@@ -195,7 +195,7 @@
 <h4>Password Ratings</h4>
 <p>
     The following table lists the meaning of each password rating in combinations results.
-    These are loosly based on time to crack given 1 billion attempts per second in an offline attack.
+    These are loosely based on time to crack given 1 billion attempts per second in an offline attack.
 </p>
 <table class="table table-condensed table-bordered">
     <thead>
@@ -271,7 +271,7 @@
 <p>Example URL: <code>/api/v1/readablepassphrase/json?pc=10&amp;s=RandomLong</code></p>
 <p>Example result (using default settings): <span class="label label-default example-password">the statesman will burgle amidst lucid sunlamps</span></p>
 <p>
-    Returns one or more passphrases. Each is based on a gramatical template.
+    Returns one or more passphrases. Each is based on a grammatical template.
 </p>
 
 <table class="table table-condensed table-bordered">
@@ -480,12 +480,12 @@
 </table>
 
 
-<h4>Pronouncable Password</h4>
-<p>Base URL: <code>/api/v1/pronouncable/</code></p>
-<p>Example URL: <code>/api/v1/pronouncable/json?c=10&amp;sc=5</code></p>
+<h4>Pronounceable Password</h4>
+<p>Base URL: <code>/api/v1/pronounceable/</code></p>
+<p>Example URL: <code>/api/v1/pronounceable/json?c=10&amp;sc=5</code></p>
 <p>Example result (using default settings): <span class="label label-default example-password">psu-zigh-soorh-alung</span></p>
 <p>
-    Returns one or more pronouncable passwords. Each is based on alternating vowel and consonent sounds.
+    Returns one or more pronounceable passwords. Each is based on alternating vowel and consonant sounds.
 </p>
 
 <table class="table table-condensed table-bordered">
@@ -518,7 +518,7 @@
         </tr>
         <tr>
             <td><code>dsh</code></td>
-            <td>Include hyphans (dashes) between words</td>
+            <td>Include hyphens (dashes) between words</td>
             <td>Boolean</td>
             <td>True</td>
             <td><code>Y</code> | <code>N</code> | <code>T</code> | <code>F</code> | <code>1</code> | <code>0</code></td>
@@ -669,7 +669,7 @@
             <td>Integer</td>
             <td>8</td>
             <td>1-64</td>
-            <td>Be aware that total combinations for lengths greater than 32 can return inifinity because they exceed the maximum combinations which can be represented by a double precision float.</td>
+            <td>Be aware that total combinations for lengths greater than 32 can return infinity because they exceed the maximum combinations which can be represented by a double precision float.</td>
         </tr>
         <tr>
             <td><code>c</code></td>
@@ -726,7 +726,7 @@
             <td>Integer</td>
             <td>8</td>
             <td>1-128</td>
-            <td>Be aware that total combinations for lengths greater than 96 return inifinity because they exceed the maximum combinations which can be represented by a double precision float.</td>
+            <td>Be aware that total combinations for lengths greater than 96 return infinity because they exceed the maximum combinations which can be represented by a double precision float.</td>
         </tr>
         <tr>
             <td><code>c</code></td>

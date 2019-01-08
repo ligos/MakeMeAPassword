@@ -134,10 +134,11 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers
         }
 
         [HttpGet("/generate/pronouncable")]
-        public IActionResult GeneratePronouncable()
+        [HttpGet("/generate/pronounceable")]
+        public IActionResult GeneratePronounceable()
         {
-            ViewBag.CurrentNav = "Pronouncable";
-            return View("Pronouncable");
+            ViewBag.CurrentNav = "Pronounceable";
+            return View("Pronounceable");
         }
 
         [HttpGet("/error")]

@@ -29,13 +29,13 @@
                 <li class="@( ViewBag.CurrentNav == "ReadablePassphrase" ? "active" : "" )"><a href="/generate/readablepassphrase">Readable</a></li>
                 <li class="@( ViewBag.CurrentNav == "DictionaryPassphrase" ? "active" : "" )"><a href="/generate/passphrase">Dictionary</a></li>
                 <li class="@( ViewBag.CurrentNav == "PIN" ? "active" : "" )"> <a href="/generate/pin">PIN</a></li>
-                <li class="dropdown @( ViewBag.CurrentNav == "AlphaNumeric" || ViewBag.CurrentNav == "Hex" || ViewBag.CurrentNav == "Unicode" || ViewBag.CurrentNav == "GenerateIndex" || ViewBag.CurrentNav == "Pronouncable" ? "active" : "")">
+                <li class="dropdown @( ViewBag.CurrentNav == "AlphaNumeric" || ViewBag.CurrentNav == "Hex" || ViewBag.CurrentNav == "Unicode" || ViewBag.CurrentNav == "GenerateIndex" || ViewBag.CurrentNav == "Pronounceable" ? "active" : "")">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true">Other <b class="caret"></b></a>
                     <ul class="dropdown-menu">
                         <li class="@( ViewBag.CurrentNav == "AlphaNumeric" ? "active" : "" )"><a href="/generate/alphanumeric">Alpha Numeric</a></li>
                         <li class="@( ViewBag.CurrentNav == "Hex" ? "active" : "" )"><a href="/generate/hex">Hex</a></li>
                         <li class="@( ViewBag.CurrentNav == "Unicode" ? "active" : "" )"><a href="/generate/unicode">Unicode</a></li>
-                        <li class="@( ViewBag.CurrentNav == "Pronouncable" ? "active" : "" )"><a href="/generate/pronouncable">Pronouncable</a></li>
+                        <li class="@( ViewBag.CurrentNav == "Pronounceable" ? "active" : "" )"><a href="/generate/pronounceable">Pronounceable</a></li>
                         <li role="separator" class="divider"></li>
                         <li class="@( ViewBag.CurrentNav == "GenerateIndex" ? "active" : "" )"><a href="/generate">List All Styles</a></li>
                     </ul>

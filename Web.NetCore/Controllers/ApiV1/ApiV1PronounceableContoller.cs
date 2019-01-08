@@ -30,7 +30,7 @@ using Microsoft.Extensions.Caching.Memory;
 namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers.ApiV1
 {
     
-    public class ApiV1PronouncableContoller : ApiV1Controller
+    public class ApiV1PronounceableContoller : ApiV1Controller
     {
         public readonly static int MaxSyllableCount = 32;
         public readonly static int MaxCount = 50;
@@ -42,9 +42,10 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers.ApiV1
         private static readonly Single ProbabilityOfTwoConsonantsInOneSyllable = 0.212f;
 
 
-        public ApiV1PronouncableContoller(PooledEntropyCprngGenerator terninger, PasswordRatingService ratingService, PasswordStatisticService statisticService, IpThrottlerService ipThrottler, DictionaryService dictionaryService)
+        public ApiV1PronounceableContoller(PooledEntropyCprngGenerator terninger, PasswordRatingService ratingService, PasswordStatisticService statisticService, IpThrottlerService ipThrottler, DictionaryService dictionaryService)
             : base(terninger, ratingService, statisticService, ipThrottler, dictionaryService) { }
 
+        [HttpGet("/api/v1/pronounceable/plain")]
         [HttpGet("/api/v1/pronouncable/plain")]
         public async Task<IActionResult> Plain([FromQuery]int? sc, [FromQuery]int? c, [FromQuery]string dsh)
         {
@@ -59,6 +60,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers.ApiV1
             }
         }
 
+        [HttpGet("/api/v1/pronounceable/json")]
         [HttpGet("/api/v1/pronouncable/json")]
         public async Task<IActionResult> Json([FromQuery]int? sc, [FromQuery]int? c, [FromQuery]string dsh)
         {
@@ -73,6 +75,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers.ApiV1
             }
         }
 
+        [HttpGet("/api/v1/pronounceable/xml")]
         [HttpGet("/api/v1/pronouncable/xml")]
         public async Task<IActionResult> Xml([FromQuery]int? sc, [FromQuery]int? c, [FromQuery]string dsh)
         {
@@ -87,6 +90,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers.ApiV1
             }
         }
 
+        [HttpGet("/api/v1/pronounceable/combinations")]
         [HttpGet("/api/v1/pronouncable/combinations")]
 #if !DEBUG
         [OutputCache(Duration = 60 * 60)]       // Cache for one hour.
@@ -138,7 +142,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers.ApiV1
             }
             sw.Stop();
 
-            PostSelectionAction("Pronouncable", count, sw.Elapsed, random);
+            PostSelectionAction("Pronounceable", count, sw.Elapsed, random);
         }
 
 

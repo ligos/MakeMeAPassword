@@ -101,7 +101,7 @@ window.mmap = window.mmap || {};
         }
     };
 
-    // When this reaches zero, a warning is displayed about ip based limits.
+    // When this reaches zero, a warning is displayed about IP based limits.
     ns.ipLimitWarningCounter = 20;
 
     // A page can use this to validate parameters.
@@ -445,7 +445,7 @@ $.fn.serializeObject = function () {
 };
 
 
-// Alert dialog dismiss bvutton.
+// Alert dialog dismiss button.
 $(".alert").alert();
 
 
