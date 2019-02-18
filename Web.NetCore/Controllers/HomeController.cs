@@ -133,6 +133,13 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers
             return View("PIN");
         }
 
+        [HttpGet("/generate/pattern")]
+        public IActionResult GeneratePattern()
+        {
+            ViewBag.CurrentNav = "Pattern";
+            return View("Pattern");
+        }
+
         [HttpGet("/generate/pronouncable")]
         [HttpGet("/generate/pronounceable")]
         public IActionResult GeneratePronounceable()

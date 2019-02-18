@@ -569,6 +569,80 @@
 </table>
 
 
+<h4>Pattern</h4>
+<p>Base URL: <code>/api/v1/pattern/</code></p>
+<p>Example URL: <code>/api/v1/pattern/json?c=10&amp;l=6</code></p>
+<p>Example result (using default settings): <span class="label label-default example-password">7,5,9,8,6</span></p>
+<p>
+    Returns one or more Patterns, entered on touch enabled devices by connecting dots from a grid.
+</p>
+<p>
+    Patterns are represented as a sequence of numbers representing each dot on the grid,
+    where the top left dot is 1 and the sequence continues down and left.
+    Eg:
+</p>
+
+<table class="table-condensed table-bordered">
+    <tbody>
+        <tr>
+            <td><span class="label label-default">1</span></td>
+            <td><span class="label label-default">2</span></td>
+            <td><span class="label label-default">3</span></td>
+        </tr>
+        <tr>
+            <td><span class="label label-default">4</span></td>
+            <td><span class="label label-default">5</span></td>
+            <td><span class="label label-default">6</span></td>
+        </tr>
+        <tr>
+            <td><span class="label label-default">7</span></td>
+            <td><span class="label label-default">8</span></td>
+            <td><span class="label label-default">9</span></td>
+        </tr>
+    </tbody>
+</table>
+<p>&nbsp;</p>
+
+<table class="table table-condensed table-bordered">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>Description</th>
+            <th>Data Type</th>
+            <th>Default</th>
+            <th>Range</th>
+            <th>Comments</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>ps</code></td>
+            <td>Number of points to connect (length)</td>
+            <td>Integer</td>
+            <td>5</td>
+            <td>1-64</td>
+            <td>May be restricted by the grid size; eg, on a 3x3 grid, there are only 9 points you can join.</td>
+        </tr>
+        <tr>
+            <td><code>c</code></td>
+            <td>Count of Patterns to generate</td>
+            <td>Integer</td>
+            <td>1</td>
+            <td>1-50</td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td><code>gs</code></td>
+            <td>Grid size</td>
+            <td>Integer</td>
+            <td>3</td>
+            <td>1-8</td>
+            <td>Size of the grid as an NxN square. This is usually controlled by your device.</td>
+        </tr>
+    </tbody>
+</table>
+
+
 <h4>Alpha-Numeric</h4>
 <p>Base URL: <code>/api/v1/alphanumeric/</code></p>
 <p>Example URL: <code>/api/v1/alphanumeric/json?c=10&amp;l=12</code></p>
