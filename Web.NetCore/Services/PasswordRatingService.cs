@@ -98,5 +98,38 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Services
                 // Unexpected case.
                 return 0;
         }
+
+
+        public int RatePattern(double combinations)
+        {
+            // Patterns are even worse than PINs.
+            if (Double.IsNaN(combinations) || Double.IsNegativeInfinity(combinations) || combinations < 500.0)
+                // Unusable.
+                return 0;
+            else if (combinations >= 500.0 && combinations < 1900.0)
+                // Inadequate.
+                return 1;
+            else if (combinations >= 1900.0 && combinations < 14000.0)
+                // Passable (5-6 points on a 3x3 grid).
+                return 2;
+            else if (combinations >= 14000.0 && combinations < 50000.0)
+                // Adequate (7-8 points on a 3x3 grid).
+                return 3;
+            else if (combinations >= 50000.0 && combinations < 100000.0)
+                // Strong (9 points on a 3x3 grid).
+                return 4;
+            else if (combinations >= 100000.0 && combinations < 10000000.0)
+                // Fantastic (need a 4x4 grid to reach this).
+                return 5;
+            else if (combinations >= 10000000.0 && combinations < 500000000.0)
+                // Unbreakable (need a 4x4 grid to reach this).
+                return 6;
+            else if (combinations >= 500000000.0 && combinations < Double.PositiveInfinity)
+                // Overkill (need a 4x4 grid to reach this).
+                return 7;
+            else
+                // Unexpected case.
+                return 0;
+        }
     }
 }

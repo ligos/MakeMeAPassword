@@ -37,7 +37,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers.ApiV1
         public readonly static int MaxPoints = 64;      // Number of points to connect. May also be restricted by grid size.
         public readonly static int MaxCount = 50;
         public readonly static int DefaultGridSize = 3;
-        public readonly static int DefaultPoints = 5;
+        public readonly static int DefaultPoints = 6;
         public readonly static int DefaultCount = 1;
 
         public ApiV1PatternController(PooledEntropyCprngGenerator terninger, PasswordRatingService ratingService, PasswordStatisticService statisticService, IpThrottlerService ipThrottler, DictionaryService dictionaryService)
@@ -101,7 +101,8 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers.ApiV1
 
             // Can't use the nPr permutations formula, because the dots must be adjacent.
             // We calculate the approximate number of options available at each choice, and multiple them together.
-            // For the standard 3x3 grid, this starts at 4.4As the grid size increases, this tends toward around 7 possibilities after the starting spot is chosen.
+            // For the standard 3x3 grid, this starts at 4.4
+            // As the grid size increases, this tends toward around 7 possibilities after the starting spot is chosen.
 
             double combinations;
             if (gridSize == 1)
@@ -127,18 +128,22 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers.ApiV1
                                              + (gridLengthMinusCorners * gridLengthMinusCorners * 8);     // Middle
                 double avgOptions = total2ndChoiceOptions / gridPoints;         // Average number of options for the total grid points.
                 double availableOptions = avgOptions - 1;                       // The last value we accumulate should be ~1.
-                double avgDiffPerStep = availableOptions / (gridPoints - 2);    // This is the step we'll use when accumulating.
+                double avgDiffPerStep = availableOptions / gridPoints;          // This is the step we'll use when accumulating.
 
                 combinations = gridPoints;      // First choice is random between all points on the grid.
                 var nextStepOptions = avgOptions;       // Second choice is calculated above.
-                for (int n = gridPoints-2; n > 0; n--)
+                if (points > 1)
+                    combinations = combinations * nextStepOptions;      // Accumulate.
+                for (int n = points - 2; n > 0; n--)
                 {
-                    combinations = combinations * nextStepOptions;          // Accumulate combinations.
-                    nextStepOptions = nextStepOptions - avgDiffPerStep;     // And reduce each next step by the average.
+                    nextStepOptions = nextStepOptions - avgDiffPerStep;     // Reduce each next step by the average.
+                    combinations = combinations * nextStepOptions;          // And accumulate combinations.
+                    if (nextStepOptions <= 1)
+                        nextStepOptions = 1;        // Don't do dumb things with negative or small numbers in the calculation.
                 }
             }
             result.combinations = combinations;
-            result.rating = _RatingService.RatePin(result.combinations);
+            result.rating = _RatingService.RatePattern(result.combinations);
             return Json(result);
         }
 
