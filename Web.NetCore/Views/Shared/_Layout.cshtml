@@ -57,7 +57,7 @@
               asp-fallback-href="~/lib/font-awesome/css/font-awesome.min.css?v=4.1.0"
               asp-fallback-test-class="fa" asp-fallback-test-property="font-family" asp-fallback-test-value="FontAwesome" />
 
-        <link rel="stylesheet" href="~/css/Site.min.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
     </environment>
 </head>
 <body>
@@ -66,23 +66,6 @@
     <![endif]-->
 
     <partial name="_TopNavbar" />
-
-    <div class="container">
-        <div class="alert alert-danger alert-dismissible" role="alert" id="domainChangeAlert" style="display:none">
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-
-            <h4>Make Me a Password is Moving!</h4>
-            <p>
-                Please update links, references, and bookmarks to <strong><a href="https://makemeapassword.ligos.net">makemeapassword.ligos.net</a></strong>.
-            </p>
-            <p>
-                <a href="/faq#domainchange">See the FAQ for more information and the time line for the move</a>.
-            </p>
-            <p>
-                You will be automatically redirected in 20 seconds.
-            </p>
-        </div>
-    </div>
 
     <div class="container container-body">
         @RenderBody()
