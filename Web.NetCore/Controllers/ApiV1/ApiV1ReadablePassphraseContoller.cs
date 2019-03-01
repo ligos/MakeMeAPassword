@@ -116,7 +116,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers.ApiV1
 
         [HttpGet("/api/v1/readablepassphrase/dictionary")]
 #if !DEBUG
-        [OutputCache(Duration = 60 * 60)]       // Cache for one hour.
+        [ResponseCache(Duration = 60 * 60)]       // Cache for one hour.
 #endif
         public ActionResult Dictionary() =>
             new FileStreamResult(
@@ -127,7 +127,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers.ApiV1
 
         [HttpGet("/api/v1/readablepassphrase/combinations")]
 #if !DEBUG
-        [OutputCache(Duration = 60 * 60)]       // Cache for one hour.
+        [ResponseCache(Duration = 60 * 60)]       // Cache for one hour.
 #endif
         public async Task<IActionResult> Combinations([FromQuery]PhraseStrength? s)
         {

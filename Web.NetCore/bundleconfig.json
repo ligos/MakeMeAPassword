@@ -1,8 +1,8 @@
 [
   {
-    "outputFileName": "wwwroot/css/site.min.js",
+    "outputFileName": "wwwroot/css/site.min.css",
     "inputFiles": [
-      "wwwroot/css/site.js"
+      "wwwroot/css/site.css"
     ]
   },
 
@@ -12,6 +12,7 @@
       "wwwroot/js/site.js"
     ],
     "minify": {
+      "gzip": true,
       "enabled": true,
       "renameLocals": true
     }

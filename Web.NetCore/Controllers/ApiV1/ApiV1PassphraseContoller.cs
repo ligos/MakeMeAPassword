@@ -115,7 +115,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers.ApiV1
 
         [HttpGet("/api/v1/passphrase/combinations")]
 #if !DEBUG
-        [OutputCache(Duration = 60 * 60)]       // Cache for one hour.
+        [ResponseCache(Duration = 60 * 60)]       // Cache for one hour.
 #endif
         public async Task<IActionResult> Combinations([FromQuery]int? wc)
         {

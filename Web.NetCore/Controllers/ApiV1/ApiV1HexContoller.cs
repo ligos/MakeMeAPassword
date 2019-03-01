@@ -79,7 +79,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers.ApiV1
 
         [HttpGet("/api/v1/hex/combinations")]
 #if !DEBUG
-        [OutputCache(Duration = 60 * 60)]       // Cache for one hour.
+        [ResponseCache(Duration = 60 * 60)]       // Cache for one hour.
 #endif
         public ActionResult Combinations([FromQuery]int? l, [FromQuery]string sym)
         {
