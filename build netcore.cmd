@@ -8,5 +8,6 @@ rem Delete config files so we can deploy
 del /q Web.NetCore\bin\Release\netcoreapp2.1\publish\appsettings*.json
 del /q Web.NetCore\bin\Release\netcoreapp2.1\publish\nlog.config
 del /q Web.NetCore\bin\Release\netcoreapp2.1\publish\web.config
+del /q Web.NetCore\bin\Release\netcoreapp2.1\publish\bypasskeys.txt
 
 pause
