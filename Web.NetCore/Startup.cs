@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -28,6 +29,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MurrayGrant.MakeMeAPassword.Web.NetCore.Services;
 using MurrayGrant.MakeMeAPassword.Web.NetCore.Middleware;
 using MurrayGrant.MakeMeAPassword.Web.NetCore.Filters;
+using MurrayGrant.MakeMeAPassword.Web.NetCore.Helpers;
 
 namespace MurrayGrant.MakeMeAPassword.Web.NetCore
 {
@@ -45,7 +47,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore
         {
             var logger = NLog.LogManager.GetCurrentClassLogger();
             logger.Debug("ConfigureServices() start");
-            var appConfig = Configuration.GetSection("mmap").Get<Models.AppConfig>();
+            var appConfig = Configuration.GetSection("Mmap").Get<Models.AppConfig>();
             
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -78,13 +80,11 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore
                 t.AddInitialisedSources(Terninger.ExtendedSources.All());
 #if !DEBUG
                 t.AddInitialisedSources(Terninger.NetworkSources.All(
-                    userAgent: Terninger.NetworkSources.UserAgent("makemeapassword.ligos.net")
-                ));
+                                            userAgent: "makemeapassword.ligos.net",
+                                            hotBitsApiKey: Configuration.GetValue<string>("Mmap:Terninger:HotBitsApiKey"),
+                                            randomOrgApiKey: Configuration.GetValue<string>("Mmap:Terninger:RandomOrgApiKey").ParseAsGuidOrNull()
+                                        ));
 #endif
-                    // TODO: read from config / secrets.
-                    //hotBitsApiKey: // System.Configuration.ConfigurationManager.AppSettings["HotBits.ApiKey"],
-                    //randomOrgApiKey: System.Configuration.ConfigurationManager.AppSettings["RandomOrg.ApiKey"].ParseAsGuidOrNull()
-                //));
             }).Start();
 
             services.AddScoped<IpThrottlingFilter>();
@@ -104,7 +104,11 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore
             logger.Debug("Environment: {0}, IsDevelopment: {1}, IsProduction: {2}.", env.EnvironmentName, env.IsDevelopment(), env.IsProduction());
             logger.Debug("Runtime Version: {0}, System Version: {1}, OS: {2}, Source: {3}.", Environment.Version, System.Runtime.InteropServices.RuntimeEnvironment.GetSystemVersion(), Environment.OSVersion, System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory());
 
-            app.UseForwardedHeaders(new ForwardedHeadersOptions());     // Map X-Forwarded-For to HttpContext.Connection
+            app.UseForwardedHeaders(new ForwardedHeadersOptions()
+            {
+                // Map X-Forwarded-For to HttpContext.Connection
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });     
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
