@@ -27,6 +27,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers
     public class HomeController : Controller
     {
         [HttpGet("/")]
+        [HttpHead("/")]     // Uptime Robot likes to make HEAD requests to check if the server is happy.
         public IActionResult Index()
         {
             ViewBag.CurrentNav = "Home";
