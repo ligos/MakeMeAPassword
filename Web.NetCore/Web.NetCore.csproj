@@ -32,7 +32,7 @@
     <PackageReference Include="ReadablePassphrase" Version="1.1.2" />
     <PackageReference Include="Terninger" Version="0.1.1" />
     <PackageReference Include="Terninger.EntropySources.Extended" Version="0.1.1" />
-    <PackageReference Include="Terninger.EntropySources.Network" Version="0.1.1" />
+    <PackageReference Include="Terninger.EntropySources.Network" Version="0.1.2" />
   </ItemGroup>
 
   <ItemGroup>
