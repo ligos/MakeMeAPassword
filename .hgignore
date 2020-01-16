@@ -12,3 +12,5 @@ deploy/**
 MakeMeAPassword.Web/App_Data/email.json
 .vs/**
 MakeMeAPassword.Web/App_Data/logs/**
+MakeMeAPassword.netcoreapp21.7z
+Web.NetCore/wwwroot/js/site.min.js.gz
