@@ -30,6 +30,7 @@ using MurrayGrant.MakeMeAPassword.Web.NetCore.Services;
 using MurrayGrant.MakeMeAPassword.Web.NetCore.Middleware;
 using MurrayGrant.MakeMeAPassword.Web.NetCore.Filters;
 using MurrayGrant.MakeMeAPassword.Web.NetCore.Helpers;
+using Microsoft.Extensions.Hosting;
 
 namespace MurrayGrant.MakeMeAPassword.Web.NetCore
 {
@@ -65,7 +66,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore
                   .SetPreflightMaxAge(TimeSpan.FromDays(1))
                 );
             });
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             // Configuration options.
             services.AddMemoryCache(o =>
@@ -97,7 +98,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             var logger = NLog.LogManager.GetCurrentClassLogger();
             logger.Debug("Configure() start.");
@@ -121,9 +122,15 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore
             app.UseTerningerEntropyFromWebRequests();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseRouting();
+            app.UseCors("Mmap");
             app.UseApiBypassKeys();     // Allow users to bypass API usage limits with a special key.
-
-            app.UseMvc();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+            });
 
             logger.Debug("Configure() end.");
         }
