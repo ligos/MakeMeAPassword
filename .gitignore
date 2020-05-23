@@ -1,0 +1,9 @@
+﻿.vs
+Benchmarks/bin
+Benchmarks/obj
+MakeMeAPassword.Web/bin
+MakeMeAPassword.Web/obj
+packages
+MakeMeAPassword.Web/MakeMeAPassword.Web.csproj.user
+Web.NetCore/bin
+Web.NetCore/obj
