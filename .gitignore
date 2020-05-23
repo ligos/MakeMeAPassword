@@ -7,3 +7,4 @@ packages
 MakeMeAPassword.Web/MakeMeAPassword.Web.csproj.user
 Web.NetCore/bin
 Web.NetCore/obj
+Web.NetCore/wwwroot/js/site.min.js.gz
