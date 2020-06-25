@@ -39,6 +39,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers.ApiV1
             : base(terninger, ratingService, statisticService, ipThrottler, dictionaryService) { }
 
         [HttpGet("/api/v1/hex/plain")]
+        [HttpHead("/api/v1/hex/plain")]
         public async Task<IActionResult> Plain([FromQuery]int? l, [FromQuery]int? c, [FromQuery]string sym)
         {
             // Return as plain text string.
@@ -52,6 +53,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers.ApiV1
         }
 
         [HttpGet("/api/v1/hex/json")]
+        [HttpHead("/api/v1/hex/json")]
         public async Task<IActionResult> Json([FromQuery]int? l, [FromQuery]int? c, [FromQuery]string sym)
         {
             // Return as Json array.
@@ -65,6 +67,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers.ApiV1
         }
 
         [HttpGet("/api/v1/hex/xml")]
+        [HttpHead("/api/v1/hex/xml")]
         public async Task<IActionResult> Xml([FromQuery]int? l, [FromQuery]int? c, [FromQuery]string sym)
         {
             // Return as XML.
@@ -78,6 +81,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Controllers.ApiV1
         }
 
         [HttpGet("/api/v1/hex/combinations")]
+        [HttpHead("/api/v1/hex/combinations")]
 #if !DEBUG
         [ResponseCache(Duration = 60 * 60)]       // Cache for one hour.
 #endif
