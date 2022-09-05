@@ -1,0 +1,138 @@
+﻿@* Copyright 2022 Murray Grant
+    //
+    //    Licensed under the Apache License, Version 2.0 (the "License");
+    // you may not use this file except in compliance with the License.
+    // You may obtain a copy of the License at
+    //
+    // http://www.apache.org/licenses/LICENSE-2.0
+    //
+    //    Unless required by applicable law or agreed to in writing, software
+    // distributed under the License is distributed on an "AS IS" BASIS,
+    // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    // See the License for the specific language governing permissions and
+    // limitations under the License.
+*@
+@{
+    ViewData["Title"] = "Generate - Dictionary Passphrase";
+}
+
+<h2 class="text-center">Dictionary Passphrase</h2>
+<p>
+    Get a dictionary of common English words. Chose from them at random. And you have a passphrase!
+</p>
+<p>Example: <span class="label label-default example-password">correct horse battery staple</span> (as popularised by <a href="https://xkcd.com/936/">xkcd</a>)</p>
+<p>
+    These are recommended as an easy to remember, yet highly secure password.
+</p>
+<p>
+    <small><a href="/faq#dictionaries">Download the dictionary</a> used the generate these passphrases for your own use.</small>
+</p>
+
+<div id="passwordPlace" class="well password-panel">
+    <div class="panel-body">
+        <span class="pw">Generating...</span>
+    </div>
+</div>
+
+<div>
+    <button class="btn btn-primary password-get" id="passwordGet" data-loading-text="Generating..."
+            data-urlpassword="/api/v1/passphrase/json" data-urlcombinations="/api/v1/passphrase/combinations">
+        Get Another
+    </button>
+    <p id="passwordError" style="display:none;">
+        <i class="icon-sadface"></i> 
+        <span class="message"></span> <br />
+        <span> Please try again later or <a href="/contact">contact the author</a>.</span>
+    </p>
+</div>
+
+<div id="combinationsPlace" style="display:none;" class="panel panel-default combinations-panel">    
+    <div class="panel-heading">
+        <h3>Password Quality</h3>
+    </div>
+    <div class="panel-body">
+        <div class="rating">
+            <h4></h4>
+            <p></p>
+        </div>
+        <div class="fineprint">
+            <label>Total Combination Details:</label> 
+            <div class="numbers">
+                <span class="label label-default formatted"></span> (<span class="label label-default base10"></span> or <span class="label label-default base2"></span> bits)
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="passwordParameters" data-pagekey="passphrase" class="panel panel-default parameters-panel">
+    <div class="panel-heading">
+        <h3>Fine Tuning</h3>
+    </div>
+
+    <div class="panel-body">
+        <div class="form-group">
+            <label for="pwLength" class="control-label">Number of Words (length)</label>
+            <input type="number" class="form-control" name="wc" id="pwLength" value="4" />
+        </div>
+
+        <div class="form-group">
+            <label for="pwCount" class="control-label">Number of Passphrases</label>
+            <input type="number" class="form-control" name="pc" id="pwCount" value="1" />
+        </div>
+
+        <div class="form-group">
+            <label for="pwSpaces" class="control-label">Include Spaces Between Words</label>
+            <div class="checkbox-inline checkbox-right">
+                <input type="checkbox" class="checkbox" name="sp" id="pwSpaces" value="y" checked="checked" data-uncheckedvalue="n" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="pwMinCh" class="control-label label-inline">Between</label>
+            <div class="form-inline">
+                <input type="number" class="form-control input-narrow" name="minCh" id="pwMinCh" value="1" />
+                <label for="pwMaxCh" class="control-label form-control-static"> And </label>
+                <input type="number" class="form-control input-narrow" name="maxCh" id="pwMaxCh" value="9999" />
+                <label class="control-label form-control-static">Letters Long</label>
+            </div>
+        </div>
+
+        <div class="form-group mutators">
+            <a href="/faq#mutators" class="pull-right">What are 'Mutators'?</a>
+            <label class="control-label" title="Make changes to the passphrase such as adding uppercase letters or numbers.">Mutators</label>
+            <input type="hidden" name="whenNum" value="Never" />
+            <input type="hidden" name="nums" value="0" />
+            <input type="hidden" name="whenUp" value="Never" />
+            <input type="hidden" name="ups" value="0" />
+
+            <div>
+                <label class="radio-inline" for="mutatorNone" title="Make no changes to the passphrase.">
+                    <input type="radio" id="mutatorNone" value="None" checked="checked" name="m" />
+                    No Changes
+                </label>
+                <label class="radio-inline" for="mutatorStandard" title="Add two upper case letters and two numbers to the passphrase to meet password complexity requirements.">
+                    <input type="radio" id="mutatorStandard" value="Standard" name="m" />
+                    2 Uppers and 2 Numbers
+                </label>
+                <label class="radio-inline" for="mutatorWord" title="Make one word upper case and add two numbers to the passphrase to meet password complexity requirements.">
+                    <input type="radio" id="mutatorWord" value="Word" name="m" />
+                    One Upper Word and 2 Numbers
+                </label>
+                <label class="radio-inline" for="mutatorUpper" title="Make all words start with an uppercase letter. This can make a passphrase without spaces easier to read.">
+                    <input type="radio" id="mutatorUpper" value="Upper" name="m" />
+                    All Words Start with Upper
+                </label>
+                <label class="radio-inline" for="mutatorUpperAndNumber" title="Make all words start with an uppercase letter and add 2 numbers. This can make a passphrase without spaces easier to read and meet complexity requirements.">
+                    <input type="radio" id="mutatorUpperAndNumber" value="UpperAndNumber" name="m" />
+                    All Words Start with Upper and 2 Numbers
+                </label>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<button class="btn btn-primary password-get" data-loading-text="Generating..."
+        data-urlpassword="/api/v1/passphrase/json" data-urlcombinations="/api/v1/passphrase/combinations">
+    Get Another
+</button>

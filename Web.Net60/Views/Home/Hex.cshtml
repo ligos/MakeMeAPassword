@@ -1,0 +1,87 @@
+﻿@* Copyright 2022 Murray Grant
+    //
+    //    Licensed under the Apache License, Version 2.0 (the "License");
+    // you may not use this file except in compliance with the License.
+    // You may obtain a copy of the License at
+    //
+    // http://www.apache.org/licenses/LICENSE-2.0
+    //
+    //    Unless required by applicable law or agreed to in writing, software
+    // distributed under the License is distributed on an "AS IS" BASIS,
+    // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    // See the License for the specific language governing permissions and
+    // limitations under the License.
+*@
+@{
+    ViewData["Title"] = "Generate - Hex";
+}
+
+<h2 class="text-center">Hex String</h2>
+
+<p>
+    A hex string is as close to random bytes as you can get (at least on this website). 
+</p>
+<p>
+    Example: <span class="label label-default example-password">3629c4f4a7c1e32f</span>
+</p>
+<p>
+    They are not very easy to remember, but may be useful for seeding other random number generators or generating SSH, SSL or PGP keys.
+</p>
+
+<div id="passwordPlace" class="well password-panel">
+    <div class="panel-body">
+        <span class="pw">Generating...</span>
+    </div>
+</div>
+
+<div>
+    <button class="btn btn-primary password-get" id="passwordGet" data-loading-text="Generating..."
+            data-urlpassword="/api/v1/hex/json" data-urlcombinations="/api/v1/hex/combinations">
+        Get Random Bytes
+    </button>
+    <p id="passwordError" style="display:none;">
+        <i class="icon-sadface"></i> Sorry, we couldn't get your password because of a server error. Please try again later or <a href="/contact">contact the author</a>.
+    </p>
+</div>
+
+<div id="combinationsPlace" style="display:none;" class="panel panel-default combinations-panel">
+    <div class="panel-heading">
+        <h2>Password Quality</h2>
+    </div>
+
+    <div class="panel-body">
+        <div class="rating">
+            <h4></h4>
+            <p></p>
+        </div>
+        <div class="fineprint">
+            <label>Total Combination Details:</label> 
+            <div class="numbers">
+                <span class="label label-default formatted"></span> (<span class="label label-default base10"></span> <span class="label label-default base2"></span> bits)
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="passwordParameters" data-pagekey="hex" class="panel panel-default parameters-panel">
+    <div class="panel-heading">
+        <h2>Fine Tuning</h2>
+    </div>
+
+    <div class="panel-body">
+        <div class="form-group">
+            <label for="pwLength" class="control-label">Length (bytes)</label>
+            <input type="number" class="form-control" name="l" id="pwLength" value="8" />
+        </div>
+
+        <div class="form-group">
+            <label for="pwCount" class="control-label">Number of Strings</label>
+            <input type="number" class="form-control" name="c" id="pwCount" value="1" />
+        </div>
+    </div>
+</div>
+
+<button class="btn btn-primary password-get" data-loading-text="Generating..."
+        data-urlpassword="/api/v1/hex/json" data-urlcombinations="/api/v1/hex/combinations">
+    Get Random Bytes
+</button>

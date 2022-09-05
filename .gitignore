@@ -10,3 +10,5 @@ Web.NetCore/obj
 Web.NetCore/wwwroot/js/site.min.js.gz
 *.user
 Web.NetCore/.config
+/Web.Net60/obj
+/Web.Net60/bin/Debug/net6.0
