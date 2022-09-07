@@ -28,14 +28,16 @@ namespace MurrayGrant.MakeMeAPassword.Web.Net60.Services
     {
         public IEnumerable<string> PinBlacklist { get; init; } = Enumerable.Empty<string>();
         public IList<string> PassphraseDictionary { get; init; } = Array.Empty<string>();
-        public ReadablePassphrase.Dictionaries.WordDictionary ReadablePassphraseDictionary { get; init; } = new ReadablePassphrase.Dictionaries.EmptyDictionary();
+        public ReadablePassphrase.Dictionaries.WordDictionary ReadablePassphraseDictionaryForAllWords { get; init; } = new ReadablePassphrase.Dictionaries.EmptyDictionary();
+        public ReadablePassphrase.Dictionaries.WordDictionary ReadablePassphraseDictionaryForNonFakeWords { get; init; } = new ReadablePassphrase.Dictionaries.EmptyDictionary();
 
         public static async Task<DictionaryService> Load()
             => new DictionaryService()
             {
                 PinBlacklist = await ReadPinBlacklist(),
                 PassphraseDictionary = await ReadPassphraseDictionary(),
-                ReadablePassphraseDictionary = ReadReadablePassphraseDictionary(),
+                ReadablePassphraseDictionaryForAllWords = ReadReadablePassphraseDictionary(Array.Empty<string>()),
+                ReadablePassphraseDictionaryForNonFakeWords = ReadReadablePassphraseDictionary(new[] { ReadablePassphrase.Words.Tags.Fake }),
             };
 
         private static async Task<IEnumerable<string>> ReadPinBlacklist()
@@ -54,9 +56,9 @@ namespace MurrayGrant.MakeMeAPassword.Web.Net60.Services
             return words;
         }
 
-        private static ReadablePassphrase.Dictionaries.WordDictionary ReadReadablePassphraseDictionary()
+        private static ReadablePassphrase.Dictionaries.WordDictionary ReadReadablePassphraseDictionary(IReadOnlyList<string> excludeTags)
             // There's IO behind this, but no async.
-            => ReadablePassphrase.Dictionaries.Default.Load();
+            => ReadablePassphrase.Dictionaries.Default.Load(excludeTags: excludeTags);
 
         private static async Task LoadDictionaryAsync(ICollection<string> result, string filename, Func<string, string> linePostProcessing)
         {

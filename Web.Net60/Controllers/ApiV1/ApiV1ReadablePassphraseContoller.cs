@@ -48,12 +48,25 @@ namespace MurrayGrant.MakeMeAPassword.Web.Net60.Controllers.ApiV1
             : base(terninger, ratingService, statisticService, dictionaryService) { }
 
         [HttpGet("/api/v1/readablepassphrase/plain")]
-        public IActionResult Plain([FromQuery]PhraseStrength? s, [FromQuery]int? pc, [FromQuery]string sp, [FromQuery]int? minCh, [FromQuery]int? maxCh, [FromQuery]NumericStyles? whenNum, [FromQuery]int? nums, [FromQuery]AllUppercaseStyles? whenUp, [FromQuery]int? ups)
+        public IActionResult Plain(
+            [FromQuery]PhraseStrength? s, 
+            [FromQuery]int? pc, 
+            [FromQuery]string sp, 
+            [FromQuery]int? minCh, 
+            [FromQuery]int? maxCh, 
+            [FromQuery]NumericStyles? whenNum, 
+            [FromQuery]int? nums, 
+            [FromQuery]AllUppercaseStyles? whenUp, 
+            [FromQuery]int? ups,
+            [FromQuery]string noFake)
         {
             // Return as plain text string.
             using (var random = _Terninger.CreateCypherBasedGenerator())
             {
-                var phrases = SelectPhrases(_DictionaryService.ReadablePassphraseDictionary, 
+                var dictionary = noFake.IsTruthy(false)
+                                ? _DictionaryService.ReadablePassphraseDictionaryForNonFakeWords
+                                : _DictionaryService.ReadablePassphraseDictionaryForAllWords;
+                var phrases = SelectPhrases(dictionary, 
                                     random,
                                     s.HasValue ? s.Value : PhraseStrength.Random,
                                     pc.HasValue ? pc.Value : DefaultCount,
@@ -70,12 +83,25 @@ namespace MurrayGrant.MakeMeAPassword.Web.Net60.Controllers.ApiV1
         }
 
         [HttpGet("/api/v1/readablepassphrase/json")]
-        public IActionResult Json([FromQuery]PhraseStrength? s, [FromQuery]int? pc, [FromQuery]string sp, [FromQuery]int? minCh, [FromQuery]int? maxCh, [FromQuery]NumericStyles? whenNum, [FromQuery]int? nums, [FromQuery]AllUppercaseStyles? whenUp, [FromQuery]int? ups)
+        public IActionResult Json(
+            [FromQuery]PhraseStrength? s, 
+            [FromQuery]int? pc, 
+            [FromQuery]string sp, 
+            [FromQuery]int? minCh, 
+            [FromQuery]int? maxCh, 
+            [FromQuery]NumericStyles? whenNum, 
+            [FromQuery]int? nums, 
+            [FromQuery]AllUppercaseStyles? whenUp, 
+            [FromQuery]int? ups,
+            [FromQuery] string noFake)
         {
             // Return as Json array.
             using (var random = _Terninger.CreateCypherBasedGenerator())
             {
-                var phrases = SelectPhrases(_DictionaryService.ReadablePassphraseDictionary,
+                var dictionary = noFake.IsTruthy(false)
+                                ? _DictionaryService.ReadablePassphraseDictionaryForNonFakeWords
+                                : _DictionaryService.ReadablePassphraseDictionaryForAllWords;
+                var phrases = SelectPhrases(dictionary,
                                     random,
                                     s.HasValue ? s.Value : PhraseStrength.Random,
                                     pc.HasValue ? pc.Value : DefaultCount,
@@ -92,12 +118,25 @@ namespace MurrayGrant.MakeMeAPassword.Web.Net60.Controllers.ApiV1
         }
 
         [HttpGet("/api/v1/readablepassphrase/xml")]
-        public IActionResult Xml([FromQuery]PhraseStrength? s, [FromQuery]int? pc, [FromQuery]string sp, [FromQuery]int? minCh, [FromQuery]int? maxCh, [FromQuery]NumericStyles? whenNum, [FromQuery]int? nums, [FromQuery]AllUppercaseStyles? whenUp, [FromQuery]int? ups)
+        public IActionResult Xml(
+            [FromQuery]PhraseStrength? s, 
+            [FromQuery]int? pc, 
+            [FromQuery]string sp, 
+            [FromQuery]int? minCh, 
+            [FromQuery]int? maxCh, 
+            [FromQuery]NumericStyles? whenNum, 
+            [FromQuery]int? nums, 
+            [FromQuery]AllUppercaseStyles? whenUp, 
+            [FromQuery]int? ups,
+            [FromQuery]string noFake)
         {
             // Return as XML.
             using (var random = _Terninger.CreateCypherBasedGenerator())
             {
-                var phrases = SelectPhrases(_DictionaryService.ReadablePassphraseDictionary,
+                var dictionary = noFake.IsTruthy(false)
+                                ? _DictionaryService.ReadablePassphraseDictionaryForNonFakeWords
+                                : _DictionaryService.ReadablePassphraseDictionaryForAllWords;
+                var phrases = SelectPhrases(dictionary,
                                     random,
                                     s.HasValue ? s.Value : PhraseStrength.Random,
                                     pc.HasValue ? pc.Value : DefaultCount,
@@ -128,12 +167,15 @@ namespace MurrayGrant.MakeMeAPassword.Web.Net60.Controllers.ApiV1
 #if !DEBUG
         [ResponseCache(Duration = 60 * 60)]       // Cache for one hour.
 #endif
-        public IActionResult Combinations([FromQuery]PhraseStrength? s)
+        public IActionResult Combinations([FromQuery]PhraseStrength? s, [FromQuery]string noFake)
         {
             // Return information about the number of combinations as a JSON object.
             using (var random = _Terninger.CreateCypherBasedGenerator())
             {
-                var generator = this.GetGenerator(_DictionaryService.ReadablePassphraseDictionary, random);
+                var dictionary = noFake.IsTruthy(false)
+                                ? _DictionaryService.ReadablePassphraseDictionaryForNonFakeWords
+                                : _DictionaryService.ReadablePassphraseDictionaryForAllWords;
+                var generator = this.GetGenerator(dictionary, random);
                 var strength = s.HasValue ? s.Value : DefaultPhraseStrength;
                 var combinations = generator.CalculateCombinations(strength);
 
