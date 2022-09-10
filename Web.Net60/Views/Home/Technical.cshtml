@@ -31,7 +31,7 @@
 </p>
 <ul>
     <li>Debian Linux (version 11 as of 2022)</li>
-    <li>Microsoft .NET Core</li>
+    <li>Microsoft .NET Core (version 6 as of 2022)</li>
     <li>Nginx</li>
     <li>ASP.NET Core</li>
     <li>C#</li>
@@ -169,6 +169,16 @@
     PINs are constructed as a lookup into the digits <code>0..9</code>.
     After a PIN is constructed, it may be rejected if it is on the blacklist.
 </p>
+
+<h4>Pattern Style</h4>
+<p>
+    Patterns use a more complex algorithm.
+</p>
+<ol>
+    <li>A random starting point is chosen on the grid, as the "current" point.</li>
+    <li>A random adjacent unused point is chosen. This point is now "current".</li>
+    <li>Go to 1 until the required number are selected.</li>
+</ol>
 
 <h4>Unicode Style</h4>
 <p>
