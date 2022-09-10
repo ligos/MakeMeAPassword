@@ -13,3 +13,5 @@ Web.NetCore/.config
 /Web.Net60/obj
 /Web.Net60/bin/Debug/net6.0
 Terninger.Mmap.state.txt
+/Web.Net60/bin/Release/net6.0/publish
+/Web.Net60/bin/Release/net6.0
