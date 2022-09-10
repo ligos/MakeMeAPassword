@@ -60,7 +60,6 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Services
                 persistentStateReader: stateReaderWriter, 
                 persistentStateWriter: stateReaderWriter
             );
-            terninger.AddInitialisedSource(webRequestSource);
 
             await terninger.StartAndWaitForSeedAsync();
 
