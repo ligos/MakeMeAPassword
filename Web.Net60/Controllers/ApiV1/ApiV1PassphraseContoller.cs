@@ -37,6 +37,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.Net60.Controllers.ApiV1
         public readonly static int DefaultWords = 4;
         public readonly static int DefaultCount = 1;
         public readonly static int MaxAttemptsPerCount = 500;
+        public readonly static int MaxAttemptsPerCountWithMutators = 25;   // Mutators are quite expensive, so we won't try as hard.
         public readonly static NumericStyles DefaultWhenNumeric = NumericStyles.Never;
         public readonly static int DefaultNumbers = 2;
         public readonly static AllUppercaseStyles DefaultWhenUppercase = AllUppercaseStyles.Never;
@@ -139,6 +140,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.Net60.Controllers.ApiV1
             var sw = System.Diagnostics.Stopwatch.StartNew();
             var sb = new StringBuilder();
             int attempts = 0;
+            int maxAttemptsPerCount = MaxAttemptsPerCount;
 
             // Setup any mutators required.
             ICollection<IMutator>? mutators = null;
@@ -156,7 +158,10 @@ namespace MurrayGrant.MakeMeAPassword.Web.Net60.Controllers.ApiV1
                 mutators.Add(new UppercaseRunMutator() { NumberOfRuns = uppersToAdd });
             MurrayGrant.ReadablePassphrase.Random.RandomSourceBase? randomWrapper = null;
             if (mutators != null)
+            {
                 randomWrapper = new MurrayGrant.ReadablePassphrase.Random.ExternalRandomSource(random.GetRandomBytes);
+                maxAttemptsPerCount = MaxAttemptsPerCountWithMutators;
+            }
 
             for (int c = 0; c < phraseCount; c++)
             {
@@ -190,8 +195,8 @@ namespace MurrayGrant.MakeMeAPassword.Web.Net60.Controllers.ApiV1
                     attempts++;
 
                     // Ensure the final phrase is within the min / max chars.
-                } while (attempts < MaxAttemptsPerCount && (sb.Length < minChars || sb.Length > maxChars));
-                if (attempts >= MaxAttemptsPerCount)
+                } while (attempts < maxAttemptsPerCount && (sb.Length < minChars || sb.Length > maxChars));
+                if (attempts >= maxAttemptsPerCount)
                 {
                     sb.Clear();
                     sb.Append("A passphrase could not be found matching your minimum and maximum length requirements");
