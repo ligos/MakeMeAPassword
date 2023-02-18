@@ -36,7 +36,6 @@ namespace MurrayGrant.MakeMeAPassword.Web.Net60.Models
         public int CryptoRandomSampleSize { get; set; } = 64;
         
         public string? AnuApiKey { get; set; }
-        public string? HotBitsApiKey { get; set; }
         public string? RandomOrgApiKey { get; set; }
 
         public MurrayGrant.Terninger.Random.PooledEntropyCprngGenerator.PooledGeneratorConfig? TerningerPooledGeneratorConfig { get; set; } 

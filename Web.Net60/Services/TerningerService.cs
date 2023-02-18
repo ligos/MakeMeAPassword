@@ -43,7 +43,6 @@ namespace MurrayGrant.MakeMeAPassword.Web.NetCore.Services
                 .Concat(NetworkSources.All(
                         userAgent: NetworkSources.UserAgent(config.NetworkUserAgentIdentifier),
                         anuApiKey: config.AnuApiKey,
-                        hotBitsApiKey: config.HotBitsApiKey,
                         randomOrgApiKey: config.RandomOrgApiKey
                     ).Where(_ => includeNetworkSources)
                 )
