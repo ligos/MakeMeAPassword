@@ -30,9 +30,9 @@
     <PackageReference Include="NLog" Version="5.2.8" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="5.3.8" />
     <PackageReference Include="ReadablePassphrase" Version="1.4.1" />
-    <PackageReference Include="Terninger" Version="0.5.0-beta1" />
-    <PackageReference Include="Terninger.EntropySources.Extended" Version="0.5.0-beta1" />
-    <PackageReference Include="Terninger.EntropySources.Network" Version="0.5.0-beta1" />
+    <PackageReference Include="Terninger" Version="0.5.0" />
+    <PackageReference Include="Terninger.EntropySources.Extended" Version="0.5.0" />
+    <PackageReference Include="Terninger.EntropySources.Network" Version="0.5.0" />
   </ItemGroup>
 
   <ItemGroup>
