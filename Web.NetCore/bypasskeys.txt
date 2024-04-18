@@ -1,5 +1,0 @@
-﻿# File containing a list of api ratelimit bypass keys.
-# If you can match one of these keys, the normal rate limits are bypassed.
-
-# Test key (SHA256('testkey'))
-98483c6eb40b6c31a448c22a66ded3b5e5e8d5119cac8327b655c8b5c4836489:Test
