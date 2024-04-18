@@ -1,13 +1,8 @@
 ﻿.vs
 Benchmarks/bin
 Benchmarks/obj
-MakeMeAPassword.Web/bin
-MakeMeAPassword.Web/obj
 packages
 MakeMeAPassword.Web/MakeMeAPassword.Web.csproj.user
-Web.NetCore/bin
-Web.NetCore/obj
-Web.NetCore/wwwroot/js/site.min.js.gz
 *.user
 Web.NetCore/.config
 /Web.Net60/obj
@@ -15,3 +10,9 @@ Web.NetCore/.config
 Terninger.Mmap.state.txt
 /Web.Net60/bin/Release/net6.0/publish
 /Web.Net60/bin/Release/net6.0
+/Web/obj
+/Web/bin
+
+/Web/wwwroot/js/site.min.js.gz
+/Web/wwwroot/js/site.min.js
+/Web/wwwroot/css/site.min.css

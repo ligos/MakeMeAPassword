@@ -1,0 +1,161 @@
+﻿@* Copyright 2024 Murray Grant
+    //
+    //    Licensed under the Apache License, Version 2.0 (the "License");
+    // you may not use this file except in compliance with the License.
+    // You may obtain a copy of the License at
+    //
+    // http://www.apache.org/licenses/LICENSE-2.0
+    //
+    //    Unless required by applicable law or agreed to in writing, software
+    // distributed under the License is distributed on an "AS IS" BASIS,
+    // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    // See the License for the specific language governing permissions and
+    // limitations under the License.
+*@
+@{
+    ViewData["Title"] = "Generate - Pattern";
+}
+
+<h2 class="text-center">Pattern</h2>
+
+<p>
+    Generates a random pattern which can be used on a phone or tablet.
+</p>
+<p>
+    Example: <span class="label label-default example-password">7,5,9,8,6</span>
+</p>
+<p>
+    Patterns are used as an alternative to PINs on touch enabled devices such as phones or tablets.
+    Join particular dots together on a grid, which forms a visual pattern rather than a numeric one.
+</p>
+
+<p>
+    Key: @* TODO:make this dynamic in javascript based on #gridSize. *@
+</p>
+<div class="row">
+    <div class="col-sm-2">
+        <table class="table-condensed table-bordered">
+            <tbody>
+                <tr>
+                    <td><span class="label label-default">1</span></td>
+                    <td><span class="label label-default">2</span></td>
+                    <td><span class="label label-default">3</span></td>
+                </tr>
+                <tr>
+                    <td><span class="label label-default">4</span></td>
+                    <td><span class="label label-default">5</span></td>
+                    <td><span class="label label-default">6</span></td>
+                </tr>
+                <tr>
+                    <td><span class="label label-default">7</span></td>
+                    <td><span class="label label-default">8</span></td>
+                    <td><span class="label label-default">9</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-sm-2">
+        <table class="table-condensed table-bordered">
+            <tbody>
+                <tr>
+                    <td><span class="label label-default">1</span></td>
+                    <td><span class="label label-default">2</span></td>
+                    <td><span class="label label-default">3</span></td>
+                    <td><span class="label label-default">4</span></td>
+                </tr>
+                <tr>
+                    <td><span class="label label-default">5</span></td>
+                    <td><span class="label label-default">6</span></td>
+                    <td><span class="label label-default">7</span></td>
+                    <td><span class="label label-default">8</span></td>
+                </tr>
+                <tr>
+                    <td><span class="label label-default">9</span></td>
+                    <td><span class="label label-default">10</span></td>
+                    <td><span class="label label-default">11</span></td>
+                    <td><span class="label label-default">12</span></td>
+                </tr>
+                <tr>
+                    <td><span class="label label-default">13</span></td>
+                    <td><span class="label label-default">14</span></td>
+                    <td><span class="label label-default">15</span></td>
+                    <td><span class="label label-default">16</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="passwordPlace" class="well password-panel">
+    <div class="panel-body">
+        <span class="pw">Generating...</span>
+    </div>
+</div>
+
+
+<div>
+    <button class="btn btn-primary password-get" id="passwordGet" data-loading-text="Generating..."
+            data-urlpassword="/api/v1/pattern/json" data-urlcombinations="/api/v1/pattern/combinations">
+        Get Patterns
+    </button>
+    <p id="passwordError" style="display:none;">
+        <i class="icon-sadface"></i>
+        <span class="message"></span> <br />
+        <span> Please try again later or <a href="/contact">contact the author</a>.</span>
+    </p>
+</div>
+
+
+
+<div id="combinationsPlace" style="display:none;" class="panel panel-default combinations-panel">
+    <div class="panel-heading">
+        <h3>Pattern Quality</h3>
+    </div>
+    <div class="panel-body">
+        <div class="rating">
+            <a href="/Faq#pinrating" class="pull-right">More about PIN / Pattern ratings</a>
+            <h4></h4>
+            <p></p>
+            <div>
+                <p>
+                    <span class="label label-danger">Important</span> This rating assumes the Pattern will be used on a phone or tablet with a lock out after a few attempts.
+                </p>
+            </div>
+        </div>
+        <div class="fineprint">
+            <label>Total Combination Details:</label>
+            <div class="numbers">
+                <span class="label label-default formatted"></span> (<span class="label label-default base10"></span> <span class="label label-default base2"></span> bits)
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="passwordParameters" data-pagekey="pattern" class="panel panel-default parameters-panel">
+    <div class="panel-heading">
+        <h3>Fine Tuning</h3>
+    </div>
+
+    <div class="panel-body">
+        <div class="form-group">
+            <label for="pwLength" class="control-label">Pattern Length</label>
+            <input type="number" class="form-control" name="ps" id="pwLength" value="6" title="The number of dots you need to connect." />
+        </div>
+
+        <div class="form-group">
+            <label for="pwCount" class="control-label">Number of Patterns</label>
+            <input type="number" class="form-control" name="c" id="pwCount" value="1" />
+        </div>
+
+        <div class="form-group">
+            <label for="pwLength" class="control-label">Grid Size</label>
+            <input type="number" class="form-control" name="gs" id="gridSize" value="3" title="The grid size as N x N. This is usually fixed by your device." />
+        </div>
+    </div>
+</div>
+
+<button class="btn btn-primary password-get" data-loading-text="Generating..."
+        data-urlpassword="/api/v1/pattern/json" data-urlcombinations="/api/v1/pattern/combinations">
+    Get Patterns
+</button>

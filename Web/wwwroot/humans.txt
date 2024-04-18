@@ -1,0 +1,10 @@
+﻿/* TEAM */
+Author: Murray Grant
+Contact: makemeapassword@ligos.net
+GitHub: https://github.com/ligos
+KeyBase: https://keybase.io/ligos
+From: Sydney, Australia
+
+/* SITE */
+Standards: HTML5
+Components: Bootstrap, jQuery, Font Awesome, Terninger
