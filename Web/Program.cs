@@ -122,12 +122,7 @@ internal class Program
         app.UseStaticFiles();
         app.UseRouting();
         app.UseCors("Mmap");
-        app.UseEndpoints(endpoints =>
-        {
-            endpoints.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
-        });
+        app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
 
         return (app, terninger);
     }
