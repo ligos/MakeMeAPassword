@@ -18,14 +18,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Controllers\ApiV1\ApiV1PassphraseContoller.cs~RF714940bd.TMP" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="bundleconfig.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />
     <PackageReference Include="NLog" Version="6.0.7" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="6.1.0" />
