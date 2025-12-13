@@ -5,11 +5,7 @@ packages
 MakeMeAPassword.Web/MakeMeAPassword.Web.csproj.user
 *.user
 Web.NetCore/.config
-/Web.Net60/obj
-/Web.Net60/bin/Debug/net6.0
 Terninger.Mmap.state.txt
-/Web.Net60/bin/Release/net6.0/publish
-/Web.Net60/bin/Release/net6.0
 /Web/obj
 /Web/bin
 
@@ -18,4 +14,4 @@ Terninger.Mmap.state.txt
 /Web/wwwroot/css/site.min.css
 /Web.Net60/wwwroot/js/site.min.js.gz
 /MakeMeAPassword.Web/bin
-/MakeMeAPassword.Web/obj/Debug
+/MakeMeAPassword.Web/obj
