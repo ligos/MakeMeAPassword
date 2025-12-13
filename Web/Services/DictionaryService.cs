@@ -65,12 +65,13 @@ namespace MurrayGrant.MakeMeAPassword.Web.Services
             using var stream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read, 16*1024, true);
             using var reader = new StreamReader(stream, Encoding.UTF8);
 
-            while (!reader.EndOfStream)
+            string? line = null;
+            do
             {
-                var line = await reader.ReadLineAsync();
+                line = await reader.ReadLineAsync();
                 if (!String.IsNullOrEmpty(line))
                     result.Add(linePostProcessing(line));
-            }
+            } while (line is not null);
         }
     }
 }
