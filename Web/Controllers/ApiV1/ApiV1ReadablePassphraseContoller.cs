@@ -220,15 +220,15 @@ namespace MurrayGrant.MakeMeAPassword.Web.Controllers.ApiV1
             if (whenNumeric != NumericStyles.Never || whenUpper != AllUppercaseStyles.Never)
                 mutators = new List<IMutator>();
             if (whenNumeric != NumericStyles.Never)
-                mutators.Add(new NumericMutator() { When = whenNumeric, NumberOfNumbersToAdd = numbersToAdd });
+                mutators!.Add(new NumericMutator() { When = whenNumeric, NumberOfNumbersToAdd = numbersToAdd });
             if (whenUpper == AllUppercaseStyles.Anywhere)
-                mutators.Add(new UppercaseMutator() { When = UppercaseStyles.Anywhere, NumberOfCharactersToCapitalise = uppersToAdd });
+                mutators!.Add(new UppercaseMutator() { When = UppercaseStyles.Anywhere, NumberOfCharactersToCapitalise = uppersToAdd });
             else if (whenUpper == AllUppercaseStyles.StartOfWord)
-                mutators.Add(new UppercaseMutator() { When = UppercaseStyles.StartOfWord, NumberOfCharactersToCapitalise = uppersToAdd });
+                mutators!.Add(new UppercaseMutator() { When = UppercaseStyles.StartOfWord, NumberOfCharactersToCapitalise = uppersToAdd });
             else if (whenUpper == AllUppercaseStyles.WholeWord)
-                mutators.Add(new UppercaseWordMutator() { NumberOfWordsToCapitalise = uppersToAdd });
+                mutators!.Add(new UppercaseWordMutator() { NumberOfWordsToCapitalise = uppersToAdd });
             else if (whenUpper == AllUppercaseStyles.RunOfLetters)
-                mutators.Add(new UppercaseRunMutator() { NumberOfRuns = uppersToAdd });
+                mutators!.Add(new UppercaseRunMutator() { NumberOfRuns = uppersToAdd });
 
             for (int c = 0; c < phraseCount; c++)
             {

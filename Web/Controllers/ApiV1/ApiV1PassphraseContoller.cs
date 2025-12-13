@@ -147,15 +147,15 @@ namespace MurrayGrant.MakeMeAPassword.Web.Controllers.ApiV1
             if (whenNumeric != NumericStyles.Never || whenUpper != AllUppercaseStyles.Never)
                 mutators = new List<IMutator>();
             if (whenNumeric != NumericStyles.Never)
-                mutators.Add(new NumericMutator() { When = whenNumeric, NumberOfNumbersToAdd = numbersToAdd });
+                mutators!.Add(new NumericMutator() { When = whenNumeric, NumberOfNumbersToAdd = numbersToAdd });
             if (whenUpper == AllUppercaseStyles.Anywhere)
-                mutators.Add(new UppercaseMutator() { When = UppercaseStyles.Anywhere, NumberOfCharactersToCapitalise = uppersToAdd });
+                mutators!.Add(new UppercaseMutator() { When = UppercaseStyles.Anywhere, NumberOfCharactersToCapitalise = uppersToAdd });
             else if (whenUpper == AllUppercaseStyles.StartOfWord)
-                mutators.Add(new UppercaseMutator() { When = UppercaseStyles.StartOfWord, NumberOfCharactersToCapitalise = uppersToAdd });
+                mutators!.Add(new UppercaseMutator() { When = UppercaseStyles.StartOfWord, NumberOfCharactersToCapitalise = uppersToAdd });
             else if (whenUpper == AllUppercaseStyles.WholeWord)
-                mutators.Add(new UppercaseWordMutator() { NumberOfWordsToCapitalise = uppersToAdd });
+                mutators!.Add(new UppercaseWordMutator() { NumberOfWordsToCapitalise = uppersToAdd });
             else if (whenUpper == AllUppercaseStyles.RunOfLetters)
-                mutators.Add(new UppercaseRunMutator() { NumberOfRuns = uppersToAdd });
+                mutators!.Add(new UppercaseRunMutator() { NumberOfRuns = uppersToAdd });
             MurrayGrant.ReadablePassphrase.Random.RandomSourceBase? randomWrapper = null;
             if (mutators != null)
             {
@@ -179,7 +179,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.Controllers.ApiV1
                     if (mutators != null)
                     {
                         foreach (var m in mutators)
-                            m.Mutate(sb, randomWrapper);
+                            m.Mutate(sb, randomWrapper!);
                     }
 
                     // Finally, remove spaces if required (as the mutators depend on whitespace to do their work).
