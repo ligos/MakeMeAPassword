@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net80</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Company>Murray Grant</Company>
     <Product>MakeMeAPassword.ligos.net</Product>
-    <Copyright>Copyright © Murray Grant 2013-2024</Copyright>
+    <Copyright>Copyright © Murray Grant 2013-2025</Copyright>
     <Authors>Murray Grant</Authors>
     <Version>1.0.0</Version>
     <RootNamespace>MurrayGrant.MakeMeAPassword.Web</RootNamespace>
