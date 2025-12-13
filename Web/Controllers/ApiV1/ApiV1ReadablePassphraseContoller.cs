@@ -158,7 +158,7 @@ namespace MurrayGrant.MakeMeAPassword.Web.Controllers.ApiV1
 #endif
         public ActionResult Dictionary() =>
             new FileStreamResult(
-                    typeof(MurrayGrant.ReadablePassphrase.Dictionaries.Default).Assembly.GetManifestResourceStream("MurrayGrant.ReadablePassphrase.dictionary.xml.gz")
+                    typeof(MurrayGrant.ReadablePassphrase.Dictionaries.Default).Assembly.GetManifestResourceStream("MurrayGrant.ReadablePassphrase.dictionary.xml.gz")!
                     , "application/x-gzip"
             );
 
